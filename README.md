@@ -47,10 +47,10 @@ GET /clientes/[id]/extrato
 }
 ```
 
-Do not worry about other transaction types. If we can crack this two, we already have a good chance of success.
-To avoid unecessary expenses, we are using only two API instances and limited resources for the entire model architecture (1.5 CPU units e 550MB ram). If we can make it with such restrictions, I'm confident we would scale to the current volume of transactions.
+Please don't worry about other transaction types or the language in the URLs. If we can crack this, we already have a good chance of success.
+To avoid unnecessary expenses, we are using only two API instances and limited resources for the entire model architecture (1.5 CPU units and 550MB of memory). If we can make it with such restrictions, I'm confident we would scale to the current volume of transactions.
 
-* When you have any improvent, do not hesitate to send a PR *
+When you have any improvements, do not hesitate to send a PR.*
 
 Good luck and may fortune bless us all.
 
