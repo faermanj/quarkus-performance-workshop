@@ -54,3 +54,4 @@ To avoid unnecessary expenses, we are using only two API instances and limited r
 
 Good luck and may fortune bless us all.
 
+*Huge thanks to [Zan Franceschi](https://github.com/zanfranceschi) and everybody that joined [Rinha De Backend](https://github.com/zanfranceschi/rinha-de-backend-2024-q1), from where this content was originally created.*
