@@ -48,7 +48,11 @@ GET /clientes/[id]/extrato
 ```
 
 Please don't worry about other transaction types or the language in the URLs. If we can crack this, we already have a good chance of success.
+
 To avoid unnecessary expenses, we are using only two API instances and limited resources for the entire model architecture (1.5 CPU units and 550MB of memory). If we can make it with such restrictions, I'm confident we would scale to the current volume of transactions.
+
+A great place to start diving deep on this project is its [container compose file](./docker-compose.yml) and its several alternatives. Also, you can [review the code of the current best solution](./rinhadebackend-1table) for ideas. You can use a [cloud development environment](https://gitpod.io/new/?autostart=false#https://github.com/faermanj/quarkus-performance-workshop) with all tools ready to go and running or [setup your own machine](./.gitpod.Dockerfile), as you prefer.
+
 
 *When you have any improvements, do not hesitate to send a PR.*
 
