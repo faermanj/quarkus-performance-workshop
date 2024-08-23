@@ -2,7 +2,7 @@
 
 There is no better way to put it. I'm sorry that we all face this terrible situation, but together I'm confident we can make it through. Let me explain, for the ones that are new here...
 
-When we decided to centrilize *all* financial transactions in a single API, we were confident that modern cloud computing would solve all our performance issues. With secure and centralized control, the world would be a better place. So much that transactional volume grew beyond our wildest imagination. Buffers started to fill. Queues got longer. Some transactions even failed, something unheard in decades.
+When we decided to centralize *all* financial transactions in a single API, we were confident that modern cloud computing would solve all our performance issues. With secure and centralized control, the world would be a better place. So much that transactional volume grew beyond our wildest imagination. Buffers started to fill. Queues got longer. Some transactions even failed, something unheard in decades.
 
 Now, the system is at the brink of collapse. We estimate that, in only a few hours, we'll be over capacity in all systems. The gridlock may be inevitable. However, if we can improve the latency of the entire system in only a single digit of a percentage, we might just as well deploy and recover. 
 
