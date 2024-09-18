@@ -11,6 +11,8 @@ tasks:
       quarkus dev
 
   - name: Start Servers
+    init: |
+      docker pull caravanacloud/peecs:latest
     command: |
       docker compose down; docker compose up;
   
