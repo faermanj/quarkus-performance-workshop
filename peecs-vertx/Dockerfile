@@ -84,7 +84,7 @@ RUN mkdir -p "$CP_TO"
 
 COPY --from=build --chown=$USERNAME $CP_FROM $CP_TO
 
-RUN find "$CP_TO"
+# RUN find "$CP_TO"
 
 EXPOSE 9990
 
