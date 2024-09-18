@@ -7,7 +7,7 @@
 ###
 
 ### BUILD STAGE ###
-ARG VERSION_FEDORA=39
+ARG VERSION_FEDORA=40
 FROM fedora:${VERSION_FEDORA} as build
 
 # Root level
@@ -90,4 +90,4 @@ EXPOSE 9990
 
 # ARG JAVA_XARGS="-XX:+UseSerialGC -XX:InitialRAMPercentage=95.0"
 ARG JAVA_XARGS="-XX:+UseZGC -XX:InitialRAMPercentage=90.0  -XX:MaxRAMPercentage=95.0"
-ENTRYPOINT /home/container-user/quarkus-app/target/jre/bin/java $JAVA_XARGS -jar /home/container-user/quarkus-app/target/peecs-0.0.1-runner.jar 
+ENTRYPOINT /home/container-user/quarkus-app/target/jre/bin/java $JAVA_XARGS -jar /home/container-user/quarkus-app/target/peecs-runner.jar 

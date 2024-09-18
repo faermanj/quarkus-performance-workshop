@@ -5,9 +5,9 @@ tasks:
   - name: Build project
     init: |
       ./install-gatling.sh
-      mvn -f ./rinhadebackend install
+      mvn -f ./peecs install
     command: |
-      cd ./rinhadebackend
+      cd ./peecs
       quarkus dev
 
   - name: Start Servers
@@ -65,8 +65,6 @@ vscode:
     - vscjava.vscode-maven
     - redhat.java
     - redhat.fabric8-analytics
-    - ms-azuretools.vscode-docker
-    - gatling.gatling
     - ms-azuretools.vscode-docker
 
 additionalRepositories:
