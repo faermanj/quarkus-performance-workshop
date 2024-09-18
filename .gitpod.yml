@@ -4,7 +4,6 @@ image:
 tasks:
   - name: Build project
     init: |
-      ./install-gatling.sh
       mvn -f ./peecs install
     command: |
       cd ./peecs
@@ -17,8 +16,10 @@ tasks:
       docker compose down; docker compose up;
   
   - name: Run Rinha
+    init: |
+      ./install-gatling.sh
     command: |
-      sleep 45;
+      sleep 60;
       cd ../rinha-de-backend-2024-q1/
       ./executar-teste-local.sh
 
