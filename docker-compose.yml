@@ -1,12 +1,11 @@
-# new mem limits
-# git pull; docker compose down; docker compose up;
+# docker compose down; docker compose up;
 version: "3.9"
 
 services:
 
   api01:
     network_mode: host
-    image: caravanacloud/rinhadebackend-native:0.0.333-musl99
+    image: caravanacloud/peecs:latest
     hostname: api01
     container_name: api01
     depends_on:
@@ -50,7 +49,7 @@ services:
 
   api02:
     network_mode: host
-    image: caravanacloud/rinhadebackend-native:0.0.333-musl99
+    image: caravanacloud/peecs:latest
     hostname: api02
     container_name: api02
     depends_on:
