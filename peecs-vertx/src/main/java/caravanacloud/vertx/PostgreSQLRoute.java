@@ -26,7 +26,7 @@ import jakarta.ws.rs.core.Response;
 @ApplicationScoped
 @Path("/clientes")
 public class PostgreSQLRoute {
-    private static final String VERSION_ID = "0.0.333-faermanj";
+    private static final String VERSION_ID = "0.0.1";
     private static final String EXTRATO_QUERY = "select status_code, body from proc_extrato($1)";
     private static final String TRANSACAO_QUERY = "select status_code, body from proc_transacao($1, $2, $3, $4)";
     private static final String WARMUP_QUERY = "select 1+1;";

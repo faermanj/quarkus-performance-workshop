@@ -1,6 +1,6 @@
 ####
 # export DOCKER_USERNAME=caravanacloud
-# docker build -f peecs/src/main/docker/Dockerfile --no-cache --progress=plain -t ${DOCKER_USERNAME}/peecs:latest peecs
+# docker build -f peecs/Dockerfile --no-cache --progress=plain -t ${DOCKER_USERNAME}/peecs:latest peecs
 # docker run -i --rm -p 9999:9990 --network=host --env-file ./.env.local ${DOCKER_USERNAME}/peecs:latest
 # docker login --username=${DOCKER_USERNAME}
 # docker push ${DOCKER_USERNAME}/peecs:latest
