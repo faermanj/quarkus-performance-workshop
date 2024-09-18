@@ -5,8 +5,8 @@ services:
 
   api01:
     network_mode: host
-    image: caravanacloud/peecs
-    build: ./peecs
+    image: caravanacloud/peecs:latest
+#    build: ./peecs
     hostname: api01
     container_name: api01
     depends_on:
@@ -50,8 +50,8 @@ services:
 
   api02:
     network_mode: host
-    image: caravanacloud/peecs
-    build: ./peecs
+    image: caravanacloud/peecs:latest
+#    build: ./peecs
     hostname: api02
     container_name: api02
     depends_on:
