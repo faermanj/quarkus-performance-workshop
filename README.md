@@ -1,14 +1,15 @@
-# The world is in danger...
+# Our country is in danger...
 
-There is no better way to put it. I'm sorry that we all face this terrible situation, but together I'm confident we can make it through. Let me explain, for the ones that are new here...
+There is no better way to put it. I'm sorry. We all face this terrible situation, and I'm glad that you came to help. I'm confident that together we might fix this and make it through. You are new here, so allow me to explain a little bit more...
 
-When we decided to centralize *all* financial transactions in a single API, we were confident that modern cloud computing would solve all our performance issues. With secure and centralized control, the world would be a better place. So much that transactional volume grew beyond our wildest imagination. Buffers started to fill. Queues got longer. Some transactions even failed, something unheard in decades.
+When we decided to centralize *all* financial transactions in a single system, the PEECS, it was supposed to bring us a new era in commerce. And we were confident that modern cloud computing would solve any performance issues that might come up. With secure and centralized control, every purchase would be faster and safer. That part was true. With so much prosperity, transactional volume blew beyond our wildest imagination. Buffers started to fill. Queues got longer. Some transactions even failed, something unheard in decades.
 
-Now, the system is at the brink of collapse. We estimate that, in only a few hours, we'll be over capacity in all systems. The gridlock may be inevitable. However, if we can improve the latency of the entire system in only a single digit of a percentage, we might just as well deploy and recover. 
+Now, the PEECS is at the brink of collapse. We estimate that, in only a few hours, we'll be over capacity in all systems. The final gridlock may be inevitable. However, if we can improve the latency of the system, even in only a single digit of a percentage in the 99 percentile, we might just as well deploy and recover in time.  
 
-In this repository you will find everything you need. Not only all the code, containers and data but also several variations and experiments from the ones that came before you. The system interface is very simple, taking a json data representing each transaction and keeping up balances. 
+In this repository you will find everything you need. Not only the PEECS code, containers and data; but also several variations and experiments from the ones that came before you, usually indicated in the file names. 
 
-Here's a sample transaction:
+The system interface is very simple, taking HTTP requests and returning json data. Here's a sample transaction with the minimal information required (person id, value, type and description).
+
 ```
 POST /clientes/[id]/transacoes
 
@@ -47,15 +48,25 @@ GET /clientes/[id]/extrato
 }
 ```
 
-Please don't worry about other transaction types or the language in the URLs. If we can crack this, we already have a good chance of success.
+Please don't worry about other transaction types for now. The volume of these two transactions are an order of magnitude larger than all others combined. If we can fix them, our job here is done. 
 
-To avoid unnecessary expenses, we are using only two API instances and limited resources for the entire model architecture (1.5 CPU units and 550MB of memory). If we can make it with such restrictions, I'm confident we would scale to the current volume of transactions.
+To avoid unnecessary expenses, we are using a constrained hardware model. Your code MUST run in two API instances and be constrained in resources for the entire test execution. You'll have 1.5 CPU units and 550MB of memory. If we can make it in the constrained environment, we are ensured that it will work in with the infrastructure resources in production.
 
-A great place to start diving deep on this project is its [container compose file](./docker-compose.yml) and its several alternatives. Also, you can [review the code of the current best solution](./rinhadebackend-1table) for ideas. You can use a [cloud development environment](https://gitpod.io/new/?autostart=false#https://github.com/faermanj/quarkus-performance-workshop) with all tools ready to go and running or [setup your own machine](./.gitpod.Dockerfile), as you prefer.
+Some important files in this repository:
+* ```docker-compose.yml``` these are the services that will be started and tested. Make sure your container images are built and configured correctly.
+* ```peecs/``` link to the source of the best performing application code.
+* ```init.sql``` link to the source of the best performing database code.
+* ```results/``` performance test results.
+* ```rinha-de-backend-2024-q1``` configurations from others, for insipration.
 
+You can use a [cloud development environment](https://gitpod.io/new/?autostart=false#https://github.com/faermanj/quarkus-performance-workshop) with all tools ready to go and running or [setup your own machine](./.gitpod.Dockerfile), as you prefer. I'd recommend the CDE, so you don't waste any time. Also, the CDE runs all tests automatically on initialization.
 
-*When you have any improvements, do not hesitate to send a PR.*
+Once tests are finished, you can verify the latency percentiles in the [Gatling](https://gatling.io) report on the ```results/``` directory.
+
+![Gatling Percentiles](./img/gatling_perc.png)
+
+*When you have any improvements to share, do not hesitate to send a Pull Request.*
 
 Good luck and may fortune bless us all.
 
-*Huge thanks to [Zan Franceschi](https://github.com/zanfranceschi) and everybody that joined [Rinha de Backend](https://github.com/zanfranceschi/rinha-de-backend-2024-q1), from where this content was originally created.*
+*Huge thanks to [Zan Franceschi](https://github.com/zanfranceschi) and everybody that joined [Rinha de Backend](https://github.com/zanfranceschi/rinha-de-backend-2024-q1), from where this content was inspired.*

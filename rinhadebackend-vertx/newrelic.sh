@@ -1,1 +1,0 @@
-quarkus dev  -Djvm.args="-Djavaagent:./target/newrelic/newrelic.jar"
