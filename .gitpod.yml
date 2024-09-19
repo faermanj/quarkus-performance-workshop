@@ -15,10 +15,9 @@ tasks:
     command: |
       docker compose down; docker compose up;
   
-  - name: Run Rinha
-    init: |
-      ./install-gatling.sh
+  - name: Gatling Performance Tests
     command: |
+      ./install-gatling.sh
       sleep 60;
       cd ../rinha-de-backend-2024-q1/
       ./executar-teste-local.sh
