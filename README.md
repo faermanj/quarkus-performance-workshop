@@ -56,6 +56,7 @@ Some important files in this repository:
 * ```docker-compose.yml``` these are the services that will be started and tested. Make sure your container images are built and configured correctly.
 * ```peecs/``` link to the source of the best performing application code.
 * ```init.sql``` link to the source of the best performing database code.
+* ```alternatives/``` other configuration attempts.
 * ```results/``` performance test results.
 * ```rinha-de-backend-2024-q1``` Test suit and configurations from others, for insipration.
 
