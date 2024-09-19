@@ -57,7 +57,7 @@ Some important files in this repository:
 * ```peecs/``` link to the source of the best performing application code.
 * ```init.sql``` link to the source of the best performing database code.
 * ```results/``` performance test results.
-* ```rinha-de-backend-2024-q1``` configurations from others, for insipration.
+* ```rinha-de-backend-2024-q1``` Test suit and configurations from others, for insipration.
 
 You can use a [cloud development environment](https://gitpod.io/new/?autostart=false#https://github.com/faermanj/quarkus-performance-workshop) with all tools ready to go and running or [setup your own machine](./.gitpod.Dockerfile), as you prefer. I'd recommend the CDE, so you don't waste any time. Also, the CDE runs all tests automatically on initialization.
 
