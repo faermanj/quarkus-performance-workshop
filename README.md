@@ -70,3 +70,15 @@ Once tests are finished, you can verify the latency percentiles in the [Gatling]
 Good luck and may fortune bless us all.
 
 *Huge thanks to [Zan Franceschi](https://github.com/zanfranceschi) and everybody that joined [Rinha de Backend](https://github.com/zanfranceschi/rinha-de-backend-2024-q1), from where this content was inspired.*
+
+# References
+
+*[Quarkus Documentation](https://quarkus.io/guides/)
+*[Quarkus Settings](https://quarkus.io/guides/all-config)
+*[Building Native Images](https://quarkus.io/guides/building-native-image)
+*[Postgresql Tuner](https://pgtune.leopard.in.ua/)
+*[Postgres Functions](https://www.tutorialspoint.com/postgresql/postgresql_functions.htm)
+*[GraalVM Memory Management](https://www.graalvm.org/latest/reference-manual/native-image/optimizations-and-performance/MemoryManagement/)
+*[GraalVM Profile Guided Optimization](https://www.graalvm.org/22.0/reference-manual/native-image/PGO/)
+*[NGINX Performance Tuning](https://github.com/denji/nginx-tuning)
+*[Vlad Mihalcea](https://vladmihalcea.com/tag/performance-tuning/)

@@ -6,8 +6,8 @@ RUN bash -c "install-packages postgresql-client build-essential libz-dev zlib1g-
 RUN bash -c "apt-get update"
 
 USER gitpod
-RUN bash -c "brew install hurl"
-ARG JAVA_SDK="21.0.2-graal"
+# RUN bash -c "brew install hurl"
+ARG JAVA_SDK="21-graalce"
 RUN bash -c ". /home/gitpod/.sdkman/bin/sdkman-init.sh \
     && sdk install java $JAVA_SDK \
     && sdk default java $JAVA_SDK \
