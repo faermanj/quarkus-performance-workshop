@@ -61,7 +61,7 @@ Some important files in this repository:
 
 You can use a [cloud development environment](https://gitpod.io/new/?autostart=false#https://github.com/faermanj/quarkus-performance-workshop) with all tools ready to go and running or [setup your own machine](./.gitpod.Dockerfile), as you prefer. I'd recommend the CDE, so you don't waste any time. Also, the CDE runs all tests automatically on initialization.
 
-Once tests are finished, you can verify the latency percentiles in the [Gatling](https://gatling.io) report on the ```results/``` directory.
+Once tests are finished, you can verify the latency percentiles in the [Gatling](https://gatling.io) report on the ```results/``` directory. Simply open the ```index.html``` file using LiveServer or download your resultswip.
 
 ![Gatling Percentiles](./img/gatling_perc.png)
 
