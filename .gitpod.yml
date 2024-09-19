@@ -19,7 +19,7 @@ tasks:
     command: |
       ./install-gatling.sh
       sleep 60;
-      cd ../rinha-de-backend-2024-q1/
+      cd rinha-de-backend-2024-q1/
       ./executar-teste-local.sh
 
 ports:
@@ -56,6 +56,9 @@ ports:
   - port: 9999
     visibility: public
     onOpen: ignore
+  - port: 5500
+    visibility: public
+    onOpen: ignore
 
 vscode:
   extensions:
@@ -69,5 +72,3 @@ vscode:
     - redhat.fabric8-analytics
     - ms-azuretools.vscode-docker
 
-additionalRepositories:
-  - url: https://github.com/zanfranceschi/rinha-de-backend-2024-q1

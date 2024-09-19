@@ -1,0 +1,86 @@
+services:
+  postgres:
+    hostname: postgres
+    restart: always
+    image: postgres:16-alpine3.19
+    volumes:
+      - ./init.pgsql:/docker-entrypoint-initdb.d/init.sql
+    environment:
+      POSTGRES_USER: user_user
+      POSTGRES_PASSWORD: user_pwd
+      POSTGRES_DB: user_db
+    healthcheck:
+      test: pg_isready -d user_db -U user_user
+      interval: 10s
+      timeout: 1s
+      retries: 1000
+    deploy:
+      resources:
+        limits:
+          cpus: "0.8"
+          memory: "460MB"
+    networks:
+      - rinha-network
+
+  api1: &api
+    hostname: api1
+    restart: always
+    image: fmarkson/rinha-backend-q1-2024:r5
+    security_opt:
+      # By default, Docker team do not allow Linux's io_uring because some vunerabilites
+      # was found in the past.
+      # See (https://github.com/moby/moby/pull/46762) for more information.
+      # However, it is safe to use in a webserver enviroment since if some one can
+      # access your server to run another process inside this container, you had been
+      # pwned anyway. I felt that Docker team was over conservative in this decision.
+      # Docker is a development and sysadmin tool and should had an easiest way to
+      # enable Linux's io_uring.
+      - seccomp:./io_uring_seccomp.json 
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ulimits:
+      nofile:
+        soft: 1000000
+        hard: 1000000
+    environment:
+      - PORT=9501
+    deploy:
+      resources:
+        limits:
+          cpus: "0.2"
+          memory: "10MB" # 10MB is enought :)
+    networks:
+      - rinha-network
+
+  api2:
+    <<: *api
+    hostname: api2
+    environment:
+      - PORT=9502
+
+  nginx:
+    hostname: nginx
+    image: nginx:latest
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - api1
+      - api2
+    ulimits:
+      nofile:
+        soft: 1000000
+        hard: 1000000
+    deploy:
+      resources:
+        limits:
+          cpus: "0.3"
+          memory: "70MB"
+    ports:
+      - 9999:9999
+
+    networks:
+      - rinha-network
+
+networks:
+  rinha-network:

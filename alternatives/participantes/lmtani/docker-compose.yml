@@ -1,0 +1,58 @@
+version: "3.5"
+
+services:
+  api01: &api
+    image: taniguti/rinha-2024-q1:v2
+    hostname: api01
+    environment:
+      - DB_HOSTNAME=postgres://admin:123@localhost/rinha
+      - PORT=8080
+
+    depends_on:
+      - db
+    network_mode: host
+    deploy:
+      resources:
+        limits:
+          cpus: "0.15"
+          memory: "110MB"
+
+  api02:
+    <<: *api
+    hostname: api02
+    environment:
+      - DB_HOSTNAME=postgres://admin:123@localhost/rinha
+      - PORT=8081
+
+
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - api01
+      - api02
+    network_mode: host
+
+    deploy:
+      resources:
+        limits:
+          cpus: "0.20"
+          memory: "30MB"
+
+  db:
+    image: postgres:latest
+    hostname: db
+    environment:
+      - POSTGRES_PASSWORD=123
+      - POSTGRES_USER=admin
+      - POSTGRES_DB=rinha
+    network_mode: host
+
+    volumes:
+      - ./sql/script.sql:/docker-entrypoint-initdb.d/script.sql
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: "300MB"
