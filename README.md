@@ -79,7 +79,7 @@ Good luck and may fortune bless us all.
 * Execute the gatling performance tests (```perf-test/run-local-test.sh```) and evaluate the results report.
 * Change settings for the load balancer (```nginx.conf```), application (```docker-compose.yml```) and database (```postgresql.conf```).
 * Review the application code (```./peecs/src/main/java```).
-* Change the version (```version.txt```), rebuild and push the container image for the application.
+* Change the version (```version.txt```), rebuild and push the container image for the application. Check the ```.envrc-sample``` file for registry credentials.
 * Change garbage-collection algorithm and parameters
 * Improve application warmup (cold-start)
 * Build a native image
