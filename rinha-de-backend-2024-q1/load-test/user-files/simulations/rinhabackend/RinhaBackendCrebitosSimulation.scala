@@ -113,7 +113,7 @@ class RinhaBackendCrebitosSimulation
 
   val validacaConcorrentesNumRequests = 25
   val validacaotransactionsConcorrentes = (tipo: String) =>
-    scenario(s"validação concorrência transações - ${tipo}")
+    scenario(s"validating transactions concurrency - ${tipo}")
     .exec(
       http("validations")
       .post(s"/members/1/transactions")
@@ -123,7 +123,7 @@ class RinhaBackendCrebitosSimulation
     )
   
   val validacaotransactionsConcorrentesSaldo = (saldoEsperado: Int) =>
-    scenario(s"validação concorrência saldo - ${saldoEsperado}")
+    scenario(s"validating expected balance - ${saldoEsperado}")
     .exec(
       http("validations")
       .get(s"/members/1/balance")
@@ -140,7 +140,7 @@ class RinhaBackendCrebitosSimulation
     Map("id" -> 5, "limite" ->   5000 * 100),
   )
 
-  val criterioClienteNaoEcontrado = scenario("validação HTTP 404")
+  val criterioClienteNaoEcontrado = scenario("validating HTTP 404")
     .exec(
       http("validations")
       .get("/members/6/balance")
