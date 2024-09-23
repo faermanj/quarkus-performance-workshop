@@ -73,7 +73,7 @@ END;
 $$;
 
 
-CREATE OR REPLACE PROCEDURE extrato(
+CREATE OR REPLACE PROCEDURE balance(
   cid INTEGER,
   INOUT cliente refcursor,
   INOUT transactions refcursor

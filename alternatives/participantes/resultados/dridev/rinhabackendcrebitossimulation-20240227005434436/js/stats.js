@@ -327,13 +327,13 @@ stats: {
         "ko": "160.596"
     }
 }
-    },"req_extratos--1809255608": {
+    },"req_balances--1809255608": {
         type: "REQUEST",
-        name: "extratos",
-path: "extratos",
-pathFormatted: "req_extratos--1809255608",
+        name: "balances",
+path: "balances",
+pathFormatted: "req_balances--1809255608",
 stats: {
-    "name": "extratos",
+    "name": "balances",
     "numberOfRequests": {
         "total": "1860",
         "ok": "0",

@@ -68,7 +68,7 @@ public class Cliente implements Serializable {
                {
                  "saldo": {
                    "total": %d,
-                   "data_extrato": "%s",
+                   "date_balance": "%s",
                    "limite": %d
                  },
                  "ultimas_transactions": %s

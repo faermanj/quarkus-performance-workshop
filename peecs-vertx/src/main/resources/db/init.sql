@@ -46,7 +46,7 @@ BEGIN
     END IF;
 END;
 
-CREATE PROCEDURE proc_extrato(IN p_id INT)
+CREATE PROCEDURE proc_balance(IN p_id INT)
 BEGIN
     SET autocommit=0; 
     SET TRANSACTION ISOLATION LEVEL READ COMMITTED;
@@ -81,6 +81,6 @@ BEGIN
             ORDER BY realizada_em DESC
             LIMIT 10
         )
-    ) AS extrato;
+    ) AS balance;
     COMMIT; 
 END;

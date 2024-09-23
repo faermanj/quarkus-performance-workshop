@@ -2,9 +2,9 @@
 
 # URLs
 transactionUrl1="http://localhost:8081/clientes/0/transactions"
-extratoUrl1="http://localhost:8081/clientes/0/extrato"
+balanceUrl1="http://localhost:8081/clientes/0/balance"
 transactionUrl2="http://localhost:8082/clientes/0/transactions"
-extratoUrl2="http://localhost:8082/clientes/0/extrato"
+balanceUrl2="http://localhost:8082/clientes/0/balance"
 
 # Headers
 contentType="Content-Type: application/json"
@@ -34,8 +34,8 @@ while [ $(($SECONDS - $start)) -lt 10 ]; do
         # Execute curl commands in parallel & silently
         curl -s -X POST -H "$contentType" -d "$payload" "$transactionUrl1" --max-time 1 > /dev/null 2>&1 &
         curl -s -X POST -H "$contentType" -d "$payload" "$transactionUrl2" --max-time 1 > /dev/null 2>&1 &
-        curl -s -X GET "$extratoUrl1" --max-time 1 > /dev/null 2>&1 &
-        curl -s -X GET "$extratoUrl2" --max-time 1 > /dev/null 2>&1 &
+        curl -s -X GET "$balanceUrl1" --max-time 1 > /dev/null 2>&1 &
+        curl -s -X GET "$balanceUrl2" --max-time 1 > /dev/null 2>&1 &
 
         if [ $(($counter % 100)) -eq 0 ]; then
             echo "Executed $counter requests..."

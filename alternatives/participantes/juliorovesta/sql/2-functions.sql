@@ -1,6 +1,6 @@
-DROP FUNCTION IF EXISTS obter_extrato;
+DROP FUNCTION IF EXISTS obter_balance;
 
-CREATE OR REPLACE FUNCTION obter_extrato(
+CREATE OR REPLACE FUNCTION obter_balance(
 	IN clienteId INT
 )
 RETURNS TABLE (
@@ -46,7 +46,7 @@ BEGIN
 				FROM clientes
 				WHERE cliente_id = clienteId
 			),
-			cte_extrato_cliente AS (
+			cte_balance_cliente AS (
 				SELECT
 					transacao_id,
 					cliente_id,
@@ -64,14 +64,14 @@ BEGIN
 				saldo.limite,
 				saldo.saldo,
 				saldo.saldo_atualizado_em,
-				extrato.valor,
-				extrato.tipo,
-				extrato.descricao,
-				extrato.realizada_em,
-				(count(extrato.transacao_id) OVER())::INT
+				balance.valor,
+				balance.tipo,
+				balance.descricao,
+				balance.realizada_em,
+				(count(balance.transacao_id) OVER())::INT
 			FROM cte_saldo_cliente as saldo
-			LEFT JOIN cte_extrato_cliente as extrato
-				ON extrato.cliente_id = saldo.cliente_id
+			LEFT JOIN cte_balance_cliente as balance
+				ON balance.cliente_id = saldo.cliente_id
 	);
 END;
 $$;

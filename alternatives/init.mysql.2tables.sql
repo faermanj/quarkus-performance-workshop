@@ -38,11 +38,11 @@ DELIMITER ;
 
 DELIMITER $$
 
-CREATE PROCEDURE proc_extrato(IN p_cliente_id INT)
+CREATE PROCEDURE proc_balance(IN p_cliente_id INT)
 BEGIN
     DECLARE v_saldo INT;
     DECLARE v_limite INT;
-    DECLARE extrato_json JSON;
+    DECLARE balance_json JSON;
     DECLARE transactions_json JSON;
     
     -- Determine v_limite based on cliente_id (similar logic to your CASE statement)
@@ -75,18 +75,18 @@ BEGIN
         LIMIT 10
     ) AS subquery;
 
-    -- Construct the final extrato JSON object
-    SET extrato_json = JSON_OBJECT(
+    -- Construct the final balance JSON object
+    SET balance_json = JSON_OBJECT(
         'saldo', JSON_OBJECT(
             'total', v_saldo,
-            'data_extrato', DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i:%s.%f'),
+            'date_balance', DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i:%s.%f'),
             'limite', v_limite
         ),
         'ultimas_transactions', IFNULL(transactions_json, JSON_ARRAY())
     );
     
-    -- Output the extrato_json (in real-world usage, you might need to select or do something with this JSON)
-    SELECT extrato_json AS result;
+    -- Output the balance_json (in real-world usage, you might need to select or do something with this JSON)
+    SELECT balance_json AS result;
 END$$
 
 DELIMITER ;

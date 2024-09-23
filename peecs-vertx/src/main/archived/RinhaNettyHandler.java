@@ -18,7 +18,7 @@ public class RinhaNettyHandler extends SimpleChannelInboundHandler<FullHttpReque
         HttpMethod method = req.method();
 
         // Parse the request path and method to determine the appropriate action
-        if (method.equals(HttpMethod.GET) && uri.startsWith("/members/") && uri.endsWith("/extrato")) {
+        if (method.equals(HttpMethod.GET) && uri.startsWith("/members/") && uri.endsWith("/balance")) {
             // processExtrato
         } else if (method.equals(HttpMethod.POST) && uri.startsWith("/members/") && uri.endsWith("/transactions")) {
             // postTransacao

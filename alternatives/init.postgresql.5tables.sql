@@ -146,7 +146,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE FUNCTION proc_extrato(p_cliente_id INT)
+CREATE OR REPLACE FUNCTION proc_balance(p_cliente_id INT)
 RETURNS json AS $$
 DECLARE
     result json;
@@ -162,7 +162,7 @@ BEGIN
         SELECT json_build_object(
             'saldo', json_build_object(
                 'total', v_saldo,
-                'data_extrato', TO_CHAR(clock_timestamp(), 'YYYY-MM-DD HH24:MI:SS.US'),
+                'date_balance', TO_CHAR(clock_timestamp(), 'YYYY-MM-DD HH24:MI:SS.US'),
                 'limite', v_limite
             ),
             'ultimas_transactions', COALESCE((
@@ -183,7 +183,7 @@ BEGIN
         SELECT json_build_object(
             'saldo', json_build_object(
                 'total', v_saldo,
-                'data_extrato', TO_CHAR(clock_timestamp(), 'YYYY-MM-DD HH24:MI:SS.US'),
+                'date_balance', TO_CHAR(clock_timestamp(), 'YYYY-MM-DD HH24:MI:SS.US'),
                 'limite', v_limite
             ),
             'ultimas_transactions', COALESCE((
@@ -204,7 +204,7 @@ BEGIN
         SELECT json_build_object(
             'saldo', json_build_object(
                 'total', v_saldo,
-                'data_extrato', TO_CHAR(clock_timestamp(), 'YYYY-MM-DD HH24:MI:SS.US'),
+                'date_balance', TO_CHAR(clock_timestamp(), 'YYYY-MM-DD HH24:MI:SS.US'),
                 'limite', v_limite
             ),
             'ultimas_transactions', COALESCE((
@@ -225,7 +225,7 @@ BEGIN
         SELECT json_build_object(
             'saldo', json_build_object(
                 'total', v_saldo,
-                'data_extrato', TO_CHAR(clock_timestamp(), 'YYYY-MM-DD HH24:MI:SS.US'),
+                'date_balance', TO_CHAR(clock_timestamp(), 'YYYY-MM-DD HH24:MI:SS.US'),
                 'limite', v_limite
             ),
             'ultimas_transactions', COALESCE((
@@ -246,7 +246,7 @@ BEGIN
         SELECT json_build_object(
             'saldo', json_build_object(
                 'total', v_saldo,
-                'data_extrato', TO_CHAR(clock_timestamp(), 'YYYY-MM-DD HH24:MI:SS.US'),
+                'date_balance', TO_CHAR(clock_timestamp(), 'YYYY-MM-DD HH24:MI:SS.US'),
                 'limite', v_limite
             ),
             'ultimas_transactions', COALESCE((
@@ -267,6 +267,6 @@ BEGIN
     RETURN result;
 EXCEPTION
     WHEN OTHERS THEN
-        RAISE EXCEPTION 'Erro ao processar extrato: %', SQLERRM;
+        RAISE EXCEPTION 'Erro ao processar balance: %', SQLERRM;
 END;
 $$ LANGUAGE plpgsql;

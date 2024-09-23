@@ -70,7 +70,7 @@ DECLARE
     v_transactions JSONB;
 BEGIN
     PERFORM pg_advisory_xact_lock(p_id);
-    SELECT jsonb_build_object('total', saldo, 'data_extrato', CURRENT_TIMESTAMP(6), 'limite', limite ) INTO v_saldo FROM clientes WHERE id = p_id;
+    SELECT jsonb_build_object('total', saldo, 'date_balance', CURRENT_TIMESTAMP(6), 'limite', limite ) INTO v_saldo FROM clientes WHERE id = p_id;
     IF (v_saldo IS NULL) THEN
         RAISE EXCEPTION 'P0002';
     END IF;

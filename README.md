@@ -23,12 +23,12 @@ POST /members/[id]/transactions
 
 And a balance request:
 ```
-GET /members/[id]/extrato
+GET /members/[id]/balance
 
 {
   "saldo": {
     "total": -9098,
-    "data_extrato": "2024-01-17T02:34:41.217753Z",
+    "date_balance": "2024-01-17T02:34:41.217753Z",
     "limite": 100000
   },
   "ultimas_transactions": [

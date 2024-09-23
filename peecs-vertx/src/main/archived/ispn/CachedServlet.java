@@ -41,7 +41,7 @@ import org.infinispan.transaction.TransactionMode;
 @WebServlet(value = "/*")
 @Transactional(Transactional.TxType.NEVER)
 public class CachedServlet extends HttpServlet {
-    private static final String EXTRATO_QUERY = "select * from proc_extrato(?)";
+    private static final String EXTRATO_QUERY = "select * from proc_balance(?)";
     private static final String TRANSACAO_QUERY = "select * from proc_transacao(?, ?, ?, ?, ?)";
     private static final String WARMUP_QUERY = "select 1+1;";
     private static final String valorPattern = "\"valor\":\\s*(\\d+(\\.\\d+)?)";
@@ -143,7 +143,7 @@ public class CachedServlet extends HttpServlet {
         return result;
     }
 
-    // curl -v -X GET http://localhost:9999/members/1/extrato
+    // curl -v -X GET http://localhost:9999/members/1/balance
     @Override
     protected synchronized void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         var id = getId(req, resp);
@@ -177,9 +177,9 @@ public class CachedServlet extends HttpServlet {
                 resp.setHeader("x-rinha-shard", this.shard.toString());
                 resp.setContentType("application/json");
                 resp.setCharacterEncoding("UTF-8");
-                var extrato = cliente.toExtrato();
-                Log.info("RETURNING EXTRATO: "+extrato);
-                resp.getWriter().write(extrato);
+                var balance = cliente.toExtrato();
+                Log.info("RETURNING EXTRATO: "+balance);
+                resp.getWriter().write(balance);
                 //resp.getWriter().flush();
                 //resp.flushBuffer();
             }

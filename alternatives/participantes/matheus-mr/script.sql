@@ -96,7 +96,7 @@ BEGIN
     select jsonb_build_object(
         'limite', debit_limit,
 		'total', balance,
-        'data_extrato', localtimestamp
+        'date_balance', localtimestamp
     )
 	INTO client_json
 	FROM clients

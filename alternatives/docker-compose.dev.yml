@@ -18,7 +18,7 @@ services:
         soft: 1000000
         hard: 1000000
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://127.0.0.1:9999/members/1/extrato"]
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:9999/members/1/balance"]
       interval: 3s
       retries: 15
     deploy:

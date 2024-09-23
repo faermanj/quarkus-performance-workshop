@@ -28,7 +28,7 @@ DECLARE
 BEGIN
     SELECT json_build_object(
         'total', saldo,
-        'data_extrato', to_char(now() AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"'),
+        'date_balance', to_char(now() AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"'),
         'limite', limite
     )
     INTO holder

@@ -35,7 +35,7 @@ services:
       db:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://api01:9990/clientes/1/extrato"]
+      test: ["CMD", "curl", "-f", "http://api01:9990/clientes/1/balance"]
       interval: 3s
       retries: 15
     ulimits:
@@ -83,7 +83,7 @@ services:
       api01:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://api02:9990/clientes/1/extrato"]
+      test: ["CMD", "curl", "-f", "http://api02:9990/clientes/1/balance"]
       interval: 3s
       retries: 15
     ulimits:
@@ -117,7 +117,7 @@ services:
         soft: 1000000
         hard: 1000000
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://lb:9999/clientes/1/extrato"]
+      test: ["CMD", "curl", "-f", "http://lb:9999/clientes/1/balance"]
       interval: 3s
       retries: 15
     deploy:

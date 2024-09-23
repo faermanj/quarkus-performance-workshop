@@ -105,7 +105,7 @@ END IF;
 
 SELECT json_build_object(
     'total', c.balance,
-    'data_extrato', NOW(),
+    'date_balance', NOW(),
     'limite', c.account_limit
 )
 INTO _client_info

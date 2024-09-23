@@ -30,7 +30,7 @@ import io.quarkus.narayana.jta.TransactionExceptionResult;
 
 @WebServlet(value = "/*")
 public class PostgreSQLServlet extends HttpServlet {
-    private static final String EXTRATO_QUERY = "select * from proc_extrato(?)";
+    private static final String EXTRATO_QUERY = "select * from proc_balance(?)";
     private static final String TRANSACAO_QUERY = "select * from proc_transacao(?, ?, ?, ?, ?)";
     private static final String WARMUP_QUERY = "select 1+1;";
     private static final String valorPattern = "\"valor\":\\s*(\\d+(\\.\\d+)?)";
@@ -107,7 +107,7 @@ public class PostgreSQLServlet extends HttpServlet {
         return result;
     }
 
-    // curl -v -X GET http://localhost:9999/clientes/1/extrato
+    // curl -v -X GET http://localhost:9999/clientes/1/balance
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         var id = getId(req, resp);
@@ -145,9 +145,9 @@ public class PostgreSQLServlet extends HttpServlet {
                     return;
             } catch (Exception e) {
                 if (retries < RETRIES_MAX)
-                    Log.warnf(e, "Error on extrato [%s], retrying");//, e.getMessage());
+                    Log.warnf(e, "Error on balance [%s], retrying");//, e.getMessage());
                 else
-                    Log.errorf(e, "Error on extrato [%s], retry limit exceeded");//, e.getMessage());
+                    Log.errorf(e, "Error on balance [%s], retry limit exceeded");//, e.getMessage());
                 nap();
             }
             retries++;
@@ -170,7 +170,7 @@ public class PostgreSQLServlet extends HttpServlet {
                 var stmt = conn.prepareStatement(EXTRATO_QUERY)) {
 
             // var isolation = conn.getTransactionIsolation();
-            // Log.infof("Isolation level: %s on extrato", isolation);
+            // Log.infof("Isolation level: %s on balance", isolation);
 
             // lock.setInt(1, id);
             // lock.execute();

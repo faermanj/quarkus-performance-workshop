@@ -15,13 +15,13 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
 
-@Path("/pgsql/members/{id}/extrato")
+@Path("/pgsql/members/{id}/balance")
 public class ExtratoResource {
 
     @Inject
     DataSource ds;
 
-    // curl -v -X GET http://localhost:9999/members/1/extrato
+    // curl -v -X GET http://localhost:9999/members/1/balance
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Transactional // TODO Verificar: Transactional para select??? é necessário???
@@ -30,7 +30,7 @@ public class ExtratoResource {
         Log.tracef("Extrato solicitado: %s ", id);
 
         
-        var query = "select * from proc_extrato(?)";
+        var query = "select * from proc_balance(?)";
 
         try (var conn = ds.getConnection();
                 var stmt = conn.prepareStatement(query);) {

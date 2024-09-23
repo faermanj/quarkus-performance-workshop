@@ -13,7 +13,7 @@ public class Warmup {
 
         // HTTP GET request
         HttpRequest getRequest = HttpRequest.newBuilder()
-                .uri(URI.create("http://127.0.0.1:9999/members/333/extrato"))
+                .uri(URI.create("http://127.0.0.1:9999/members/333/balance"))
                 .build();
 
         HttpResponse<String> getResponse = client.send(getRequest, BodyHandlers.ofString());

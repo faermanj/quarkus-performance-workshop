@@ -85,7 +85,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE FUNCTION proc_extrato(p_cliente_id int)
+CREATE OR REPLACE FUNCTION proc_balance(p_cliente_id int)
 RETURNS json AS $$
 DECLARE
     result json;
@@ -115,7 +115,7 @@ BEGIN
     SELECT json_build_object(
         'saldo', json_build_object(
             'total', v_saldo,
-            'data_extrato', TO_CHAR(clock_timestamp(), 'YYYY-MM-DD HH:MI:SS.US'),
+            'date_balance', TO_CHAR(clock_timestamp(), 'YYYY-MM-DD HH:MI:SS.US'),
             'limite', v_limite
         ),
         'ultimas_transactions', COALESCE((

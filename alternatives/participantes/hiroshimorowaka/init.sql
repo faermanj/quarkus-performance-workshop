@@ -22,7 +22,7 @@
                   CONSTRAINT "transactions_pkey" PRIMARY KEY ("id")
               );
               
-              CREATE INDEX idx_extrato ON transactions (id DESC);
+              CREATE INDEX idx_balance ON transactions (id DESC);
         
               CREATE UNIQUE INDEX "clientes_id_key" ON "clientes"("id");
               

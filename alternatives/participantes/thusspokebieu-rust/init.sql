@@ -37,7 +37,7 @@ $$;
 
 
 
-CREATE OR REPLACE FUNCTION extrato(_cliente_id INTEGER)
+CREATE OR REPLACE FUNCTION balance(_cliente_id INTEGER)
 RETURNS JSON AS $$
 DECLARE
     saldo JSON;
@@ -46,7 +46,7 @@ BEGIN
     SELECT
         json_build_object(
             'total', c.saldo,
-            'data_extrato', NOW(),
+            'date_balance', NOW(),
             'limite', c.limite
         )
     INTO

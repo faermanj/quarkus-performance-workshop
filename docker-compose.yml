@@ -11,7 +11,7 @@ services:
       db:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://127.0.0.1:9001/members/1/extrato"]
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:9001/members/1/balance"]
       interval: 1s
       retries: 10
     environment:
@@ -56,7 +56,7 @@ services:
       db:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://127.0.0.1:9002/members/1/extrato"]
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:9002/members/1/balance"]
       interval: 1s
       retries: 10
     environment:
@@ -113,7 +113,7 @@ services:
         hard: 1000000
     healthcheck:
       test: ["CMD", "sleep", "3"]
-      # test: ["CMD", "curl", "-f", "http://127.0.0.1:9999/members/1/extrato"]
+      # test: ["CMD", "curl", "-f", "http://127.0.0.1:9999/members/1/balance"]
       retries: 10
     deploy:
       resources:
@@ -134,7 +134,7 @@ services:
 #              for i in \$(seq 1 150); \
 #              do \
 #                echo -n \. \$i; \
-#                curl -s http://127.0.0.1:9999/members/333/extrato > /dev/null  & \
+#                curl -s http://127.0.0.1:9999/members/333/balance > /dev/null  & \
 #                curl -s -H 'Content-Type: application/json' -d '{\"valor\": 0, \"tipo\": \"d\", \"descricao\": \"warmup\"}' http://127.0.0.1:9999/members/333/transactions > /dev/null  & \
 #              done; 
 #              wait; 

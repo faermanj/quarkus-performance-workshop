@@ -50,7 +50,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION get_extrato(a_id_cliente INTEGER)
+CREATE OR REPLACE FUNCTION get_balance(a_id_cliente INTEGER)
 RETURNS json AS $$
 DECLARE
     result json;
@@ -66,7 +66,7 @@ BEGIN
     SELECT json_build_object(
         'saldo', json_build_object(
             'total', cliente_data.saldo,
-            'data_extrato', NOW(),
+            'date_balance', NOW(),
             'limite', cliente_data.limite
         ),
         'ultimas_transactions', COALESCE((

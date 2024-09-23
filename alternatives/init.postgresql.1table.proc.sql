@@ -84,8 +84,8 @@ BEGIN
 END;
 $$;
 
--- Procedure para obter extrato do cliente
-CREATE OR REPLACE PROCEDURE proc_extrato(p_cliente_id INTEGER)
+-- Procedure para obter balance do cliente
+CREATE OR REPLACE PROCEDURE proc_balance(p_cliente_id INTEGER)
 LANGUAGE plpgsql AS $$
 DECLARE
     v_saldo INTEGER;

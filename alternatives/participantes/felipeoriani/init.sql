@@ -61,7 +61,7 @@ BEGIN
 END;
 $$;
 
-CREATE OR REPLACE FUNCTION extrato(cliente_id_input INTEGER)
+CREATE OR REPLACE FUNCTION balance(cliente_id_input INTEGER)
   RETURNS TABLE (valor_out INTEGER, tipo_out CHAR(1), descricao_out VARCHAR(10)) AS
 $body$
 BEGIN

@@ -101,10 +101,10 @@ class RinhaBackendCrebitosSimulation
           )
     )
 
-  val extratos = scenario("extratos")
+  val balances = scenario("balances")
     .exec(
-      http("extratos")
-      .get(s => s"/members/${randomClienteId()}/extrato")
+      http("balances")
+      .get(s => s"/members/${randomClienteId()}/balance")
       .check(
         jmesPath("saldo.limite").saveAs("limite"),
         jmesPath("saldo.total").validate("ConsistenciaSaldoLimite - Extrato", validarConsistenciaSaldoLimite)
@@ -126,7 +126,7 @@ class RinhaBackendCrebitosSimulation
     scenario(s"validação concorrência saldo - ${saldoEsperado}")
     .exec(
       http("validações")
-      .get(s"/members/1/extrato")
+      .get(s"/members/1/balance")
       .check(
         jmesPath("saldo.total").ofType[Int].is(saldoEsperado)
       )
@@ -143,7 +143,7 @@ class RinhaBackendCrebitosSimulation
   val criterioClienteNaoEcontrado = scenario("validação HTTP 404")
     .exec(
       http("validações")
-      .get("/members/6/extrato")
+      .get("/members/6/balance")
       .check(status.is(404))
     )
 
@@ -157,7 +157,7 @@ class RinhaBackendCrebitosSimulation
         saber sua causa exata.
       */ 
       http("validações")
-      .get("/members/#{id}/extrato")
+      .get("/members/#{id}/balance")
       .check(
         status.is(200),
         jmesPath("saldo.limite").ofType[String].is("#{limite}"),
@@ -188,7 +188,7 @@ class RinhaBackendCrebitosSimulation
     )
     .exec(
       http("validações")
-      .get("/members/#{id}/extrato")
+      .get("/members/#{id}/balance")
       .check(
         jmesPath("ultimas_transactions[0].descricao").ofType[String].is("devolve"),
         jmesPath("ultimas_transactions[0].tipo").ofType[String].is("d"),
@@ -198,7 +198,7 @@ class RinhaBackendCrebitosSimulation
         jmesPath("ultimas_transactions[1].valor").ofType[Int].is("1")
       )
     )
-    .exec( // Consistencia do extrato
+    .exec( // Consistencia do balance
       http("validações")
       .post("/members/#{id}/transactions")
           .header("content-type", "application/json")
@@ -209,29 +209,29 @@ class RinhaBackendCrebitosSimulation
             jmesPath("limite").saveAs("limite")
           )
           .resources(
-            // 5 consultas simultâneas ao extrato para verificar consistência
-            http("validações").get("/members/#{id}/extrato").check(
+            // 5 consultas simultâneas ao balance para verificar consistência
+            http("validações").get("/members/#{id}/balance").check(
               jmesPath("ultimas_transactions[0].descricao").ofType[String].is("danada"),
               jmesPath("ultimas_transactions[0].tipo").ofType[String].is("c"),
               jmesPath("ultimas_transactions[0].valor").ofType[Int].is("1"),
               jmesPath("saldo.limite").ofType[String].is("#{limite}"),
               jmesPath("saldo.total").ofType[String].is("#{saldo}")
             ),
-            http("validações").get("/members/#{id}/extrato").check(
+            http("validações").get("/members/#{id}/balance").check(
               jmesPath("ultimas_transactions[0].descricao").ofType[String].is("danada"),
               jmesPath("ultimas_transactions[0].tipo").ofType[String].is("c"),
               jmesPath("ultimas_transactions[0].valor").ofType[Int].is("1"),
               jmesPath("saldo.limite").ofType[String].is("#{limite}"),
               jmesPath("saldo.total").ofType[String].is("#{saldo}")
             ),
-            http("validações").get("/members/#{id}/extrato").check(
+            http("validações").get("/members/#{id}/balance").check(
               jmesPath("ultimas_transactions[0].descricao").ofType[String].is("danada"),
               jmesPath("ultimas_transactions[0].tipo").ofType[String].is("c"),
               jmesPath("ultimas_transactions[0].valor").ofType[Int].is("1"),
               jmesPath("saldo.limite").ofType[String].is("#{limite}"),
               jmesPath("saldo.total").ofType[String].is("#{saldo}")
             ),
-            http("validações").get("/members/#{id}/extrato").check(
+            http("validações").get("/members/#{id}/balance").check(
               jmesPath("ultimas_transactions[0].descricao").ofType[String].is("danada"),
               jmesPath("ultimas_transactions[0].tipo").ofType[String].is("c"),
               jmesPath("ultimas_transactions[0].valor").ofType[Int].is("1"),
@@ -312,7 +312,7 @@ class RinhaBackendCrebitosSimulation
           rampUsersPerSec(1).to(110).during(2.minutes),
           constantUsersPerSec(110).during(2.minutes)
         ),
-        extratos.inject(
+        balances.inject(
           rampUsersPerSec(1).to(10).during(2.minutes),
           constantUsersPerSec(10).during(2.minutes)
         )

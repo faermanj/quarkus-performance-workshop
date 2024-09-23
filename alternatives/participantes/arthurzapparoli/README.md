@@ -20,7 +20,7 @@ Primeiro projeto em Rust.
 
 ### Gatling
 
-<table><tr><th>Request</th><th>Success ✅</th><th>Errors ❌</th><th>Min</th><th>Max</th><th>Avg.</th><th>Std. Dev.</th><th>75th %ile</th><th>95th %ile</th><th>99th %ile</th></tr><tr><td>All Requests</td><td>61503</td><td>0</td><td>0</td><td>100</td><td>1</td><td>3</td><td>1</td><td>1</td><td>3</td></tr><tr><td>validações</td><td>123</td><td>0</td><td>0</td><td>100</td><td>22</td><td>24</td><td>31</td><td>63</td><td>88</td></tr><tr><td>extratos</td><td>1860</td><td>0</td><td>0</td><td>46</td><td>2</td><td>5</td><td>1</td><td>2</td><td>29</td></tr><tr><td>créditos</td><td>19860</td><td>0</td><td>0</td><td>48</td><td>1</td><td>2</td><td>1</td><td>1</td><td>2</td></tr><tr><td>débitos</td><td>39660</td><td>0</td><td>0</td><td>48</td><td>1</td><td>2</td><td>1</td><td>1</td><td>2</td></tr></table>
+<table><tr><th>Request</th><th>Success ✅</th><th>Errors ❌</th><th>Min</th><th>Max</th><th>Avg.</th><th>Std. Dev.</th><th>75th %ile</th><th>95th %ile</th><th>99th %ile</th></tr><tr><td>All Requests</td><td>61503</td><td>0</td><td>0</td><td>100</td><td>1</td><td>3</td><td>1</td><td>1</td><td>3</td></tr><tr><td>validações</td><td>123</td><td>0</td><td>0</td><td>100</td><td>22</td><td>24</td><td>31</td><td>63</td><td>88</td></tr><tr><td>balances</td><td>1860</td><td>0</td><td>0</td><td>46</td><td>2</td><td>5</td><td>1</td><td>2</td><td>29</td></tr><tr><td>créditos</td><td>19860</td><td>0</td><td>0</td><td>48</td><td>1</td><td>2</td><td>1</td><td>1</td><td>2</td></tr><tr><td>débitos</td><td>39660</td><td>0</td><td>0</td><td>48</td><td>1</td><td>2</td><td>1</td><td>1</td><td>2</td></tr></table>
 
 ## Autor
 

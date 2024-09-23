@@ -80,14 +80,14 @@ CREATE OR REPLACE FUNCTION public.GetSaldoClienteById(IN id INTEGER)
 RETURNS TABLE (
     Total INTEGER,
     Limite INTEGER,
-    data_extrato TIMESTAMP,
+    date_balance TIMESTAMP,
     transactions JSON
 ) AS $$
 BEGIN
   RETURN QUERY 
   SELECT c."SaldoInicial" AS Total, 
 	     c."Limite" AS Limite, 
-	     NOW()::timestamp AS data_extrato,
+	     NOW()::timestamp AS date_balance,
 	     COALESCE(json_agg(t) FILTER (WHERE t."ClienteId" IS NOT NULL), '[]') AS transactions
   FROM public."Clientes" c
   LEFT JOIN (

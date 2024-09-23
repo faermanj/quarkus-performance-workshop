@@ -94,7 +94,7 @@ $$;
 CREATE or replace PROCEDURE  DO_EXTRATO(
     IN p_cliente_id int,
     OUT p_http_cod char(3),
-    OUT p_extrato text)
+    OUT p_balance text)
     language plpgsql
 as
 $$
@@ -118,14 +118,14 @@ BEGIN
         loop
 
             if v_count = 0 then
-                p_extrato := '{"saldo": {
+                p_balance := '{"saldo": {
                 "total": ' || v_result.SALDO || ',
-                "data_extrato": "' || current_timestamp || '",
+                "date_balance": "' || current_timestamp || '",
                 "limite": ' || v_result.LIMITE || '
               },"ultimas_transactions": [';
             end if;
             if v_result.valor is not null then
-                p_extrato := p_extrato || ' {
+                p_balance := p_balance || ' {
                   "valor": ' || v_result.valor || ',
                   "tipo": "' || v_result.tipo || '",
                   "descricao": "' || v_result.descricao || '",
@@ -137,10 +137,10 @@ BEGIN
 
         end loop;
     if (v_count > 0) then
-        p_extrato := trim(p_extrato, ',');
+        p_balance := trim(p_balance, ',');
     end if;
-    p_extrato := p_extrato || ']}';
-    IF(p_extrato IS NULL) THEN
+    p_balance := p_balance || ']}';
+    IF(p_balance IS NULL) THEN
          raise exception no_data_found;
     end if;
 exception

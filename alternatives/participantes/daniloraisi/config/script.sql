@@ -158,11 +158,11 @@ BEGIN
 END;
 $$;
 
-CREATE OR REPLACE FUNCTION public.extrato(
+CREATE OR REPLACE FUNCTION public.balance(
 	id_cliente_tx INT
 )
 RETURNS TABLE(
-    extrato jsonb
+    balance jsonb
 )
 LANGUAGE SQL
 AS $$

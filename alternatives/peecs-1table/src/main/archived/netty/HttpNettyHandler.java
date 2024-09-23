@@ -27,7 +27,7 @@ public class HttpNettyHandler extends SimpleChannelInboundHandler<HttpObject> {
     private static final Pattern pTipo = Pattern.compile(tipoPattern);
     private static final Pattern pDescricao = Pattern.compile(descricaoPattern);
     private static final Pattern PATTERN_ID = Pattern.compile("/clientes/(\\d+)/.*");
-    private static final String EXTRATO_QUERY = "select * from proc_extrato(?)";
+    private static final String EXTRATO_QUERY = "select * from proc_balance(?)";
     private static final String TRANSACAO_QUERY = "select * from proc_transacao(?, ?, ?, ?, ?)";
     
     @Inject

@@ -72,10 +72,10 @@ AS $$
 DECLARE
     resultado JSON;
 BEGIN
-    -- Monta JSON com extrato do cliente
+    -- Monta JSON com balance do cliente
     SELECT json_build_object(
         'saldo', (SELECT * 
-                    FROM json_build_object('total',c.saldo, 'data_extrato', current_timestamp, 'limite', c.limite)),
+                    FROM json_build_object('total',c.saldo, 'date_balance', current_timestamp, 'limite', c.limite)),
         'ultimas_transactions', (SELECT COALESCE(json_agg(ut.*), '[]'::json)
                                  FROM (
                                        SELECT t.descricao, t.tipo, t.valor, t.data_transacao AS "realizada_em"

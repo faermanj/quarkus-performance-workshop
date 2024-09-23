@@ -30,7 +30,7 @@ import jakarta.transaction.Transactional;
 @WebServlet(value = "/*")
 @Transactional
 public class MariaRinhaServlet extends HttpServlet {
-    private static final String EXTRATO_CALL = "{CALL proc_extrato(?, ?, ?)}";
+    private static final String EXTRATO_CALL = "{CALL proc_balance(?, ?, ?)}";
     private static final String TRANSACAO_CALL = "{CALL proc_transacao(?, ?, ?, ?, ?, ?, ?)}";
     private static final String WARMUP_QUERY = "SELECT 1+1";
     private static final String valorPattern = "\"valor\":\\s*(\\d+(\\.\\d+)?)";

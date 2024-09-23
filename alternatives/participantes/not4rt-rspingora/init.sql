@@ -23,7 +23,7 @@ CREATE UNLOGGED TABLE backend.transactions (
 	realizada_em   VARCHAR(200) NOT NULL
 );
 
-CREATE INDEX idx_extrato ON backend.transactions (id desc, cliente_id);
+CREATE INDEX idx_balance ON backend.transactions (id desc, cliente_id);
 
 INSERT INTO backend.members (nome, limite)
 VALUES

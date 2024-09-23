@@ -84,7 +84,7 @@ create type saldotype as (
 	limite integer
 );
 
-create or replace function obterextrato(
+create or replace function obterbalance(
 	in idCliente integer
 ) returns json as $$
 	declare

@@ -37,7 +37,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-// curl -v -X GET http://localhost:9999/members/1/extrato
+// curl -v -X GET http://localhost:9999/members/1/balance
 
 // curl -v -X POST -H "Content-Type: application/json" -d '{"valor": 100,
 // "tipo": "c", "descricao": "Deposito"}'
@@ -118,7 +118,7 @@ public class RinhaServlet extends HttpServlet {
         } else {
             port = 9000 + (shard + 1);
         }
-        String urlString = "http://127.0.0.1:" + port + "/members/" + id + "/extrato";
+        String urlString = "http://127.0.0.1:" + port + "/members/" + id + "/balance";
         try {
             URL url = URI.create(urlString).toURL();
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -150,7 +150,7 @@ public class RinhaServlet extends HttpServlet {
                 }
             }
         } catch (IOException e) {
-            Log.info("Failed to import extrato from " + urlString);
+            Log.info("Failed to import balance from " + urlString);
         }
         return;
     }

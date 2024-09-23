@@ -34,7 +34,7 @@ services:
           memory: "100MB"
     healthcheck:
       <<: *default-healthcheck
-      test: ["CMD-SHELL", "curl -f http://127.0.0.1:8001/members/1/extrato || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://127.0.0.1:8001/members/1/balance || exit 1"]
 
 
   api2:
@@ -51,7 +51,7 @@ services:
       PORT: 8002
     healthcheck:
       <<: *default-healthcheck
-      test: ["CMD-SHELL", "curl -f http://127.0.0.1:8002/members/1/extrato || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://127.0.0.1:8002/members/1/balance || exit 1"]
 
   nginx:
     image: nginx:latest
@@ -71,7 +71,7 @@ services:
           memory: "50MB"
     healthcheck:
       <<: *default-healthcheck
-      test: ["CMD-SHELL", "curl -f http://127.0.0.1:9999/members/1/extrato || exit 1"]         
+      test: ["CMD-SHELL", "curl -f http://127.0.0.1:9999/members/1/balance || exit 1"]         
 
   postgres:
     image: postgres:latest

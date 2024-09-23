@@ -95,7 +95,7 @@ END IF;
 COMMIT;
 END;
 
-CREATE PROCEDURE proc_extrato (
+CREATE PROCEDURE proc_balance (
   IN p_cliente_id INT,
   OUT json_body TEXT,
   OUT status_code INT
@@ -116,7 +116,7 @@ SET json_body = JSON_OBJECT(
     'saldo', JSON_OBJECT(
         'total', CAST(v_saldo as INT),
         'limite', CAST(v_limit as INT),
-        'data_extrato', DATE_FORMAT(NOW(6), '%Y-%m-%d %H:%i:%s.%f')
+        'date_balance', DATE_FORMAT(NOW(6), '%Y-%m-%d %H:%i:%s.%f')
     ),
     'ultimas_transactions', (
         SELECT IFNULL(

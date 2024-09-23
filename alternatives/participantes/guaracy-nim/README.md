@@ -32,7 +32,7 @@ Submissão feita com:
 
 ## Implementação
 
-Apesar de ter sido fornecido um exemplo, achei que tinha muita tabela para algo que apenas pretendia adicionar ou subtrair valores de uma determinada com e mostrar o saldo. O extrato mostra apenas os últimos 10 lançamentos.
+Apesar de ter sido fornecido um exemplo, achei que tinha muita tabela para algo que apenas pretendia adicionar ou subtrair valores de uma determinada com e mostrar o saldo. O balance mostra apenas os últimos 10 lançamentos.
 
 Também retirei todos os procedimentos armazenados no BD. Testar no programa é mais rápido do que enviar para o SGBD, processar e retornar um erro.
 

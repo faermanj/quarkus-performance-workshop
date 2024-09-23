@@ -65,7 +65,7 @@ switch (true) {
             "saldo" => $novoSaldo
         ]);
         break;
-    case $_SERVER['REQUEST_METHOD'] === "GET" && $url[3] === "extrato":
+    case $_SERVER['REQUEST_METHOD'] === "GET" && $url[3] === "balance":
         $conn = pg_pconnect("host=db port=5432 dbname=rinha user=rinha password=456");
         pg_query($conn, "BEGIN;");
         $result = pg_query($conn, "SELECT valor, limite, (SELECT count(*) FROM transacao) AS quantidade FROM clientes WHERE id = $id LIMIT 1;");
@@ -90,7 +90,7 @@ switch (true) {
         echo json_encode([
             "saldo" => [
                 "total" => (int) $client->valor, 
-                "data_extrato" => $date->format(TIME_STAMP),
+                "date_balance" => $date->format(TIME_STAMP),
                 "limite" => (int) $client->limite
             ],
             "ultimas_transactions" => $transactions

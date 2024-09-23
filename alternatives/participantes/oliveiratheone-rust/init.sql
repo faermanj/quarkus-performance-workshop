@@ -17,14 +17,14 @@ CREATE UNLOGGED TABLE
                      CONSTRAINT "transactions_pkey" PRIMARY KEY ("id")
 );
 
-CREATE OR REPLACE FUNCTION get_extrato(customer_id INT)
+CREATE OR REPLACE FUNCTION get_balance(customer_id INT)
     RETURNS JSON AS
 $$
 DECLARE
 customer_data JSON;
     statements_data JSON;
 BEGIN
-SELECT json_build_object('total', saldo, 'limite', limite, 'data_extrato', now())
+SELECT json_build_object('total', saldo, 'limite', limite, 'date_balance', now())
 INTO customer_data
 FROM members
 WHERE id = customer_id;

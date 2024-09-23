@@ -26,8 +26,8 @@ import jakarta.ws.rs.core.Response;
 @ApplicationScoped
 @Path("/members")
 public class PostgreSQLRoute {
-    private static final String VERSION_ID = "Devoxx 2024";
-    private static final String EXTRATO_QUERY = "select status_code, body from proc_extrato($1)";
+    private static final String VERSION_ID = "Devoxx 2024 - balances";
+    private static final String EXTRATO_QUERY = "select status_code, body from proc_balance($1)";
     private static final String TRANSACAO_QUERY = "select status_code, body from proc_transacao($1, $2, $3, $4)";
     private static final String WARMUP_QUERY = "select 1+1;";
     private static final int WARMUP_LEVEL = 10;
@@ -86,7 +86,7 @@ public class PostgreSQLRoute {
     }
 
     @GET
-    @Path("/{id}/extrato")
+    @Path("/{id}/balance")
     public Uni<Response> doGet(@PathParam("id") int id) {
         if (invalid(id)) {
             return ERR_404;
@@ -100,7 +100,7 @@ public class PostgreSQLRoute {
                 .execute(Tuple.of(id))
                 .onItem().transform(RowSet::iterator) 
                 .onItem().transform(iterator -> iterator.hasNext() ? responseOf(iterator.next()) : null)
-                .onFailure().recoverWithItem(e -> errorOf(e,"err_extrato")); 
+                .onFailure().recoverWithItem(e -> errorOf(e,"err_balance")); 
     }
 
     @Path("/{id}/transactions")

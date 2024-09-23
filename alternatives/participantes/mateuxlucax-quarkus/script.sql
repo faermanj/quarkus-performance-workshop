@@ -42,7 +42,7 @@ CREATE INDEX idx_transactions_cliente_id ON transactions (cliente_id, id DESC);
 CREATE OR REPLACE PROCEDURE adiciona_transacao(
   id_cliente SMALLINT,
   valor INTEGER,
-  valor_extrato INTEGER, 
+  valor_balance INTEGER, 
   tipo CHAR(1),
   descricao VARCHAR(10),
   OUT saldo_atual INTEGER,
@@ -54,7 +54,7 @@ BEGIN
   INSERT INTO transactions (cliente_id, valor, tipo, descricao) VALUES (id_cliente, valor, tipo, descricao);
 
   UPDATE members
-     SET saldo = saldo + valor_extrato
+     SET saldo = saldo + valor_balance
    WHERE id = id_cliente RETURNING saldo, limite INTO saldo_atual, limite_atual;
 
   COMMIT;

@@ -20,9 +20,9 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @WebServlet("/*")
 public class RinhaServlet extends HttpServlet {
-    private static final Pattern EXTRATO_PATTERN = Pattern.compile("^/clientes/(\\d+)/(extrato)$");
+    private static final Pattern EXTRATO_PATTERN = Pattern.compile("^/clientes/(\\d+)/(balance)$");
     private static final Pattern TRANSACAO_PATTERN = Pattern.compile("^/clientes/(\\d+)/(transactions)$"); 
-    private static final String EXTRATO_QUERY = "select * from proc_extrato(?)";
+    private static final String EXTRATO_QUERY = "select * from proc_balance(?)";
     private static final String TRANSACAO_QUERY =  "select * from proc_transacao(?, ?, ?, ?)";
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
@@ -53,7 +53,7 @@ public class RinhaServlet extends HttpServlet {
         }while(!ready);
     }
     
-    // curl -v -X GET http://localhost:9999/clientes/1/extrato
+    // curl -v -X GET http://localhost:9999/clientes/1/balance
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         var pathInfo = req.getPathInfo();
@@ -69,7 +69,7 @@ public class RinhaServlet extends HttpServlet {
             var id = Integer.valueOf(matcher.group(1));
             var action = matcher.group(2);
 
-            if ("extrato".equals(action)) {
+            if ("balance".equals(action)) {
                 processExtrato(id, resp);
                 return;
             }

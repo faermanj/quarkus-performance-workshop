@@ -99,7 +99,7 @@ BEGIN
 END;
 $$;
 
-CREATE OR REPLACE FUNCTION extrato(
+CREATE OR REPLACE FUNCTION balance(
 	clienteId INT
 ) 
 RETURNS jsonb 
@@ -114,7 +114,7 @@ BEGIN
      		'saldo' VALUE json_object(
 				'total' VALUE saldo, 
 				'limite' VALUE limite, 
-				'data_extrato' VALUE current_timestamp
+				'date_balance' VALUE current_timestamp
 			),
        		'ultimas_transactions' VALUE COALESCE(json_agg(t) FILTER (WHERE t.cliente_id IS NOT NULL), '[]')
      )

@@ -49,7 +49,7 @@ ALTER TABLE public.clientes OWNER TO postgres;
 
 CREATE TABLE public.saldo (
     total integer,
-    data_extrato timestamp without time zone default now(),
+    date_balance timestamp without time zone default now(),
     limite integer
 );
 

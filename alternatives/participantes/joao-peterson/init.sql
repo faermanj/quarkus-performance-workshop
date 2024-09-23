@@ -58,8 +58,8 @@ begin
 end
 $$;
 
--- get extrato
-create or replace function extrato(cliente_in int) returns table(valor int, tipo bool, descricao varchar(10), realizada_em timestamp)
+-- get balance
+create or replace function balance(cliente_in int) returns table(valor int, tipo bool, descricao varchar(10), realizada_em timestamp)
 language plpgsql as
 $$
 begin

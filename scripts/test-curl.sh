@@ -4,5 +4,5 @@ curl -v -X POST \
         http:///localhost:9999/members/333/transactions | jq
 
 curl -v -X GET \
-    http://localhost:9999/members/333/extrato | jq
+    http://localhost:9999/members/333/balance | jq
 

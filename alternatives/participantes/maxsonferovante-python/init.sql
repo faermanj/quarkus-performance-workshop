@@ -27,7 +27,7 @@ BEGIN
    SELECT jsonb_build_object(
       'saldo', jsonb_build_object(
          'total', c.saldo,
-         'data_extrato', current_timestamp,
+         'date_balance', current_timestamp,
          'limite', ABS(c.limite)
       ),
       'ultimas_transactions', c.ultimas_transactions

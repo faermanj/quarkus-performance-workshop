@@ -59,7 +59,7 @@ END;
 $$
 LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION api.extrato(p_cliente_id int)
+CREATE OR REPLACE FUNCTION api.balance(p_cliente_id int)
 RETURNS JSON
 AS $$
 DECLARE
@@ -73,7 +73,7 @@ BEGIN
     LIMIT 10
   ),
   saldo AS (
-    SELECT saldo AS total, NOW() AS data_extrato, limite
+    SELECT saldo AS total, NOW() AS date_balance, limite
     FROM api.members c
     WHERE id = p_cliente_id
   )

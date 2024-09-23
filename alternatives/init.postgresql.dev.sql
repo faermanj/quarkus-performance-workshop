@@ -113,7 +113,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE FUNCTION proc_extrato(p_cliente_id int)
+CREATE OR REPLACE FUNCTION proc_balance(p_cliente_id int)
 RETURNS json_result AS $$
 DECLARE
     result json_result;
@@ -142,7 +142,7 @@ BEGIN
     SELECT json_build_object(
         'saldo', json_build_object(
             'total', v_saldo,
-            'data_extrato', TO_CHAR(now(), 'YYYY-MM-DD HH:MI:SS.US'),
+            'date_balance', TO_CHAR(now(), 'YYYY-MM-DD HH:MI:SS.US'),
             'limite', v_limite
         ),
         'ultimas_transactions', COALESCE((
@@ -157,7 +157,7 @@ BEGIN
     ) INTO result.body;
     result.status_code := 200;
     end_time := clock_timestamp();
-    INSERT INTO watchdog(function_name, execution_duration) VALUES ('proc_extrato', end_time - start_time);
+    INSERT INTO watchdog(function_name, execution_duration) VALUES ('proc_balance', end_time - start_time);
     RETURN result;
 END;
 $$ LANGUAGE plpgsql;

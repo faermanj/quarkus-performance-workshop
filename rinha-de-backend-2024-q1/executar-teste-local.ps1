@@ -16,9 +16,9 @@ function Start-Test {
         Write-Output $i
         try {
             # 2 requests to wake the 2 API instances up :)
-            Invoke-RestMethod -Uri "http://localhost:9999/members/1/extrato" -ErrorAction Stop
+            Invoke-RestMethod -Uri "http://localhost:9999/members/1/balance" -ErrorAction Stop
             Write-Host ""
-            Invoke-RestMethod -Uri "http://localhost:9999/members/1/extrato" -ErrorAction Stop
+            Invoke-RestMethod -Uri "http://localhost:9999/members/1/balance" -ErrorAction Stop
             Write-Host ""
             Run-Gatling
             break

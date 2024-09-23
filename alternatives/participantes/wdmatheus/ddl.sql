@@ -102,8 +102,8 @@ begin
 end
 $proc$;
 
--------------------------- vw_extrato --------------------------
-create materialized view public.vw_extrato
+-------------------------- vw_balance --------------------------
+create materialized view public.vw_balance
 as
 select
     j.id,
@@ -118,20 +118,20 @@ select
             'total',
             j.total,
 
-            'data_extrato',
-            to_char(j.data_extrato, 'YYYY-MM-DD"T"HH24:MI:US"Z"')
+            'date_balance',
+            to_char(j.date_balance, 'YYYY-MM-DD"T"HH24:MI:US"Z"')
         ),
 
         'ultimas_transactions',
         coalesce(j.ultimas_transactions, '{}')
-    ) as extrato
+    ) as balance
 from
     (
         select
             c.id,
             c.saldo as total,
             c.limite,
-            now() at time zone 'utc' as data_extrato,
+            now() at time zone 'utc' as date_balance,
             (
                 select
                     array_agg(t)
@@ -161,7 +161,7 @@ from
 
     ) j
 with data;
-create unique index if not exists ix_vw_extrato_id on public.vw_extrato (id);
+create unique index if not exists ix_vw_balance_id on public.vw_balance (id);
 
 -------------------------- carga inicial --------------------------
 DO $$
@@ -173,7 +173,7 @@ values
     (3, 'les cruders', 0, 1000000),
     (4, 'padaria joia de cocaia', 0, 10000000),
     (5, 'kid mais', 0, 500000);
-    refresh materialized view public.vw_extrato;
+    refresh materialized view public.vw_balance;
 end; $$
 
 

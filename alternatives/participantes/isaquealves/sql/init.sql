@@ -29,7 +29,7 @@ CREATE OR REPLACE VIEW account_statement AS
                 'saldo', json_build_object(
                     'total', c.amount,
                     'limite', c."limit",
-                    'data_extrato', now()
+                    'date_balance', now()
                     ),
                 'ultimas_transactions', COALESCE(
                     (SELECT json_agg(row_to_json(t)) FROM (

@@ -72,7 +72,7 @@ END;
 $$
 LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION extrato(
+CREATE OR REPLACE FUNCTION balance(
     _cliente_id INTEGER
 )
 RETURNS table (

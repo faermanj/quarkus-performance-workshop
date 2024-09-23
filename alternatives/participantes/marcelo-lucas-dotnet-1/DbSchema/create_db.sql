@@ -117,7 +117,7 @@ BEGIN
     SELECT
         saldo, -- total
         limite,
-        CURRENT_TIMESTAMP, -- data_extrato
+        CURRENT_TIMESTAMP, -- date_balance
         COALESCE(
             json_agg(
                 json_build_object('valor', trans.valor,'tipo', trans.tipo,'descricao', trans.descricao,'realizada_em', trans.realizada_em))

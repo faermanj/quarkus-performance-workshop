@@ -4,7 +4,7 @@ create table clientes
     id           serial NOT NULL primary key,
     saldo        int    not null,
     limite       int    not null,
-    data_extrato timestamp WITH TIME ZONE not null default CURRENT_TIMESTAMP
+    date_balance timestamp WITH TIME ZONE not null default CURRENT_TIMESTAMP
 );
 drop table if exists transactions;
 create table transactions

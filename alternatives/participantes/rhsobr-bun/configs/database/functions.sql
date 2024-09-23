@@ -1,5 +1,5 @@
 CREATE
-OR REPLACE FUNCTION gera_extrato(cliente_id_p INTEGER) RETURNS JSON AS $$
+OR REPLACE FUNCTION gera_balance(cliente_id_p INTEGER) RETURNS JSON AS $$
 DECLARE
     RESULT JSON;
 

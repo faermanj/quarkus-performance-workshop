@@ -30,7 +30,7 @@ BEGIN
   SELECT json_build_object(
     'saldo', json_build_object(
       'total', v_balance,
-      'data_extrato', TO_CHAR(now(), 'YYYY-MM-DD HH:MI:SS.US'),
+      'date_balance', TO_CHAR(now(), 'YYYY-MM-DD HH:MI:SS.US'),
       'limite', v_account_limit
     ),
     'ultimas_transactions', COALESCE((

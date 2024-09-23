@@ -62,7 +62,7 @@ BEGIN
             'saldo_id', saldo_record.saldo_id,
             'total', saldo_record.total,
             'limite', saldo_record.limite,
-            'data_extrato', now()
+            'date_balance', now()
         ),
         'ultimas_transactions', transactions_array
     );

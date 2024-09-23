@@ -15,7 +15,7 @@ CREATE UNLOGGED TABLE transactions (
 );
 
 CREATE INDEX ix_transactions_realizada_em ON transactions (realizada_em DESC) INCLUDE (valor, tipo, descricao);
-CREATE INDEX ix_clientes_extrato ON clientes (id) INCLUDE (limite, saldo);
+CREATE INDEX ix_clientes_balance ON clientes (id) INCLUDE (limite, saldo);
 
 DO $$
 BEGIN

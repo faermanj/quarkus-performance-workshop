@@ -16,13 +16,13 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
 
-@Path("/mysql/clientes/{id}/extrato")
+@Path("/mysql/clientes/{id}/balance")
 public class ExtratoResource {
 
     @Inject
     DataSource ds;
 
-    // curl -v -X GET http://localhost:9999/clientes/1/extrato
+    // curl -v -X GET http://localhost:9999/clientes/1/balance
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Transactional(Transactional.TxType.NEVER) 
@@ -31,9 +31,9 @@ public class ExtratoResource {
             @PathParam("id") Integer id) {
         Log.tracef("Extrato solicitado: %s ", id);
 
-        // psql var query = "select * from proc_extrato(?)";
+        // psql var query = "select * from proc_balance(?)";
         // mysql
-        var query = "call proc_extrato(?)";
+        var query = "call proc_balance(?)";
 
         try (var conn = ds.getConnection();
                 // psql var stmt = conn.prepareStatement(query);) {

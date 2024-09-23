@@ -59,7 +59,7 @@ Se o atributo `[id]` da URL for de uma identificação não existente de cliente
 ## Extrato
 **Requisição**
 
-`GET /members/[id]/extrato`
+`GET /members/[id]/balance`
 
 Onde
 - `[id]` (na URL) deve ser um número inteiro representando a identificação do cliente.
@@ -71,7 +71,7 @@ Onde
 {
   "saldo": {
     "total": -9098,
-    "data_extrato": "2024-01-17T02:34:41.217753Z",
+    "date_balance": "2024-01-17T02:34:41.217753Z",
     "limite": 100000
   },
   "ultimas_transactions": [
@@ -93,7 +93,7 @@ Onde
 Onde
 - `saldo`
     - `total` deve ser o saldo total atual do cliente (não apenas das últimas transações seguintes exibidas).
-    - `data_extrato` deve ser a data/hora da consulta do extrato.
+    - `date_balance` deve ser a data/hora da consulta do balance.
     - `limite` deve ser o limite cadastrado do cliente.
 - `ultimas_transactions` é uma lista ordenada por data/hora das transações de forma decrescente contendo até as 10 últimas transações com o seguinte:
     - `valor` deve ser o valor da transação.
@@ -368,7 +368,7 @@ Fique à vontade para alterar a [simulação](./load-test/user-files/simulations
 De nada :)
 
 ### Pré teste
-Na edição anterior da Rinha, o teste começava poucos segundos após a subida dos contêineres e, devido as restrições de CPU e memória, nem todos os serviços estavam prontos para receber requisições em tão pouco tempo. Nessa edição, antes do teste iniciar, um script verificará se a API está respondendo corretamente (via `GET /members/1/extrato`) por até 40 segundos em intervalos de 2 segundos a cada tentativa. Por isso, certifique-se de que todos seus serviços não demorem mais do que 40 segundos para estarem aptos a receberem requisições!
+Na edição anterior da Rinha, o teste começava poucos segundos após a subida dos contêineres e, devido as restrições de CPU e memória, nem todos os serviços estavam prontos para receber requisições em tão pouco tempo. Nessa edição, antes do teste iniciar, um script verificará se a API está respondendo corretamente (via `GET /members/1/balance`) por até 40 segundos em intervalos de 2 segundos a cada tentativa. Por isso, certifique-se de que todos seus serviços não demorem mais do que 40 segundos para estarem aptos a receberem requisições!
 
 
 #### Nota importante sobre o teste escrito!

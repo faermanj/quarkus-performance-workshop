@@ -32,7 +32,7 @@ O servidor HTTP é um listener TCP que aceita até 4 conexões simultâneas, o s
 
 O banco de dados é baseado em um servidor UDP que aceita conexões de members e é capaz de armazenar e recuperar dados da maneira mais eficiente **o possível**. Da mesma forma que o servidor, o banco é otimizado para este caso de uso específico.
 
-Utiliza um _protocolo de comunicação próprio_ e uma estrutura baseada em dados armazenados em formato binário compacto. O banco apenas adiciona ao arquivo quando um novo dado é inserido e, ao requisitar um dado, como em um extrato, lê **exatamente os últimos N\*10 bytes do arquivo**, onde _N é o tamanho de uma transação_.
+Utiliza um _protocolo de comunicação próprio_ e uma estrutura baseada em dados armazenados em formato binário compacto. O banco apenas adiciona ao arquivo quando um novo dado é inserido e, ao requisitar um dado, como em um balance, lê **exatamente os últimos N\*10 bytes do arquivo**, onde _N é o tamanho de uma transação_.
 
 ## Como rodar
 

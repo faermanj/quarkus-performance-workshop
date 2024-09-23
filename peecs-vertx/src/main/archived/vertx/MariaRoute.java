@@ -25,7 +25,7 @@ import jakarta.ws.rs.core.Response;
 @Path("/members")
 public class MariaRoute {
     private static final String VERSION_ID = "vertx-2tables-0.0.2";
-    private static final String EXTRATO_CALL = "{CALL proc_extrato($1, $2, $3)}";
+    private static final String EXTRATO_CALL = "{CALL proc_balance($1, $2, $3)}";
     private static final String TRANSACAO_CALL = "{CALL proc_transacao($1, $2, $3, $4, $5, $6, $7)}";
     private static final String WARMUP_QUERY = "select 1+1;";
     private static final int WARMUP_LEVEL = 10;
@@ -78,7 +78,7 @@ public class MariaRoute {
 	}
 
     @GET                                                                                   
-    @Path("/{id}/extrato")
+    @Path("/{id}/balance")
     public Uni<Response> doGet(@PathParam("id") int id) {
         if (invalid(id)) {
             return Uni.createFrom().item(Response.status(404).build());
@@ -93,7 +93,7 @@ public class MariaRoute {
         Uni<Response> result = query.onItem().transform(RowSet::iterator) 
             .onItem().transform(iterator -> iterator.hasNext() ? iterator.next() : null)
             .onItem().transform(r -> r != null ? responseOf(r) : null)
-            .onFailure().recoverWithItem(e -> errorOf(e,"err_extrato")); 
+            .onFailure().recoverWithItem(e -> errorOf(e,"err_balance")); 
         return result;
     }
 

@@ -1,7 +1,7 @@
 CREATE UNLOGGED TABLE members (
 	id SERIAL PRIMARY KEY,
 	saldo INTEGER NOT NULL DEFAULT 0,
-    extrato TEXT
+    balance TEXT
 );
     
 CREATE UNLOGGED TABLE transactions (
@@ -30,7 +30,7 @@ DECLARE
     v_saldo INT;
     v_limite INT;
     result json_result;
-    v_extrato TEXT;
+    v_balance TEXT;
 BEGIN
     -- SELECT limite_cliente(p_cliente_id) INTO v_limite;
     v_limite := CASE p_cliente_id
@@ -70,7 +70,7 @@ BEGIN
     SELECT json_build_object(
         'saldo', json_build_object(
             'total', v_saldo,
-            'data_extrato', TO_CHAR(now(), 'YYYY-MM-DD HH:MI:SS.US'),
+            'date_balance', TO_CHAR(now(), 'YYYY-MM-DD HH:MI:SS.US'),
             'limite', v_limite
         ),
         'ultimas_transactions', COALESCE((
@@ -82,10 +82,10 @@ BEGIN
                 LIMIT 10
             ) t
         ), '[]')
-    ) INTO v_extrato;
+    ) INTO v_balance;
 
     UPDATE members 
-    SET extrato = v_extrato
+    SET balance = v_balance
         WHERE id = p_cliente_id;
 
     SELECT json_build_object(
@@ -98,22 +98,22 @@ END;
 $$ LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE FUNCTION proc_extrato(p_cliente_id int)
+CREATE OR REPLACE FUNCTION proc_balance(p_cliente_id int)
 RETURNS json_result AS $$
 DECLARE
     result json_result;
     row_count integer;
     v_saldo numeric;
     v_limite numeric;
-    v_extrato TEXT;
+    v_balance TEXT;
 BEGIN
 
-    SELECT extrato
-        INTO v_extrato
+    SELECT balance
+        INTO v_balance
         FROM members
         WHERE id = p_cliente_id;
 
-    result.body := v_extrato;
+    result.body := v_balance;
     result.status_code := 200;
     RETURN result;
 END;

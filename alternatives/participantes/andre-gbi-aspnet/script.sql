@@ -71,7 +71,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE FUNCTION proc_extrato(p_id INT)
+CREATE OR REPLACE FUNCTION proc_balance(p_id INT)
 RETURNS JSON AS $$
 DECLARE
     saldo_info JSON;

@@ -84,9 +84,9 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION extrato(
+CREATE OR REPLACE FUNCTION balance(
   IN idcliente integer
-) RETURNS TABLE (total INT, data_extrato TIMESTAMP, limitee INT, ultimas_transactions JSON)  AS $$
+) RETURNS TABLE (total INT, date_balance TIMESTAMP, limitee INT, ultimas_transactions JSON)  AS $$
 DECLARE
   saldo_cliente INT;
   limite_cliente INT;

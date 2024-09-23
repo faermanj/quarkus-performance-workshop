@@ -11,7 +11,7 @@ services:
       db:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://127.0.0.1:9001/members/1/extrato"]
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:9001/members/1/balance"]
       interval: 2s
       retries: 10
     environment:
@@ -58,7 +58,7 @@ services:
       db:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://127.0.0.1:9002/members/1/extrato"]
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:9002/members/1/balance"]
       interval: 2s
       retries: 10
     environment:
@@ -115,7 +115,7 @@ services:
         soft: 1000000
         hard: 1000000
     healthcheck:
-      # test: ["CMD", "curl", "-f", "http://127.0.0.1:9999/members/1/extrato"]
+      # test: ["CMD", "curl", "-f", "http://127.0.0.1:9999/members/1/balance"]
       test: ["CMD", "sleep", "5"]
       interval: 3s
       retries: 15
@@ -132,7 +132,7 @@ services:
     image: appropriate/curl
     command: >
       /bin/sh -c "while true; 
-        do curl -s http://127.0.0.1:9999/members/1/extrato; 
+        do curl -s http://127.0.0.1:9999/members/1/balance; 
            sleep 0.10; 
         done"
     deploy:

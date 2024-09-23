@@ -14,7 +14,7 @@ Stack:
 
 1. Executar o comando: `docker-compose up`
 2. O serviço estará disponível na rota 9999, ex:
-   `curl --request GET --url http://localhost:9999/clientes/1/extrato`
+   `curl --request GET --url http://localhost:9999/clientes/1/balance`
 
 # Links úteis
 

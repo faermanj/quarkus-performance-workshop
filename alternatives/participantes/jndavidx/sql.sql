@@ -61,7 +61,7 @@ DECLARE
     last_transactions JSON;
 BEGIN
     SELECT format(
-        '{"total": %s, "limite": %s, "data_extrato": "%s"}',
+        '{"total": %s, "limite": %s, "date_balance": "%s"}',
         balance, limit_, CURRENT_TIMESTAMP::TIMESTAMP
     )
     INTO _balance FROM clients WHERE id = _id;

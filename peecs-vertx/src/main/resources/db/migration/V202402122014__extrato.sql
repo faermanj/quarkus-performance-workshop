@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION proc_extrato(p_id integer)
+CREATE OR REPLACE FUNCTION proc_balance(p_id integer)
 RETURNS json AS $$
 DECLARE
     result json;
@@ -20,7 +20,7 @@ BEGIN
     SELECT json_build_object(
         'saldo', json_build_object(
             'total', v_saldo,
-            'data_extrato', TO_CHAR(NOW(), 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
+            'date_balance', TO_CHAR(NOW(), 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
             'limite', v_limite
         ),
         'ultimas_transactions', COALESCE((

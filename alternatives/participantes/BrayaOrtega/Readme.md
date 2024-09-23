@@ -20,8 +20,8 @@ A arquitetura da API eh bem simples.
 ## Descricao
 
 A webapi faz a leitura do database e inicializa o cache gerando o snapshot das contas com seu estado atual.
-A partir dai toda leitura eh feita em cima do cache que mantem para o extrato as ultimas 10 transactions que ocorrem na conta.
-Toda nova transacao eh adicionada ao extrato e o cache eh atualizado com o novo saldo da conta baseado nessa transacao.
+A partir dai toda leitura eh feita em cima do cache que mantem para o balance as ultimas 10 transactions que ocorrem na conta.
+Toda nova transacao eh adicionada ao balance e o cache eh atualizado com o novo saldo da conta baseado nessa transacao.
 Em paralelo uma mensagem eh publicada ao message broker que distribui as mensagens nos workers que salvam as transactions em batch no banco de dados.
 
 As instancias da WebAPI, Cache e o message broker tem mais recursos que o necessario para rodar mas distribui para alocar todos os recursos disponiveis para a rinha, assim garantindo folga para a execucao da API.

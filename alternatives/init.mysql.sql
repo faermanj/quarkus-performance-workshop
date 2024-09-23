@@ -72,7 +72,7 @@ BEGIN
     END IF;
 END;
 
-CREATE PROCEDURE proc_extrato(IN p_id INT)
+CREATE PROCEDURE proc_balance(IN p_id INT)
 BEGIN
     -- Check if the cliente exists
     IF NOT EXISTS (SELECT 1 FROM clientes WHERE id = p_id) THEN
@@ -104,5 +104,5 @@ BEGIN
             ORDER BY realizada_em DESC
             LIMIT 10
         )
-    ) AS extrato;
+    ) AS balance;
 END;

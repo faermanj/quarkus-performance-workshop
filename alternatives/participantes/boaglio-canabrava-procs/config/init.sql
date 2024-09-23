@@ -111,7 +111,7 @@ DECLARE
 BEGIN
     SELECT json_build_object('saldo', json_build_object(
         'total', balances.amount,
-        'data_extrato', NOW()::date,
+        'date_balance', NOW()::date,
         'limite', accounts.limit_amount,
         'ultimas_transactions',
             CASE

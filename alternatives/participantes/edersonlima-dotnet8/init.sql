@@ -76,7 +76,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE FUNCTION obter_extrato_cliente(p_id_cliente INT)
+CREATE OR REPLACE FUNCTION obter_balance_cliente(p_id_cliente INT)
     RETURNS TABLE (
                       limite INT,
                       valor INT,

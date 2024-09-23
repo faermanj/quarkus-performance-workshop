@@ -63,19 +63,19 @@ begin
 end ;
 $$ language plpgsql;
 
-drop procedure if exists rinha.retorna_extrato;
-create procedure rinha.retorna_extrato(in in_id_cliente int,
-                                       out out_extrato json)
+drop procedure if exists rinha.retorna_balance;
+create procedure rinha.retorna_balance(in in_id_cliente int,
+                                       out out_balance json)
 as
 $$
 declare
     _saldo_json      json;
     _transactions_json json;
-    _data_extrato    timestamp(6);
+    _date_balance    timestamp(6);
 begin
-    _data_extrato := current_timestamp(6);
-    select json_build_object('total', c.saldo, 'limite', c.limite, 'data_extrato',
-                             to_char(_data_extrato, 'yyyy-mm-dd"T"HH24:MI:SS.MS'))
+    _date_balance := current_timestamp(6);
+    select json_build_object('total', c.saldo, 'limite', c.limite, 'date_balance',
+                             to_char(_date_balance, 'yyyy-mm-dd"T"HH24:MI:SS.MS'))
     into _saldo_json
     from rinha.cliente c
     where c.id = in_id_cliente;
@@ -99,7 +99,7 @@ begin
     if _transactions_json is null then
         _transactions_json := json_build_array();
     end if;
-    out_extrato := json_build_object('saldo', _saldo_json,
+    out_balance := json_build_object('saldo', _saldo_json,
                                      'ultimas_transactions', _transactions_json);
 end;
 

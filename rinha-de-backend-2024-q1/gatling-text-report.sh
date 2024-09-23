@@ -101,15 +101,15 @@ genTextReport() {
             creditosp4=$(cat $arquivoStats | jq '.contents | map(select(.name == "créditos"))[0].stats.percentiles4.total' )
             creditosMax=$(cat $arquivoStats | jq '.contents | map(select(.name == "créditos"))[0].stats.maxResponseTime.total' )
 
-            extratos=$(cat $arquivoStats | jq '.contents | map(select(.name == "extratos"))[0].stats.numberOfRequests.total' )
-            extratosOk=$(cat $arquivoStats | jq '.contents | map(select(.name == "extratos"))[0].stats.numberOfRequests.ok' )
-            extratosKo=$(cat $arquivoStats | jq '.contents | map(select(.name == "extratos"))[0].stats.numberOfRequests.ko' )
-            extratosMin=$(cat $arquivoStats | jq '.contents | map(select(.name == "extratos"))[0].stats.minResponseTime.total' )
-            extratosp1=$(cat $arquivoStats | jq '.contents | map(select(.name == "extratos"))[0].stats.percentiles1.total' )
-            extratosp2=$(cat $arquivoStats | jq '.contents | map(select(.name == "extratos"))[0].stats.percentiles2.total' )
-            extratosp3=$(cat $arquivoStats | jq '.contents | map(select(.name == "extratos"))[0].stats.percentiles3.total' )
-            extratosp4=$(cat $arquivoStats | jq '.contents | map(select(.name == "extratos"))[0].stats.percentiles4.total' )
-            extratosMax=$(cat $arquivoStats | jq '.contents | map(select(.name == "extratos"))[0].stats.maxResponseTime.total' )
+            balances=$(cat $arquivoStats | jq '.contents | map(select(.name == "balances"))[0].stats.numberOfRequests.total' )
+            balancesOk=$(cat $arquivoStats | jq '.contents | map(select(.name == "balances"))[0].stats.numberOfRequests.ok' )
+            balancesKo=$(cat $arquivoStats | jq '.contents | map(select(.name == "balances"))[0].stats.numberOfRequests.ko' )
+            balancesMin=$(cat $arquivoStats | jq '.contents | map(select(.name == "balances"))[0].stats.minResponseTime.total' )
+            balancesp1=$(cat $arquivoStats | jq '.contents | map(select(.name == "balances"))[0].stats.percentiles1.total' )
+            balancesp2=$(cat $arquivoStats | jq '.contents | map(select(.name == "balances"))[0].stats.percentiles2.total' )
+            balancesp3=$(cat $arquivoStats | jq '.contents | map(select(.name == "balances"))[0].stats.percentiles3.total' )
+            balancesp4=$(cat $arquivoStats | jq '.contents | map(select(.name == "balances"))[0].stats.percentiles4.total' )
+            balancesMax=$(cat $arquivoStats | jq '.contents | map(select(.name == "balances"))[0].stats.maxResponseTime.total' )
 
             echo "Report start - ${executionTimestamp}"
             echo "Response Time Ranges"
@@ -164,16 +164,16 @@ genTextReport() {
             echo "  p99: ${creditosp4}"
             echo "  Max: ${creditosMax}"
 
-            echo "extratos"
-            echo "  total: ${extratos}"
-            echo "  OK: ${extratosOk}"
-            echo "  Nok: ${extratosKo}"
-            echo "  Min: ${extratosMin}"
-            echo "  p50: ${extratosp1}"
-            echo "  p75: ${extratosp2}"
-            echo "  p95: ${extratosp3}"
-            echo "  p99: ${extratosp4}"
-            echo "  Max: ${extratosMax}"
+            echo "balances"
+            echo "  total: ${balances}"
+            echo "  OK: ${balancesOk}"
+            echo "  Nok: ${balancesKo}"
+            echo "  Min: ${balancesMin}"
+            echo "  p50: ${balancesp1}"
+            echo "  p75: ${balancesp2}"
+            echo "  p95: ${balancesp3}"
+            echo "  p99: ${balancesp4}"
+            echo "  Max: ${balancesMax}"
 
             echo "Report End - ${executionTimestamp}"
             echo " "

@@ -26,8 +26,8 @@ startWarmupMakeTransactions() {
 startWarmupExtract() {
     for i in {1..30}; do
         # 2 requests to wake the 2 api instances up :)
-        curl --fail -s http://nginx:9999/members/1/extrato?skip=true > /dev/null && \
-        curl --fail -s http://nginx:9999/members/1/extrato?skip=true > /dev/null
+        curl --fail -s http://nginx:9999/members/1/balance?skip=true > /dev/null && \
+        curl --fail -s http://nginx:9999/members/1/balance?skip=true > /dev/null
     done
 }
 
@@ -36,8 +36,8 @@ startTest() {
   echo "Starting test..."
   for i in {1..200}; do
       # 2 requests to wake the 2 api instances up :)
-      curl --fail -s http://nginx:9999/members/1/extrato?skip=true > /dev/null && \
-      curl --fail -s http://nginx:9999/members/1/extrato?skip=true > /dev/null && \
+      curl --fail -s http://nginx:9999/members/1/balance?skip=true > /dev/null && \
+      curl --fail -s http://nginx:9999/members/1/balance?skip=true > /dev/null && \
       break || sleep 0.1;
   done
   echo "finish test"

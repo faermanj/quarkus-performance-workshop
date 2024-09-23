@@ -25,7 +25,7 @@ import jakarta.ws.rs.core.Response;
 @Path("/vertx/clientes")
 public class PostgreSQLRoute {
     private static final String VERSION_ID = "0.0.3-pgsql";
-    private static final String EXTRATO_QUERY = "select * from proc_extrato($1)";
+    private static final String EXTRATO_QUERY = "select * from proc_balance($1)";
     private static final String TRANSACAO_QUERY = "select * from proc_transacao($1, $2, $3, $4, $5)";
     private static final String WARMUP_QUERY = "select 1+1;";
     private static final int WARMUP_LEVEL = 10;
@@ -77,7 +77,7 @@ public class PostgreSQLRoute {
     }
 
     @GET
-    @Path("/{id}/extrato")
+    @Path("/{id}/balance")
     public Uni<Response> doGet(@PathParam("id") int id) {
         if (invalid(id)) {
             return Uni.createFrom().item(Response.status(404).build());
@@ -95,7 +95,7 @@ public class PostgreSQLRoute {
                 .onItem().transform(RowSet::iterator) 
                 .onItem().transform(iterator -> iterator.hasNext() ? iterator.next() : null)
                 .onItem().transform(r -> r != null ? responseOf(r) : null)
-                .onFailure().recoverWithItem(e -> errorOf(e,"err_extrato"))); 
+                .onFailure().recoverWithItem(e -> errorOf(e,"err_balance"))); 
     }
 
     @Path("/{id}/transactions")

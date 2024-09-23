@@ -44,15 +44,15 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION obter_extrato(cliente_id_param INTEGER)
+CREATE OR REPLACE FUNCTION obter_balance(cliente_id_param INTEGER)
 RETURNS JSON AS $$
 DECLARE
-    extrato JSON;
+    balance JSON;
 BEGIN
     SELECT json_build_object(
         'saldo', json_build_object(
             'total', (SELECT valor FROM saldos WHERE cliente_id = cliente_id_param),
-            'data_extrato', NOW(),
+            'date_balance', NOW(),
             'limite', (SELECT limite FROM clientes WHERE id = cliente_id_param)
         ),
         'ultimas_transactions', COALESCE((
@@ -67,9 +67,9 @@ BEGIN
             LIMIT 10
         ), '[]'::JSON)
     )
-    INTO extrato;
+    INTO balance;
 
-    RETURN extrato;
+    RETURN balance;
 END;
 $$ LANGUAGE plpgsql;
 

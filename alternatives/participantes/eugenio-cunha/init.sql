@@ -82,7 +82,7 @@ BEGIN
         'saldo', jsonb_build_object(
             'limite', c.limit,
             'total', c.balance,
-            'data_extrato', CURRENT_TIMESTAMP
+            'date_balance', CURRENT_TIMESTAMP
         ),
         'ultimas_transactions', (
             SELECT jsonb_agg(to_jsonb(transaction_by_client))

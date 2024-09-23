@@ -11,7 +11,7 @@ Estamos utilizando apenas **240MB** de memória economizando **310MB** dos 550MB
 Implementamos o controle de concorrência em nível de processo da aplicação, seguindo uma abordagem baseada no **modelo de ator**. Inspirado nas ideias de **Vaughn Vernon**, este modelo oferece uma estrutura poderosa para lidar com a concorrência de forma eficiente e escalável. Para entender melhor, recomendo este [vídeo](https://www.youtube.com/watch?v=KtRLIzG5c54).
 
 ### - `Event sourcing "like"` 
-Essa implementação se aproxima do conceito de *event sourcing*, permitindo um controle mais preciso e granular do estado dos actors. Especificamente útil para cálculos complexos, como o saldo final do cliente, este método garante uma visão abrangente do histórico de eventos que moldam o estado atual, no caso cada **Transaction** é como um evento na stream de um actor. Como só precisamos manter as ultimas 10 transações no extrato, parece fazer muito sentido manter esse histório em memória.
+Essa implementação se aproxima do conceito de *event sourcing*, permitindo um controle mais preciso e granular do estado dos actors. Especificamente útil para cálculos complexos, como o saldo final do cliente, este método garante uma visão abrangente do histórico de eventos que moldam o estado atual, no caso cada **Transaction** é como um evento na stream de um actor. Como só precisamos manter as ultimas 10 transações no balance, parece fazer muito sentido manter esse histório em memória.
 
 ### - `Snapshoting` 
 Para otimizar o desempenho dos rebuilds, implementamos uma técnica de *snapshoting*. Isso nos permite capturar o estado dos actors em momentos específicos, reduzindo a carga de processamento necessária para reconstruir o estado completo em caso de restart dos servidores da API.

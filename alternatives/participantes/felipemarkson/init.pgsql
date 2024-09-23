@@ -84,7 +84,7 @@ END
 $$;
 
 
-CREATE OR REPLACE FUNCTION get_extrato(
+CREATE OR REPLACE FUNCTION get_balance(
     cliente_id_in int
 )
 RETURNS json
@@ -96,7 +96,7 @@ BEGIN
     SELECT json_build_object (
         'saldo', (
             SELECT to_json(sld) FROM (
-                SELECT saldo AS total, LOCALTIMESTAMP AS data_extrato, limite
+                SELECT saldo AS total, LOCALTIMESTAMP AS date_balance, limite
                 FROM clientes WHERE clientes.id = cliente_id_in LIMIT 1
             ) sld
         ),

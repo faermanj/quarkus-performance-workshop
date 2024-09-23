@@ -24,7 +24,7 @@ A aplicação possui dois endpoints:
 
 - `descricao`: Descrição da transação.
 
-2.  **GET /clientes/[id]/extrato**: Este endpoint permite obter o extrato de transações de um cliente específico.
+2.  **GET /clientes/[id]/balance**: Este endpoint permite obter o balance de transações de um cliente específico.
 
 ## Execução
 
