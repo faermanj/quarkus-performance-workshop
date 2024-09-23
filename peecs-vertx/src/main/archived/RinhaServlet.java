@@ -20,8 +20,8 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @WebServlet("/*")
 public class RinhaServlet extends HttpServlet {
-    private static final Pattern EXTRATO_PATTERN = Pattern.compile("^/clientes/(\\d+)/(extrato)$");
-    private static final Pattern TRANSACAO_PATTERN = Pattern.compile("^/clientes/(\\d+)/(transacoes)$"); 
+    private static final Pattern EXTRATO_PATTERN = Pattern.compile("^/members/(\\d+)/(extrato)$");
+    private static final Pattern TRANSACAO_PATTERN = Pattern.compile("^/members/(\\d+)/(transacoes)$"); 
     private static final String EXTRATO_QUERY = "select * from proc_extrato(?)";
     private static final String TRANSACAO_QUERY =  "select * from proc_transacao(?, ?, ?, ?)";
 
@@ -53,7 +53,7 @@ public class RinhaServlet extends HttpServlet {
         }while(!ready);
     }
     
-    // curl -v -X GET http://localhost:9999/clientes/1/extrato
+    // curl -v -X GET http://localhost:9999/members/1/extrato
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         var pathInfo = req.getPathInfo();
@@ -108,7 +108,7 @@ public class RinhaServlet extends HttpServlet {
         }
     }
 
-    // curl -v -X POST -H "Content-Type: application/json" -d '{"valor": 0, "tipo": "c", "descricao": "Deposito"}' http:///localhost:9999/clientes/1/transacoes
+    // curl -v -X POST -H "Content-Type: application/json" -d '{"valor": 0, "tipo": "c", "descricao": "Deposito"}' http:///localhost:9999/members/1/transacoes
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         var pathInfo = req.getPathInfo();
@@ -199,7 +199,7 @@ public class RinhaServlet extends HttpServlet {
         var msg = e.getMessage();
         if (msg.contains("LIMITE_INDISPONIVEL")) {
             resp.sendError(422, "Erro: Limite indisponivel");
-        } else if (msg.contains("fk_clientes_transacoes_id")) {
+        } else if (msg.contains("fk_members_transacoes_id")) {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Erro: Cliente inexistente");
         } else {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Erro SQL ao processar a transacao");

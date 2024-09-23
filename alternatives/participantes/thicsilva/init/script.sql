@@ -16,11 +16,11 @@ CREATE DATABASE /*!32312 IF NOT EXISTS*/`rinha` /*!40100 DEFAULT CHARACTER SET u
 
 USE `rinha`;
 
-/*Table structure for table `clientes` */
+/*Table structure for table `members` */
 
-DROP TABLE IF EXISTS `clientes`;
+DROP TABLE IF EXISTS `members`;
 
-CREATE TABLE `clientes` (
+CREATE TABLE `members` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `nome` varchar(50) DEFAULT NULL,
   `limite` int(11) NOT NULL,
@@ -28,13 +28,13 @@ CREATE TABLE `clientes` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-/*Data for the table `clientes` */
+/*Data for the table `members` */
 
-insert  into `clientes`(`id`,`nome`,`limite`,`saldo`) values (1,'o barato sai caro',100000,0);
-insert  into `clientes`(`id`,`nome`,`limite`,`saldo`) values (2,'zan corp ltda',80000,0);
-insert  into `clientes`(`id`,`nome`,`limite`,`saldo`) values (3,'les cruders',1000000,0);
-insert  into `clientes`(`id`,`nome`,`limite`,`saldo`) values (4,'padaria joia de cocaia',10000000,0);
-insert  into `clientes`(`id`,`nome`,`limite`,`saldo`) values (5,'kid mais',500000,0);
+insert  into `members`(`id`,`nome`,`limite`,`saldo`) values (1,'o barato sai caro',100000,0);
+insert  into `members`(`id`,`nome`,`limite`,`saldo`) values (2,'zan corp ltda',80000,0);
+insert  into `members`(`id`,`nome`,`limite`,`saldo`) values (3,'les cruders',1000000,0);
+insert  into `members`(`id`,`nome`,`limite`,`saldo`) values (4,'padaria joia de cocaia',10000000,0);
+insert  into `members`(`id`,`nome`,`limite`,`saldo`) values (5,'kid mais',500000,0);
 
 /*Table structure for table `transacoes` */
 
@@ -50,7 +50,7 @@ CREATE TABLE `transacoes` (
   PRIMARY KEY (`id`),
   KEY `fk_transacao_cliente` (`cliente_id`),
   KEY `idx_realizada` (`realizada_em`),
-  CONSTRAINT `fk_transacao_cliente` FOREIGN KEY (`cliente_id`) REFERENCES `clientes` (`id`)
+  CONSTRAINT `fk_transacao_cliente` FOREIGN KEY (`cliente_id`) REFERENCES `members` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `transacoes` */
@@ -75,16 +75,16 @@ BEGIN
         ELSE
             SET diff = p_valor;
         END IF;
-        SELECT saldo, limite, saldo+diff into o_saldo, o_limite, n_saldo from clientes where id=p_cliente_id FOR UPDATE;
+        SELECT saldo, limite, saldo+diff into o_saldo, o_limite, n_saldo from members where id=p_cliente_id FOR UPDATE;
         if (n_saldo<-o_limite) then
             SET o_saldo=-1;
             set o_limite=-1;
             SELECT 'SALDO INDISPONIVEL' AS Msg;
             ROLLBACK;
         else        
-            UPDATE clientes SET saldo = n_saldo WHERE id=p_cliente_id;               
+            UPDATE members SET saldo = n_saldo WHERE id=p_cliente_id;               
             INSERT INTO transacoes (cliente_id, valor, tipo, descricao) VALUES (p_cliente_id, p_valor, p_tipo, p_descricao);
-            SELECT saldo, limite INTO o_saldo, o_limite FROM clientes WHERE id=p_cliente_id;
+            SELECT saldo, limite INTO o_saldo, o_limite FROM members WHERE id=p_cliente_id;
             COMMIT;
         END IF;
 	END */$$

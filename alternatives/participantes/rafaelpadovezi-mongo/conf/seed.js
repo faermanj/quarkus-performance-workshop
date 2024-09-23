@@ -1,5 +1,5 @@
 ﻿db = db.getSiblingDB('rinha');
-db.clientes.insertMany([
+db.members.insertMany([
     {
         _id: 1,
         Saldo: 0,

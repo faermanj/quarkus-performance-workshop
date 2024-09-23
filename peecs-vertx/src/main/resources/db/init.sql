@@ -1,5 +1,5 @@
 
-INSERT INTO clientes (nome, limite) VALUES
+INSERT INTO members (nome, limite) VALUES
     ('o barato sai caro', 1000 * 100),
     ('zan corp ltda', 800 * 100),
     ('les cruders', 10000 * 100),
@@ -14,7 +14,7 @@ BEGIN
     SET TRANSACTION ISOLATION LEVEL READ COMMITTED;
     START TRANSACTION;
 
-    IF NOT EXISTS (SELECT 1 FROM clientes WHERE id = p_cliente_id) THEN
+    IF NOT EXISTS (SELECT 1 FROM members WHERE id = p_cliente_id) THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'CLIENTE_NAO_ENCONTRADO';
         ROLLBACK;
     END IF;
@@ -27,7 +27,7 @@ BEGIN
 
     SELECT saldo, limite, saldo + diff
         INTO r_saldo, r_limite, n_saldo
-        FROM clientes 
+        FROM members 
         WHERE id = p_cliente_id 
         FOR UPDATE;
 
@@ -35,7 +35,7 @@ BEGIN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'LIMITE_INDISPONIVEL';
         ROLLBACK;
     ELSE
-        UPDATE clientes SET saldo = n_saldo WHERE id = p_cliente_id;
+        UPDATE members SET saldo = n_saldo WHERE id = p_cliente_id;
         
         INSERT INTO transacoes (cliente_id, valor, tipo, descricao, realizada_em)
             VALUES (p_cliente_id, p_valor, p_tipo, p_descricao, now(6));
@@ -52,7 +52,7 @@ BEGIN
     SET TRANSACTION ISOLATION LEVEL READ COMMITTED;
     START TRANSACTION READ ONLY;
 
-    IF NOT EXISTS (SELECT 1 FROM clientes WHERE id = p_id) THEN
+    IF NOT EXISTS (SELECT 1 FROM members WHERE id = p_id) THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'CLIENTE_NAO_ENCONTRADO';
         ROLLBACK;
     END IF;
@@ -64,7 +64,7 @@ BEGIN
                 'total', saldo,
                 'limite', limite
             )
-            FROM clientes
+            FROM members
             WHERE id = p_id
         ),
         'ultimas_transacoes', (

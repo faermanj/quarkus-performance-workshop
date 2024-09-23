@@ -15,12 +15,12 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-@Path("/cached/clientes/{id}/transacoes")
+@Path("/cached/members/{id}/transacoes")
 public class CachedTransacoesResource {
     @Inject
-    Cache<Integer, Cliente> clientes;
+    Cache<Integer, Cliente> members;
     
-    // curl -v -X POST -H "Content-Type: application/json" -d "{"valor": 1, 'tipo': 'c', 'descricao': 'rinah rox'}" http://localhost:9999/simple/clientes/1/transacoes
+    // curl -v -X POST -H "Content-Type: application/json" -d "{"valor": 1, 'tipo': 'c', 'descricao': 'rinah rox'}" http://localhost:9999/simple/members/1/transacoes
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Transactional
@@ -28,7 +28,7 @@ public class CachedTransacoesResource {
             @PathParam("id") Integer id,
             Transacao t) {
         Log.tracef("Transacao recebida: %s %s ", id, t);
-        var cliente = clientes.get(id);
+        var cliente = members.get(id);
         if (cliente == null) {
             return Response.status(404).entity("Cliente nao encontrado").build();
         }

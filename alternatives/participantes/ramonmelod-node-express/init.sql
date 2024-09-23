@@ -1,4 +1,4 @@
-CREATE TABLE clientes(
+CREATE TABLE members(
   id SERIAL PRIMARY KEY,
   nome varchar(100) NOT NULL,
   limite INT NOT NULL,
@@ -13,11 +13,11 @@ CREATE TABLE transacoes(
   tipo  CHAR(1) NOT NULL,
   descricao   VARCHAR(10) NOT NULL,
   realizada_em  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT fk_clientes_transacoes_id
-      FOREIGN KEY (cliente_id) REFERENCES clientes(id)
+  CONSTRAINT fk_members_transacoes_id
+      FOREIGN KEY (cliente_id) REFERENCES members(id)
 );
 
-INSERT INTO clientes (nome, limite)
+INSERT INTO members (nome, limite)
 VALUES
   ('o barato sai caro', 1000 * 100),
   ('zan corp ltda', 800 * 100),

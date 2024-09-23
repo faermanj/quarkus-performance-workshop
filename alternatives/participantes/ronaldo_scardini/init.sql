@@ -1,4 +1,4 @@
-CREATE TABLE clientes (
+CREATE TABLE members (
     id SERIAL PRIMARY KEY,
     nome VARCHAR(50) UNIQUE NOT NULL,
     limite INTEGER NOT NULL
@@ -23,7 +23,7 @@ CREATE TABLE saldos (
 
 DO $$
 BEGIN
-    INSERT INTO clientes (nome, limite)
+    INSERT INTO members (nome, limite)
     VALUES
         ('o barato sai caro', 1000 * 100),
         ('zan corp ltda', 800 * 100),
@@ -31,7 +31,7 @@ BEGIN
         ('padaria joia de cocaia', 100000 * 100),
         ('kid mais', 5000 * 100);
     
-    INSERT INTO saldos (cliente_id, valor) SELECT id, 0 FROM clientes;
+    INSERT INTO saldos (cliente_id, valor) SELECT id, 0 FROM members;
 END;
 $$;
 

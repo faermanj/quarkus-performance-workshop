@@ -1,4 +1,4 @@
-CREATE TABLE clientes (
+CREATE TABLE members (
     id INT PRIMARY KEY,
     limite BIGINT NOT NULL,
     saldo BIGINT NOT NULL DEFAULT '0'
@@ -12,10 +12,10 @@ CREATE TABLE transacoes(
     tipo tipo_transacao NOT NULL,
     descricao VARCHAR(10) NOT NULL,
     realizada_em TIMESTAMP NOT NULL DEFAULT NOW(),
-    cliente_id INT NOT NULL REFERENCES clientes(id)
+    cliente_id INT NOT NULL REFERENCES members(id)
 );
 
-INSERT INTO clientes VALUES
+INSERT INTO members VALUES
 ('1', '100000', '0'),
 ('2', '80000', '0'),
 ('3', '1000000', '0'),
@@ -40,7 +40,7 @@ AS $$
 DECLARE
     vcliente_id INTEGER := NULL;
 BEGIN
-    SELECT id FROM clientes
+    SELECT id FROM members
     INTO vcliente_id
     WHERE id = pcliente_id
     FOR UPDATE;
@@ -51,12 +51,12 @@ BEGIN
     end if;
 
     if ptipo = 'c' then
-          UPDATE clientes
+          UPDATE members
           SET saldo = saldo + pvalor
           WHERE id = pcliente_id
           RETURNING saldo, limite INTO v_saldo, v_limite;
     elsif ptipo = 'd' then
-          UPDATE clientes
+          UPDATE members
           SET saldo = saldo - pvalor
           WHERE id = pcliente_id AND saldo - pvalor >= -limite
           RETURNING saldo, limite INTO v_saldo, v_limite;
@@ -82,7 +82,7 @@ LANGUAGE plpgsql
 AS $$
 BEGIN
     OPEN cliente FOR
-    SELECT id, limite, saldo AS total FROM clientes
+    SELECT id, limite, saldo AS total FROM members
     WHERE id = cid;
 
     OPEN transacoes FOR
@@ -93,7 +93,7 @@ BEGIN
 END;
 $$;
 
-CREATE INDEX IF NOT EXISTS saldo_index ON clientes(saldo);
+CREATE INDEX IF NOT EXISTS saldo_index ON members(saldo);
 CREATE INDEX IF NOT EXISTS id_trc ON transacoes(id DESC);
 CREATE INDEX IF NOT EXISTS cid_transacoes ON transacoes(cliente_id);
 

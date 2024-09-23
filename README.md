@@ -11,7 +11,7 @@ In this repository you will find everything you need. Not only the PEECS code, c
 The system interface is very simple, taking HTTP requests and returning json data. Here's a sample transaction with the minimal information required (person id, value, type and description).
 
 ```
-POST /clientes/[id]/transacoes
+POST /members/[id]/transacoes
 
 {
     "valor": 1000,
@@ -23,7 +23,7 @@ POST /clientes/[id]/transacoes
 
 And a balance request:
 ```
-GET /clientes/[id]/extrato
+GET /members/[id]/extrato
 
 {
   "saldo": {

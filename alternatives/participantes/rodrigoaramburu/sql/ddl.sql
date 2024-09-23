@@ -1,10 +1,10 @@
-CREATE TABLE IF NOT EXISTS public.clientes
+CREATE TABLE IF NOT EXISTS public.members
 (
     id SERIAL NOT NULL,
     nome character varying(100) NOT NULL DEFAULT 0,
     limite integer NOT NULL DEFAULT 0,
     saldo integer NOT NULL DEFAULT 0,
-    CONSTRAINT clientes_pkey PRIMARY KEY (id)
+    CONSTRAINT members_pkey PRIMARY KEY (id)
 );
 
 
@@ -18,5 +18,5 @@ CREATE TABLE IF NOT EXISTS public.transacoes
     cliente_id integer NOT NULL,
     CONSTRAINT transacoes_pkey PRIMARY KEY (id),
     CONSTRAINT transacoes_cliente_id_fkey FOREIGN KEY (cliente_id)
-        REFERENCES public.clientes (id)
+        REFERENCES public.members (id)
 );

@@ -1,4 +1,4 @@
-CREATE UNLOGGED TABLE clientes (
+CREATE UNLOGGED TABLE members (
 	id SERIAL PRIMARY KEY,
 	nome VARCHAR(255) NOT NULL,
 	limite INTEGER NOT NULL,
@@ -12,11 +12,11 @@ CREATE UNLOGGED TABLE transacoes (
 	tipo CHAR(1) NOT NULL,
 	descricao VARCHAR(255) NOT NULL,
 	realizada_em TIMESTAMP NOT NULL DEFAULT NOW(),
-	CONSTRAINT fk_clientes_transacoes_id
-		FOREIGN KEY (cliente_id) REFERENCES clientes(id)
+	CONSTRAINT fk_members_transacoes_id
+		FOREIGN KEY (cliente_id) REFERENCES members(id)
 );
 
-INSERT INTO clientes (nome, limite) VALUES
+INSERT INTO members (nome, limite) VALUES
 	('o barato sai caro', 1000 * 100),
 	('zan corp ltda', 800 * 100),
 	('les cruders', 10000 * 100),

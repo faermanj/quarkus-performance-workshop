@@ -15,10 +15,10 @@ BEGIN
     END IF;
 
     -- Is this necessary?
-    PERFORM * FROM clientes WHERE id = p_cliente_id FOR UPDATE;
+    PERFORM * FROM members WHERE id = p_cliente_id FOR UPDATE;
 
 
-    UPDATE clientes 
+    UPDATE members 
         SET saldo = saldo + diff 
         WHERE id = p_cliente_id
         RETURNING saldo, limite INTO v_saldo, v_limite;

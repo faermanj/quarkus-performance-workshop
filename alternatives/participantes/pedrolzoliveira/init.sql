@@ -4,14 +4,14 @@ CREATE TYPE tipo_transacao AS ENUM (
   'd'
 );
 
-CREATE TABLE clientes (
+CREATE TABLE members (
   id SERIAL PRIMARY KEY,
   limite INT NOT NULL DEFAULT 0,
   saldo INT NOT NULL DEFAULT 0 CHECK (saldo >= limite * -1)
 );
 
 CREATE TABLE transacoes (
-  cliente_id INT REFERENCES clientes (id),
+  cliente_id INT REFERENCES members (id),
   valor INT NOT NULL,
   descricao VARCHAR(10) NOT NULL CHECK (LENGTH(descricao) >= 1),
   tipo tipo_transacao NOT NULL,
@@ -35,7 +35,7 @@ BEGIN
     VALUES(cliente_id, valor, tipo::tipo_transacao, descricao);
   RETURN QUERY
   UPDATE
-    clientes
+    members
   SET
     saldo = saldo + ajuste_valor
   WHERE
@@ -49,7 +49,7 @@ LANGUAGE plpgsql;
 
 DO $$
 BEGIN
-  INSERT INTO clientes
+  INSERT INTO members
   (id, limite)
 VALUES
   (1, 100000),

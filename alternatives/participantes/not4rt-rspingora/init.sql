@@ -4,18 +4,18 @@ DROP PROCEDURE IF EXISTS INSERIR_TRANSACAO_C CASCADE;
 
 CREATE SCHEMA backend;
 
-CREATE UNLOGGED TABLE backend.clientes (
+CREATE UNLOGGED TABLE backend.members (
 	id      SERIAL PRIMARY KEY,
 	nome    VARCHAR(200) NOT NULL,
 	limite  INTEGER NOT NULL,
     saldo   INTEGER NOT NULL DEFAULT 0
 );
 
-CREATE INDEX idx_clientesaldo ON backend.clientes (id, saldo);
+CREATE INDEX idx_membersaldo ON backend.members (id, saldo);
 
 CREATE UNLOGGED TABLE backend.transacoes (
 	id      SERIAL PRIMARY KEY,
-    cliente_id SERIAL REFERENCES backend.clientes(id),
+    cliente_id SERIAL REFERENCES backend.members(id),
 	valor  INTEGER NOT NULL,
 	tipo   VARCHAR(1) NOT NULL,
 	descricao   VARCHAR(10) NOT NULL,
@@ -25,7 +25,7 @@ CREATE UNLOGGED TABLE backend.transacoes (
 
 CREATE INDEX idx_extrato ON backend.transacoes (id desc, cliente_id);
 
-INSERT INTO backend.clientes (nome, limite)
+INSERT INTO backend.members (nome, limite)
 VALUES
   ('o barato sai caro', 1000 * 100),
   ('zan corp ltda', 800 * 100),
@@ -46,8 +46,8 @@ LANGUAGE plpgsql
 AS $$
 BEGIN
   WITH
-	UPDATE_CLIENTES AS (
-		UPDATE backend.clientes
+	UPDATE_members AS (
+		UPDATE backend.members
 		SET saldo = saldo - p_valor
 		WHERE id = p_id_cliente AND saldo - p_valor >= -limite
 		RETURNING saldo, limite
@@ -55,11 +55,11 @@ BEGIN
 	INSERT_TRANSACAO AS (
 		INSERT INTO backend.transacoes (cliente_id, valor, tipo, descricao, saldo_rmsc, realizada_em)
 		SELECT p_id_cliente, p_valor, 'd', p_descricao, saldo, p_realizada_em
-		from UPDATE_CLIENTES
+		from UPDATE_members
 	)
 	SELECT saldo, limite
 	INTO pout_saldo, pout_limite
-	FROM UPDATE_CLIENTES;
+	FROM UPDATE_members;
 END;
 $$;
 
@@ -75,8 +75,8 @@ LANGUAGE plpgsql
 AS $$
 BEGIN
   WITH
-	UPDATE_CLIENTES AS (
-		UPDATE backend.clientes
+	UPDATE_members AS (
+		UPDATE backend.members
 		SET saldo = saldo + p_valor
 		WHERE id = p_id_cliente
 		RETURNING saldo, limite
@@ -84,11 +84,11 @@ BEGIN
 	INSERT_TRANSACAO AS (
 		INSERT INTO backend.transacoes (cliente_id, valor, tipo, descricao, saldo_rmsc, realizada_em)
 		SELECT p_id_cliente, p_valor, 'c', p_descricao, saldo, p_realizada_em
-		from UPDATE_CLIENTES
+		from UPDATE_members
 	)
 	
 	SELECT saldo, limite
 	INTO pout_saldo, pout_limite
-	FROM UPDATE_CLIENTES;
+	FROM UPDATE_members;
 END;
 $$;

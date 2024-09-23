@@ -1,11 +1,11 @@
-CREATE TABLE clientes
+CREATE TABLE members
 (
     id      INT PRIMARY KEY,
     limite  INTEGER     NOT NULL
 );
-CREATE INDEX id_cliente ON clientes USING HASH (id);
+CREATE INDEX id_cliente ON members USING HASH (id);
 
-INSERT INTO clientes (id, limite)
+INSERT INTO members (id, limite)
 VALUES  (1, 100000),
         (2, 80000),
         (3, 1000000),
@@ -23,7 +23,7 @@ CREATE TABLE saldos
 CREATE INDEX saldos_cliente_id_idx ON public.saldos USING btree (cliente_id, criado_em DESC);
 
 INSERT INTO saldos (cliente_id, limite)
-SELECT id, limite FROM clientes;
+SELECT id, limite FROM members;
 
 CREATE TABLE transacoes
 (

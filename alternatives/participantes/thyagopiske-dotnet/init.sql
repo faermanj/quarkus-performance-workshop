@@ -1,5 +1,5 @@
 
-create unlogged table if not exists Clientes (
+create unlogged table if not exists members (
 	id serial primary key,
   	limite integer,
 	saldo integer
@@ -7,7 +7,7 @@ create unlogged table if not exists Clientes (
 
 create unlogged table if not exists Transacoes (
 	id serial primary key,
-	clienteId integer not null references Clientes(id),
+	clienteId integer not null references members(id),
 	valor integer,
 	tipo char not null,
 	descricao varchar(10),
@@ -16,7 +16,7 @@ create unlogged table if not exists Transacoes (
 
 create index if not exists idx_transacoes_clienteId on Transacoes(clienteId);
 
-insert into Clientes (limite, saldo) 
+insert into members (limite, saldo) 
 values
   (100000, 0),
   (80000, 0),
@@ -33,7 +33,7 @@ create or replace function criarTransacao(
 	in descricao varchar(10)
 ) returns meuTipo as $$
 	declare
-		cliente clientes%rowtype;
+		cliente members%rowtype;
 		mt meuTipo;
 		novoSaldo integer;
 	begin 
@@ -41,7 +41,7 @@ create or replace function criarTransacao(
 
 		select * 
 		into cliente
-		from clientes
+		from members
 		where id = clienteId;
 		
 		if cliente.id is null then
@@ -65,7 +65,7 @@ create or replace function criarTransacao(
 		values
 		(valor, tipo, descricao, clienteId, now()::timestamp);
 
-		update clientes
+		update members
 		set saldo = novoSaldo
 		where id = clienteId;
 		
@@ -88,14 +88,14 @@ create or replace function obterextrato(
 	in idCliente integer
 ) returns json as $$
 	declare
-		cliente clientes%rowtype;
+		cliente members%rowtype;
 		saldo saldotype;
 		ultimasTransacoes json[];
 	begin
 
 		select * 
 		into cliente
-		from clientes
+		from members
 		where id = idCliente;
 
 		if cliente.id is null then

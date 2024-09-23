@@ -15,13 +15,13 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
 
-@Path("/pgsql/clientes/{id}/extrato")
+@Path("/pgsql/members/{id}/extrato")
 public class ExtratoResource {
 
     @Inject
     DataSource ds;
 
-    // curl -v -X GET http://localhost:9999/clientes/1/extrato
+    // curl -v -X GET http://localhost:9999/members/1/extrato
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Transactional // TODO Verificar: Transactional para select??? é necessário???

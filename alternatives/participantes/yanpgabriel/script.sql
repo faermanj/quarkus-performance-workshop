@@ -1,4 +1,4 @@
-create table public.clientes
+create table public.members
 (
     id          integer not null,
     limite      integer not null,
@@ -23,9 +23,9 @@ create table public.transacoes
 create sequence public.cliente_seq start with 1 increment by 10;
 
 alter table if exists public.transacoes
-    add constraint FK_cliente foreign key (id_cliente) references public.clientes;
+    add constraint FK_cliente foreign key (id_cliente) references public.members;
 
-INSERT INTO public.clientes (id, limite, saldo_inicial, saldo_atual)
+INSERT INTO public.members (id, limite, saldo_inicial, saldo_atual)
 VALUES (1, 100000, 0, 0),
        (2, 80000, 0, 0),
        (3, 1000000, 0, 0),

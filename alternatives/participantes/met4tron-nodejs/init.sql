@@ -2,8 +2,8 @@
 
 ALTER DATABASE rinha_db;
 
-CREATE UNLOGGED TABLE IF NOT EXISTS clientes (id SMALLINT NOT NULL, limite INTEGER NOT NULL, saldo INTEGER NOT NULL DEFAULT 0);
-CREATE INDEX IF NOT EXISTS pk_client_idx ON clientes (id) INCLUDE (saldo);
+CREATE UNLOGGED TABLE IF NOT EXISTS members (id SMALLINT NOT NULL, limite INTEGER NOT NULL, saldo INTEGER NOT NULL DEFAULT 0);
+CREATE INDEX IF NOT EXISTS pk_client_idx ON members (id) INCLUDE (saldo);
 
 CREATE UNLOGGED TABLE IF NOT EXISTS transacoes (valor INTEGER NOT NULL,  tipo CHAR(1) NOT NULL, descricao VARCHAR(10) NOT NULL, realizada_em timestamp without time zone DEFAULT now(), id_cliente SMALLINT NOT NULL);
 
@@ -14,7 +14,7 @@ CREATE FUNCTION ADD_DEBIT(ID_CLIENTE SMALLINT, VALOR INT, DESCRICAO TEXT, P_LIMI
 BEGIN
     PERFORM pg_advisory_xact_lock(ID_CLIENTE);
 
-    UPDATE clientes SET saldo = saldo - VALOR
+    UPDATE members SET saldo = saldo - VALOR
     WHERE id = ID_CLIENTE AND saldo - VALOR >= - P_LIMITE
     RETURNING saldo INTO NOVO_SALDO;
 
@@ -33,7 +33,7 @@ BEGIN
     VALUES(ID_CLIENTE, VALOR, 'c', DESCRICAO);
 
     PERFORM pg_advisory_xact_lock(ID_CLIENTE);
-    UPDATE clientes SET saldo = saldo + valor
+    UPDATE members SET saldo = saldo + valor
     WHERE id = ID_CLIENTE
     RETURNING saldo INTO NOVO_SALDO;
 END;
@@ -41,7 +41,7 @@ $$;
 
 DO $$
 BEGIN
-    INSERT INTO clientes
+    INSERT INTO members
     VALUES  (1, 1000 * 100, 0),
             (2, 800 * 100, 0),
             (3, 10000 * 100, 0),

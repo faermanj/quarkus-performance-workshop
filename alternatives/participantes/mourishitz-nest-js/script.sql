@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS clientes (
+CREATE TABLE IF NOT EXISTS members (
   id SERIAL PRIMARY KEY,
   nome VARCHAR(10),
   saldo INT DEFAULT 0,
@@ -14,10 +14,10 @@ CREATE TABLE IF NOT EXISTS transacoes (
   realizada_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
   CONSTRAINT fk_cliente
-    FOREIGN KEY(cliente_id) REFERENCES clientes(id)
+    FOREIGN KEY(cliente_id) REFERENCES members(id)
 );
 
-ALTER TABLE clientes
+ALTER TABLE members
 ADD CONSTRAINT checar_saldo
 CHECK (saldo >= -limite);
 
@@ -25,7 +25,7 @@ CREATE OR REPLACE FUNCTION checar_limite_saldo()
 RETURNS TRIGGER AS $$
 BEGIN
   IF EXISTS(
-    SELECT 1 FROM clientes WHERE id = NEW.cliente_id AND (saldo - NEW.valor) < -limite
+    SELECT 1 FROM members WHERE id = NEW.cliente_id AND (saldo - NEW.valor) < -limite
   ) THEN
     RAISE EXCEPTION 'Transação Inválida: Saldo negativo não pode ser menor do que seu limite.';
   END IF;
@@ -41,7 +41,7 @@ EXECUTE FUNCTION checar_limite_saldo();
 DO $$
 
 BEGIN
-  INSERT INTO clientes (nome, limite)
+  INSERT INTO members (nome, limite)
   VALUES
     ('Cliente 1', 100000),
     ('Cliente 2', 80000),

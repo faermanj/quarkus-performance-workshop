@@ -12,7 +12,7 @@ SET default_tablespace = '';
 
 SET default_table_access_method = heap;
 
-CREATE UNLOGGED TABLE clientes (
+CREATE UNLOGGED TABLE members (
 	id SERIAL PRIMARY KEY,
 	limite INTEGER NOT NULL,
 	saldo INTEGER NOT NULL DEFAULT 0
@@ -25,15 +25,15 @@ CREATE UNLOGGED TABLE transacoes (
 	tipo CHAR(1) NOT NULL,
 	descricao VARCHAR(255) NOT NULL,
 	realizada_em TIMESTAMP NOT NULL DEFAULT NOW(),
-	CONSTRAINT fk_clientes_transacoes_id
-		FOREIGN KEY (cliente_id) REFERENCES clientes(id)
+	CONSTRAINT fk_members_transacoes_id
+		FOREIGN KEY (cliente_id) REFERENCES members(id)
 );
 
 
-CREATE INDEX IF NOT EXISTS idx_cliente_id ON clientes(id);
+CREATE INDEX IF NOT EXISTS idx_cliente_id ON members(id);
 CREATE INDEX IF NOT EXISTS idx_transacao_id_cliente_realizada_em_desc ON transacoes(cliente_id, realizada_em DESC);
 
-INSERT INTO clientes (limite) VALUES
+INSERT INTO members (limite) VALUES
 	(100000),
 	(80000),
 	(1000000),
@@ -60,13 +60,13 @@ BEGIN
 			INTO
 				limite_cliente,
 				saldo_cliente
-			FROM clientes c
+			FROM members c
 			WHERE c.id = id_cliente;
 
 		IF (saldo_cliente + diff) < (-1 * limite_cliente) THEN
 				RETURN QUERY SELECT saldo_cliente as novo_saldo, limite_cliente as novo_limite, true as validation_error;
 		ELSE 
-			UPDATE clientes 
+			UPDATE members 
 			SET saldo = saldo + diff 
 			WHERE id = id_cliente;
 
@@ -88,7 +88,7 @@ DECLARE
 BEGIN
     SELECT saldo, limite
     INTO v_saldo, v_limite
-    FROM clientes
+    FROM members
     WHERE id = p_id;
 
     SELECT json_build_object(

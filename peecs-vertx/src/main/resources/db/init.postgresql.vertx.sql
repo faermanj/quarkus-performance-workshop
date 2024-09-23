@@ -1,4 +1,4 @@
-CREATE UNLOGGED TABLE clientes (
+CREATE UNLOGGED TABLE members (
 	id SERIAL PRIMARY KEY,
 	saldo INTEGER NOT NULL DEFAULT 0
 );
@@ -13,10 +13,10 @@ CREATE UNLOGGED TABLE transacoes (
 
 CREATE INDEX idx_cliente_id ON transacoes (cliente_id);
 
-INSERT INTO clientes(id) VALUES (DEFAULT), (DEFAULT), (DEFAULT), (DEFAULT), (DEFAULT);
+INSERT INTO members(id) VALUES (DEFAULT), (DEFAULT), (DEFAULT), (DEFAULT), (DEFAULT);
 
 CREATE EXTENSION IF NOT EXISTS pg_prewarm;
-SELECT pg_prewarm('clientes');
+SELECT pg_prewarm('members');
 SELECT pg_prewarm('transacoes');
 
 CREATE TYPE json_result AS (
@@ -44,7 +44,7 @@ BEGIN
 
     SELECT saldo 
         INTO v_saldo
-        FROM clientes
+        FROM members
         WHERE id = p_cliente_id
         FOR UPDATE;
 
@@ -58,7 +58,7 @@ BEGIN
                      (cliente_id,   valor,   tipo,   descricao,      realizada_em)
             VALUES (p_cliente_id, p_valor, p_tipo, p_descricao, now());
 
-    UPDATE clientes 
+    UPDATE members 
     SET saldo = CASE 
                     WHEN p_tipo = 'c' THEN saldo + p_valor
                     WHEN p_tipo = 'd' THEN saldo - p_valor
@@ -89,7 +89,7 @@ BEGIN
 
     SELECT saldo
         INTO v_saldo
-        FROM clientes
+        FROM members
         WHERE id = p_cliente_id;
 
     v_limite := CASE p_cliente_id

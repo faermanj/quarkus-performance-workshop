@@ -10,16 +10,16 @@ SET row_security = off;
 SET default_tablespace = '';
 SET default_table_access_method = heap;
 
-CREATE UNLOGGED TABLE IF NOT EXISTS clientes (
+CREATE UNLOGGED TABLE IF NOT EXISTS members (
   id SMALLINT PRIMARY KEY,
   limite INT NOT NULL,
   saldo INT NOT NULL DEFAULT 0
   CONSTRAINT saldo CHECK (saldo > -limite)
 );
 
-CREATE INDEX pk_cliente_idx ON clientes (id) INCLUDE (saldo);
+CREATE INDEX pk_cliente_idx ON members (id) INCLUDE (saldo);
 
-INSERT INTO clientes (id, limite)
+INSERT INTO members (id, limite)
 VALUES (1, 1000 * 100),
        (2, 800 * 100),
        (3, 10000 * 100),
@@ -34,7 +34,7 @@ CREATE UNLOGGED TABLE IF NOT EXISTS transacoes (
   tipo CHAR(1) NOT NULL,
   descricao VARCHAR(10) NOT NULL,
   realizada_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  FOREIGN KEY (cliente_id) REFERENCES clientes (id)
+  FOREIGN KEY (cliente_id) REFERENCES members (id)
 );
 
 CREATE INDEX idx_transacoes_cliente_id ON transacoes (cliente_id, id DESC);
@@ -53,7 +53,7 @@ $$
 BEGIN
   INSERT INTO transacoes (cliente_id, valor, tipo, descricao) VALUES (id_cliente, valor, tipo, descricao);
 
-  UPDATE clientes
+  UPDATE members
      SET saldo = saldo + valor_extrato
    WHERE id = id_cliente RETURNING saldo, limite INTO saldo_atual, limite_atual;
 

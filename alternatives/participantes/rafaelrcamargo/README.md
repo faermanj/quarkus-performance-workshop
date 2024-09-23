@@ -20,7 +20,7 @@ E assim se foram horas das minhas últimas semanas, mas o resultado é **incrive
 
 ## Sobre load balancer
 
-O load balancer é um servidor TCP que aceita conexões de clientes e as distribui entre os servidores HTTP disponíveis usando um algoritmo de `round-robin`. Ele vai aceitar 16 conexões simultâneas, e é capaz de distribuir as requisições de forma otimista, ou seja, _sem esperar a resposta do servidor HTTP_ para encaminhar a próxima requisição.
+O load balancer é um servidor TCP que aceita conexões de members e as distribui entre os servidores HTTP disponíveis usando um algoritmo de `round-robin`. Ele vai aceitar 16 conexões simultâneas, e é capaz de distribuir as requisições de forma otimista, ou seja, _sem esperar a resposta do servidor HTTP_ para encaminhar a próxima requisição.
 
 Vale ressaltar que o algoritmo de `round-robin` é feito da forma mais _BigBrain_ que existe, usando um `AtomicBool`, um valor que pode ser lido e escrito de forma segura **por múltiplas threads** e que calha de ser exatamente o que precisamos para fazer o `round-robin` entre 2 servidores.
 
@@ -30,7 +30,7 @@ O servidor HTTP é um listener TCP que aceita até 4 conexões simultâneas, o s
 
 ## Sobre banco de dados
 
-O banco de dados é baseado em um servidor UDP que aceita conexões de clientes e é capaz de armazenar e recuperar dados da maneira mais eficiente **o possível**. Da mesma forma que o servidor, o banco é otimizado para este caso de uso específico.
+O banco de dados é baseado em um servidor UDP que aceita conexões de members e é capaz de armazenar e recuperar dados da maneira mais eficiente **o possível**. Da mesma forma que o servidor, o banco é otimizado para este caso de uso específico.
 
 Utiliza um _protocolo de comunicação próprio_ e uma estrutura baseada em dados armazenados em formato binário compacto. O banco apenas adiciona ao arquivo quando um novo dado é inserido e, ao requisitar um dado, como em um extrato, lê **exatamente os últimos N\*10 bytes do arquivo**, onde _N é o tamanho de uma transação_.
 

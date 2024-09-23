@@ -1,15 +1,15 @@
-DROP TABLE IF EXISTS clientes;
+DROP TABLE IF EXISTS members;
 
-CREATE TABLE clientes (
+CREATE TABLE members (
   id SERIAL PRIMARY KEY,
   limite INT NOT NULL,
   saldo INT DEFAULT 0 NOT NULL,
   transacoes TEXT NOT NULL DEFAULT '[]'
 );
 
-CREATE UNIQUE INDEX idx_clientes_id ON clientes USING btree (id);
+CREATE UNIQUE INDEX idx_members_id ON members USING btree (id);
 
-INSERT INTO clientes (limite) VALUES
+INSERT INTO members (limite) VALUES
   (1000 * 100),
   (800 * 100),
   (10000 * 100),

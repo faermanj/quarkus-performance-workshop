@@ -1,4 +1,4 @@
-CREATE unlogged TABLE IF NOT EXISTS public.clientes (
+CREATE unlogged TABLE IF NOT EXISTS public.members (
 	id SERIAL PRIMARY KEY,
 	nome VARCHAR(50),
 	limite INTEGER NOT NULL DEFAULT 0,
@@ -12,14 +12,14 @@ CREATE unlogged TABLE IF NOT EXISTS public.transacoes (
 	descricao VARCHAR(10) NOT NULL,
 	realizada_em TIMESTAMP NOT NULL DEFAULT NOW(),
 	cliente_id INTEGER NOT NULL,
-	FOREIGN KEY (cliente_id) REFERENCES clientes (id)
+	FOREIGN KEY (cliente_id) REFERENCES members (id)
 );
 
 create index ix_transacao_cliente_data on transacoes(cliente_id, realizada_em desc);
 
 DO $$
 BEGIN
-  INSERT INTO clientes (nome, limite)
+  INSERT INTO members (nome, limite)
   VALUES
     ('o barato sai caro', 1000 * 100),
     ('zan corp ltda', 800 * 100),

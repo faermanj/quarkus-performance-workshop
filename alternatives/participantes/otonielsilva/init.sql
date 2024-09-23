@@ -1,4 +1,4 @@
-CREATE UNLOGGED  TABLE clientes (
+CREATE UNLOGGED  TABLE members (
 	id SERIAL PRIMARY KEY,
 	nome VARCHAR(50) NOT NULL,
 	limite INTEGER NOT NULL,
@@ -15,7 +15,7 @@ CREATE UNLOGGED  TABLE transacoes (
 );
 
 CREATE INDEX transacoes_cliente_id_idx ON transacoes (cliente_id);
--- CREATE INDEX cliente_id_idx ON clientes (id) include (limite, saldo);
+-- CREATE INDEX cliente_id_idx ON members (id) include (limite, saldo);
 
 
 
@@ -30,7 +30,7 @@ DECLARE
   erro character varying;
 BEGIN
   SELECT c.saldo, c.limite INTO saldo, limite
-  FROM clientes c
+  FROM members c
   WHERE c.id = p_cliente_id FOR UPDATE;
  
   IF NOT FOUND THEN
@@ -50,7 +50,7 @@ BEGIN
     new_saldo := saldo + p_valor;
   END IF;
 
-  UPDATE clientes c SET saldo = new_saldo WHERE c.id = p_cliente_id;
+  UPDATE members c SET saldo = new_saldo WHERE c.id = p_cliente_id;
 
   INSERT INTO transacoes (cliente_id, tipo, valor, descricao, realizada_em)
   VALUES (
@@ -73,7 +73,7 @@ $function$
 
 DO $$
 BEGIN
-	INSERT INTO clientes (nome, limite, saldo)
+	INSERT INTO members (nome, limite, saldo)
 	VALUES
 		('o barato sai caro', 1000 * 100, 0),
 		('zan corp ltda', 800 * 100, 0),
@@ -84,6 +84,6 @@ END;
 $$;
 
 CREATE EXTENSION IF NOT EXISTS pg_prewarm;
-SELECT pg_prewarm('clientes');
+SELECT pg_prewarm('members');
 SELECT pg_prewarm('transacoes');
 

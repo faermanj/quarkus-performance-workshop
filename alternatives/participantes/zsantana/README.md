@@ -12,9 +12,9 @@
 
 ### API de Checagem de Saldo
 
-Endpoint de Checagem de saldo dos clientes: [http://localhost:9999/q/swagger-ui/](http://localhost:9999/q/swagger-ui/)
+Endpoint de Checagem de saldo dos members: [http://localhost:9999/q/swagger-ui/](http://localhost:9999/q/swagger-ui/)
 
-curl http://localhost:9999/clientes/checa-saldo | jq
+curl http://localhost:9999/members/checa-saldo | jq
 
 Disponível na view: (v_checa_saldo_cliente)
 

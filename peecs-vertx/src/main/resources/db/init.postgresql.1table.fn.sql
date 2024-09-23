@@ -48,7 +48,7 @@ BEGIN
     PERFORM pg_advisory_lock(p_cliente_id);
     -- PERFORM pg_try_advisory_xact_lock(p_cliente_id);
     -- PERFORM pg_advisory_xact_lock(p_cliente_id);
-    -- lock table clientes in ACCESS EXCLUSIVE mode;
+    -- lock table members in ACCESS EXCLUSIVE mode;
     -- lock table transacoes in ACCESS EXCLUSIVE mode;
 
     -- invoke limite_cliente into v_limite
@@ -97,7 +97,7 @@ BEGIN
     PERFORM pg_try_advisory_xact_lock(p_cliente_id);
     -- PERFORM pg_try_advisory_lock(p_cliente_id);
     -- PERFORM pg_advisory_xact_lock(p_cliente_id);
-    -- lock table clientes in ACCESS EXCLUSIVE mode;
+    -- lock table members in ACCESS EXCLUSIVE mode;
     -- lock table transacoes in ACCESS EXCLUSIVE mode;
 
     SELECT saldo 

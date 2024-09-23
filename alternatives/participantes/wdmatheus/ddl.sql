@@ -10,13 +10,13 @@ SET row_security = off;
 SET default_tablespace = '';
 SET default_table_access_method = heap;
 
-create unlogged table public.clientes
+create unlogged table public.members
 (
     id serial not null,
     nome varchar(100) not null,
     limite integer not null,
     saldo integer not null,
-    constraint pk_clientes primary key(id)
+    constraint pk_members primary key(id)
 );
 
 create unlogged table public.transacoes
@@ -51,7 +51,7 @@ begin
     select
         c.id
     from
-        public.clientes c
+        public.members c
         into "ClienteId"
     where
         c.id = cliente_id;
@@ -63,7 +63,7 @@ begin
         return;
     end if;
     
-    update public.clientes
+    update public.members
         set saldo =
             case
                 when tipo = 1 then saldo + valor
@@ -157,7 +157,7 @@ from
                     ) as t
             ) as ultimas_transacoes
         from
-            public.clientes c
+            public.members c
 
     ) j
 with data;
@@ -166,7 +166,7 @@ create unique index if not exists ix_vw_extrato_id on public.vw_extrato (id);
 -------------------------- carga inicial --------------------------
 DO $$
 begin
-insert into public.clientes (id, nome, saldo, limite)
+insert into public.members (id, nome, saldo, limite)
 values
     (1, 'o barato sai caro', 0, 100000),
     (2, 'zan corp ltda', 0, 80000),

@@ -1,8 +1,8 @@
-CREATE TABLE IF NOT EXISTS clientes (
+CREATE TABLE IF NOT EXISTS members (
 	id int2 NOT NULL,
 	limite int8 DEFAULT 0 NOT NULL,
 	saldo int8 DEFAULT 0 NOT NULL,
-	CONSTRAINT clientes_pk PRIMARY KEY (id)
+	CONSTRAINT members_pk PRIMARY KEY (id)
 );
 
 CREATE TABLE IF NOT EXISTS transacoes (
@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS transacoes (
 );
 CREATE INDEX transacoes_cliente_id_idx ON transacoes USING btree (cliente_id, realizada_em);
 
-INSERT INTO clientes (id,limite,saldo) VALUES
+INSERT INTO members (id,limite,saldo) VALUES
 	 (1,100000,0),
 	 (2,80000,0),
 	 (3,1000000,0),

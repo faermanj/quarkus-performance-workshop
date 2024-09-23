@@ -18,7 +18,7 @@ Para participar você precisa desenvolver uma API HTTP com os seguintes endpoint
 ### Transações
 **Requisição**
 
-`POST /clientes/[id]/transacoes`
+`POST /members/[id]/transacoes`
 ```json
 {
     "valor": 1000,
@@ -59,7 +59,7 @@ Se o atributo `[id]` da URL for de uma identificação não existente de cliente
 ## Extrato
 **Requisição**
 
-`GET /clientes/[id]/extrato`
+`GET /members/[id]/extrato`
 
 Onde
 - `[id]` (na URL) deve ser um número inteiro representando a identificação do cliente.
@@ -105,8 +105,8 @@ Onde
 Se o atributo `[id]` da URL for de uma identificação não existente de cliente, a API deve retornar HTTP Status Code 404. O corpo da resposta nesse caso não será testado e você pode escolher como o representar. Já sabe o que acontece se sua API retornar algo na faixa 2XX, né? Agradecido.
 
 
-## Cadastro Inicial de Clientes
-Para haver ênfase em concorrência durante o teste, poucos clientes devem ser cadastrados e testados. Por isso, apenas cinco clientes, com os seguintes IDs, limites e saldos iniciais, devem ser previamente cadastrados para o teste – isso é imprescindível!
+## Cadastro Inicial de members
+Para haver ênfase em concorrência durante o teste, poucos members devem ser cadastrados e testados. Por isso, apenas cinco members, com os seguintes IDs, limites e saldos iniciais, devem ser previamente cadastrados para o teste – isso é imprescindível!
 
 | id | limite | saldo inicial
 | - | - | -
@@ -298,7 +298,7 @@ CREATE TABLE...
 
 DO $$
 BEGIN
-  INSERT INTO clientes (nome, limite)
+  INSERT INTO members (nome, limite)
   VALUES
     ('o barato sai caro', 1000 * 100),
     ('zan corp ltda', 800 * 100),
@@ -368,7 +368,7 @@ Fique à vontade para alterar a [simulação](./load-test/user-files/simulations
 De nada :)
 
 ### Pré teste
-Na edição anterior da Rinha, o teste começava poucos segundos após a subida dos contêineres e, devido as restrições de CPU e memória, nem todos os serviços estavam prontos para receber requisições em tão pouco tempo. Nessa edição, antes do teste iniciar, um script verificará se a API está respondendo corretamente (via `GET /clientes/1/extrato`) por até 40 segundos em intervalos de 2 segundos a cada tentativa. Por isso, certifique-se de que todos seus serviços não demorem mais do que 40 segundos para estarem aptos a receberem requisições!
+Na edição anterior da Rinha, o teste começava poucos segundos após a subida dos contêineres e, devido as restrições de CPU e memória, nem todos os serviços estavam prontos para receber requisições em tão pouco tempo. Nessa edição, antes do teste iniciar, um script verificará se a API está respondendo corretamente (via `GET /members/1/extrato`) por até 40 segundos em intervalos de 2 segundos a cada tentativa. Por isso, certifique-se de que todos seus serviços não demorem mais do que 40 segundos para estarem aptos a receberem requisições!
 
 
 #### Nota importante sobre o teste escrito!

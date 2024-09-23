@@ -67,7 +67,7 @@ public class CacheProducer {
         }));
         cache = cacheManager.administration()
             .withFlags(CacheContainerAdmin.AdminFlag.VOLATILE)
-            .getOrCreateCache("clientesCache", builder.build());
+            .getOrCreateCache("membersCache", builder.build());
     }
     @Produces
     public Cache<Integer, Cliente> getCache(){

@@ -11,7 +11,7 @@ services:
       db:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://127.0.0.1:9001/clientes/1/extrato"]
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:9001/members/1/extrato"]
       interval: 2s
       retries: 10
     environment:
@@ -55,7 +55,7 @@ services:
       db:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://127.0.0.1:9002/clientes/1/extrato"]
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:9002/members/1/extrato"]
       interval: 2s
       retries: 10
     environment:
@@ -108,7 +108,7 @@ services:
         soft: 1000000
         hard: 1000000
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://127.0.0.1:9999/clientes/1/extrato"]
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:9999/members/1/extrato"]
       interval: 3s
       retries: 15
     deploy:
@@ -126,8 +126,8 @@ services:
       /bin/bash -c "echo 'warmuping'; sleep 5;
         for i in $(seq 1 50);
         do echo -n '.' ;
-        curl -s -X GET http://localhost:9999/clientes/5/extrato > /dev/null  &
-        curl -s -X POST -H 'Content-Type: application/json' -d '{\"valor\": 0, \"tipo\": \"d\", \"descricao\": \"warmupsh\"}' http:///localhost:9000/clientes/5/transacoes > /dev/null &
+        curl -s -X GET http://localhost:9999/members/5/extrato > /dev/null  &
+        curl -s -X POST -H 'Content-Type: application/json' -d '{\"valor\": 0, \"tipo\": \"d\", \"descricao\": \"warmupsh\"}' http:///localhost:9000/members/5/transacoes > /dev/null &
       done; echo 'warmup done';"
     deploy:
       resources: 

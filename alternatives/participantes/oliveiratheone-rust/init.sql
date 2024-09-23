@@ -1,9 +1,9 @@
 CREATE UNLOGGED TABLE
-    "clientes" (
+    "members" (
                    "id" SERIAL NOT NULL,
                    "saldo" INTEGER NOT NULL,
                    "limite" INTEGER NOT NULL,
-                   CONSTRAINT "clientes_pkey" PRIMARY KEY ("id")
+                   CONSTRAINT "members_pkey" PRIMARY KEY ("id")
 );
 
 CREATE UNLOGGED TABLE
@@ -26,7 +26,7 @@ customer_data JSON;
 BEGIN
 SELECT json_build_object('total', saldo, 'limite', limite, 'data_extrato', now())
 INTO customer_data
-FROM clientes
+FROM members
 WHERE id = customer_id;
 
 SELECT COALESCE(json_agg(json_build_object('valor', valor, 'tipo', tipo, 'descricao', descricao, 'realizada_em', realizada_em)), '[]'::JSON)
@@ -50,7 +50,7 @@ LANGUAGE plpgsql;
 CREATE INDEX transacoes_ordering ON transacoes (realizada_em DESC, id_cliente);
 
 INSERT INTO
-    clientes (saldo, limite)
+    members (saldo, limite)
 VALUES
     (0, 1000 * 100),
     (0, 800 * 100),

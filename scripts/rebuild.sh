@@ -6,6 +6,6 @@ DIR=$(basename $DIR)
 VERSION=$(cat version.txt)
 echo "Building peecs version $VERSION"
 
-echo  "$DOCKER_TOKEN" | docker login -u "$DOCKER_USERNAME" --password-stdin
-docker build -f peecs/Dockerfile --no-cache --progress=plain -t ${DOCKER_USERNAME}/peecs:$VERSION peecs
-docker push ${DOCKER_USERNAME}/peecs:$VERSION
+echo  "$CONTAINER_TOKEN" | docker login -u "$CONTAINER_USERNAME" --password-stdin
+docker build -f peecs/Dockerfile --no-cache --progress=plain -t ${CONTAINER_USERNAME}/peecs:$VERSION peecs
+docker push ${CONTAINER_USERNAME}/peecs:$VERSION

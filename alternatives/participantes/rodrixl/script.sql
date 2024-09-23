@@ -17,7 +17,7 @@
         cliente_id INTEGER NOT NULL
         );
 
-    -- Inserção de valores iniciais na tabela clientes
+    -- Inserção de valores iniciais na tabela members
     INSERT INTO cliente (nome, limite, saldo)
     VALUES
         ('Cliente1', 100000, 0),

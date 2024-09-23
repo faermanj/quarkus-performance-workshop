@@ -1,4 +1,4 @@
-CREATE UNLOGGED TABLE clientes (
+CREATE UNLOGGED TABLE members (
        id SMALLSERIAL PRIMARY KEY,
        limite INTEGER,
        valor INTEGER
@@ -18,13 +18,13 @@ CREATE UNLOGGED TABLE transacoes (
          tipo CHAR(1),
          descricao VARCHAR(10),
          realizada_em TIMESTAMP
---          CONSTRAINT fk_clientes_transacoes_id
---              FOREIGN KEY (cliente_id) REFERENCES clientes(id)
+--          CONSTRAINT fk_members_transacoes_id
+--              FOREIGN KEY (cliente_id) REFERENCES members(id)
 );
 
 CREATE INDEX idx_transacoes_cliente_id ON transacoes(cliente_id, realizada_em);
 
-INSERT INTO clientes (id, limite, valor)
+INSERT INTO members (id, limite, valor)
     VALUES
         (1, 100000, 0),
         (2, 80000, 0),
@@ -34,7 +34,7 @@ INSERT INTO clientes (id, limite, valor)
 
 
 CREATE EXTENSION IF NOT EXISTS pg_prewarm;
-SELECT pg_prewarm('clientes');
+SELECT pg_prewarm('members');
 
 -- create function make_transaction(transaction_client_id integer, transaction_value integer, transaction_type character, transaction_description text)
 --     returns TABLE(valor integer, limite integer)
@@ -44,8 +44,8 @@ SELECT pg_prewarm('clientes');
 -- DECLARE
 --     client RECORD;
 -- BEGIN
---     -- Select valor and limite from clientes
---     SELECT INTO client clientes.valor, clientes.limite FROM clientes WHERE id = transaction_client_id FOR UPDATE;
+--     -- Select valor and limite from members
+--     SELECT INTO client members.valor, members.limite FROM members WHERE id = transaction_client_id FOR UPDATE;
 --
 --     -- Update client value
 --     client.valor := client.valor + transaction_value;
@@ -55,8 +55,8 @@ SELECT pg_prewarm('clientes');
 --         RAISE EXCEPTION 'saldo insuficiente';
 --     END IF;
 --
---     -- Update clientes
---     UPDATE clientes SET valor = client.valor WHERE id = transaction_client_id;
+--     -- Update members
+--     UPDATE members SET valor = client.valor WHERE id = transaction_client_id;
 --
 --     -- Insert into transacoes
 --     INSERT INTO transacoes(valor, cliente_id, tipo, descricao, realizada_em)

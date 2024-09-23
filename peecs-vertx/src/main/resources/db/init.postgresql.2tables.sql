@@ -1,4 +1,4 @@
-CREATE UNLOGGED TABLE clientes (
+CREATE UNLOGGED TABLE members (
 	id SERIAL PRIMARY KEY,
 	nome VARCHAR(255) NOT NULL,
 	limite INTEGER NOT NULL,
@@ -14,7 +14,7 @@ CREATE UNLOGGED TABLE transacoes (
 	realizada_em TIMESTAMP(6) NOT NULL
 );
 
-INSERT INTO clientes (nome, limite) VALUES
+INSERT INTO members (nome, limite) VALUES
 	('o barato sai caro', 1000 * 100),
 	('zan corp ltda', 800 * 100),
 	('les cruders', 10000 * 100),
@@ -23,11 +23,11 @@ INSERT INTO clientes (nome, limite) VALUES
 
 INSERT INTO transacoes (cliente_id, valor, tipo, descricao, realizada_em)
     SELECT id, 0, 'c', 'init', clock_timestamp()
-    FROM clientes;
+    FROM members;
 
 
 CREATE EXTENSION IF NOT EXISTS pg_prewarm;
-SELECT pg_prewarm('clientes');
+SELECT pg_prewarm('members');
 SELECT pg_prewarm('transacoes');
 
 
@@ -59,7 +59,7 @@ BEGIN
     -- PERFORM pg_advisory_lock(p_cliente_id);
     -- PERFORM pg_try_advisory_xact_lock(p_cliente_id);
     -- PERFORM pg_advisory_xact_lock(p_cliente_id);
-    -- lock table clientes in ACCESS EXCLUSIVE mode;
+    -- lock table members in ACCESS EXCLUSIVE mode;
     -- lock table transacoes in ACCESS EXCLUSIVE mode;
 
     -- invoke limite_cliente into v_limite
@@ -67,7 +67,7 @@ BEGIN
     
     SELECT saldo 
         INTO v_saldo
-        FROM clientes
+        FROM members
         WHERE id = p_cliente_id
         FOR UPDATE;
 
@@ -85,7 +85,7 @@ BEGIN
                      (cliente_id,   valor,   tipo,   descricao,      realizada_em)
             VALUES (p_cliente_id, p_valor, p_tipo, p_descricao, clock_timestamp());
 
-    UPDATE clientes 
+    UPDATE members 
         SET saldo = saldo + diff 
         WHERE id = p_cliente_id
         RETURNING saldo INTO v_saldo;
@@ -112,12 +112,12 @@ BEGIN
     -- PERFORM pg_try_advisory_xact_lock(p_cliente_id);
     -- PERFORM pg_try_advisory_lock(p_cliente_id);
     -- PERFORM pg_advisory_xact_lock(p_cliente_id);
-    -- lock table clientes in ACCESS EXCLUSIVE mode;
+    -- lock table members in ACCESS EXCLUSIVE mode;
     -- lock table transacoes in ACCESS EXCLUSIVE mode;
 
     SELECT saldo
         INTO v_saldo
-        FROM clientes
+        FROM members
         WHERE id = p_cliente_id;
 
     IF NOT FOUND THEN

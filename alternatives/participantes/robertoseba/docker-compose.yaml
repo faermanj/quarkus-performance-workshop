@@ -24,7 +24,7 @@ services:
           cpus: '0.4'
           memory: '105MB'
     healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://127.0.0.1:3000/clientes/1/extrato']
+      test: ['CMD', 'curl', '-f', 'http://127.0.0.1:3000/members/1/extrato']
       interval: 2s
       retries: 10
       start_period: 10s
@@ -42,7 +42,7 @@ services:
       - DB_PORT=5432
       - PORT=3001
     healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://127.0.0.1:3001/clientes/1/extrato']
+      test: ['CMD', 'curl', '-f', 'http://127.0.0.1:3001/members/1/extrato']
       interval: 2s
       retries: 10
       start_period: 10s

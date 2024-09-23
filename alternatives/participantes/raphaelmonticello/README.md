@@ -9,7 +9,7 @@
 ```
 docker-compose up -d --build
 
-curl --location 'http://127.0.0.1:9999/clientes/1/extrato'
+curl --location 'http://127.0.0.1:9999/members/1/extrato'
 ```
 
 # Contato

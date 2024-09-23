@@ -4,10 +4,10 @@ SET statement_timeout = 0;
 SET lock_timeout = 0;
 
 DROP TABLE IF EXISTS transacoes;
-DROP TABLE IF EXISTS clientes;
+DROP TABLE IF EXISTS members;
 DROP FUNCTION IF EXISTS CREATE_TRANSACATION;
 
-CREATE UNLOGGED TABLE clientes (
+CREATE UNLOGGED TABLE members (
     id INTEGER NOT NULL,
     limite INTEGER NOT NULL,
     saldo INTEGER CHECK((limite * -1) <= saldo) NOT NULL
@@ -28,11 +28,11 @@ DECLARE
 	ret RECORD;
 BEGIN
 				
-	UPDATE clientes 
+	UPDATE members 
 	SET 
 		saldo = saldo + amount
 	WHERE 
-		id = (SELECT id FROM clientes WHERE id = customer_id FOR UPDATE)
+		id = (SELECT id FROM members WHERE id = customer_id FOR UPDATE)
 	RETURNING saldo, limite, 0 INTO ret;
 	
 	IF ret IS NULL THEN
@@ -52,8 +52,8 @@ END;$$
 LANGUAGE plpgsql;
 
 
-INSERT INTO clientes VALUES(1, 100000, 0);
-INSERT INTO clientes VALUES(2, 80000, 0);
-INSERT INTO clientes VALUES(3, 1000000, 0);
-INSERT INTO clientes VALUES(4, 10000000, 0);
-INSERT INTO clientes VALUES(5, 500000, 0);
+INSERT INTO members VALUES(1, 100000, 0);
+INSERT INTO members VALUES(2, 80000, 0);
+INSERT INTO members VALUES(3, 1000000, 0);
+INSERT INTO members VALUES(4, 10000000, 0);
+INSERT INTO members VALUES(5, 500000, 0);

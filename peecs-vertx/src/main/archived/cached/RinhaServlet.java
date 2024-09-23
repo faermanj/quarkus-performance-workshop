@@ -37,11 +37,11 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-// curl -v -X GET http://localhost:9999/clientes/1/extrato
+// curl -v -X GET http://localhost:9999/members/1/extrato
 
 // curl -v -X POST -H "Content-Type: application/json" -d '{"valor": 100,
 // "tipo": "c", "descricao": "Deposito"}'
-// http:///localhost:9999/clientes/1/transacoes
+// http:///localhost:9999/members/1/transacoes
 
 //@WebServlet(value = "/cached/*")
 public class RinhaServlet extends HttpServlet {
@@ -118,7 +118,7 @@ public class RinhaServlet extends HttpServlet {
         } else {
             port = 9000 + (shard + 1);
         }
-        String urlString = "http://127.0.0.1:" + port + "/clientes/" + id + "/extrato";
+        String urlString = "http://127.0.0.1:" + port + "/members/" + id + "/extrato";
         try {
             URL url = URI.create(urlString).toURL();
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -228,7 +228,7 @@ public class RinhaServlet extends HttpServlet {
             //TODO: Update cache
             if (resp != null) {
                 resp.setStatus(201);
-                resp.setHeader("Location", "/clientes/" + id + "/transacoes");
+                resp.setHeader("Location", "/members/" + id + "/transacoes");
             }
         } catch (SQLException e) {
             handleSQLException(e, resp);
@@ -241,7 +241,7 @@ public class RinhaServlet extends HttpServlet {
         var msg = e.getMessage();
         if (msg.contains("LIMITE_INDISPONIVEL")) {
             sendError(resp, 422, "Erro: Limite indisponivel");
-        } else if (msg.contains("fk_clientes_transacoes_id")) {
+        } else if (msg.contains("fk_members_transacoes_id")) {
             sendError(resp, SC_NOT_FOUND, "Erro: Cliente inexistente");
         } else {
             sendError(resp, SC_INTERNAL_SERVER_ERROR, "Erro SQL ao manipular a transacao: " + e.getMessage());

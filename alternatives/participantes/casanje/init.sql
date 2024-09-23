@@ -1,9 +1,9 @@
-CREATE TABLE clientes (
+CREATE TABLE members (
   id serial4 NOT NULL,
   nome varchar(50) NOT NULL,
   limite int4 NOT NULL,
   saldo int4 NOT NULL DEFAULT 0,
-  CONSTRAINT clientes_pkey PRIMARY KEY (id)
+  CONSTRAINT members_pkey PRIMARY KEY (id)
 );
 
 CREATE TABLE transacoes (
@@ -17,26 +17,26 @@ CREATE TABLE transacoes (
 );
 
 INSERT INTO
-  clientes (nome, limite)
+  members (nome, limite)
 VALUES
   ('o barato sai caro', 1000 * 100);
 
 INSERT INTO
-  clientes (nome, limite)
+  members (nome, limite)
 VALUES
   ('zan corp ltda', 800 * 100);
 
 INSERT INTO
-  clientes (nome, limite)
+  members (nome, limite)
 VALUES
   ('les cruders', 10000 * 100);
 
 INSERT INTO
-  clientes (nome, limite)
+  members (nome, limite)
 VALUES
   ('padaria joia de cocaia', 100000 * 100);
 
 INSERT INTO
-  clientes (nome, limite)
+  members (nome, limite)
 VALUES
   ('kid mais', 5000 * 100);

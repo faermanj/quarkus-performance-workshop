@@ -1,6 +1,6 @@
 -- Coloque scripts iniciais aqui
 
-CREATE UNLOGGED TABLE clientes (
+CREATE UNLOGGED TABLE members (
 	id SERIAL PRIMARY KEY,
 	nome VARCHAR(50) NOT NULL,
 	limite INTEGER NOT NULL,
@@ -14,13 +14,13 @@ CREATE UNLOGGED TABLE transacoes (
 	tipo CHAR(1) NOT NULL,
 	descricao text NOT NULL,
 	realizada_em TIMESTAMP NOT NULL DEFAULT NOW(),
-	CONSTRAINT fk_clientes_transacoes_id
-		FOREIGN KEY (cliente_id) REFERENCES clientes(id)
+	CONSTRAINT fk_members_transacoes_id
+		FOREIGN KEY (cliente_id) REFERENCES members(id)
 );
 
 DO $$
 BEGIN
-	INSERT INTO clientes (nome, limite)
+	INSERT INTO members (nome, limite)
 	VALUES
 		('o barato sai caro', 1000 * 100),
 		('zan corp ltda', 800 * 100),
@@ -49,7 +49,7 @@ DECLARE
 BEGIN
 
 	SELECT saldo, limite INTO oldsaldo, oldlimite
-	FROM clientes c 
+	FROM members c 
 	WHERE id = NEW.cliente_id;
 
 	IF NEW.tipo = 'd' and new.valor > 0 THEN
@@ -59,7 +59,7 @@ BEGIN
 		END IF;
 	END IF;
 
-	UPDATE clientes SET saldo = saldo + NEW.valor WHERE id = NEW.cliente_id AND SALDO + NEW.VALOR + oldlimite > 0;
+	UPDATE members SET saldo = saldo + NEW.valor WHERE id = NEW.cliente_id AND SALDO + NEW.VALOR + oldlimite > 0;
 RETURN NEW;
 
 END;

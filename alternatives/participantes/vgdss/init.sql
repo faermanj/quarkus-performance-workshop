@@ -1,4 +1,4 @@
-CREATE UNLOGGED TABLE clientes (
+CREATE UNLOGGED TABLE members (
     id SERIAL PRIMARY KEY,
     limite INT NOT NULL,
     saldo INT NOT NULL DEFAULT 0
@@ -11,12 +11,12 @@ CREATE UNLOGGED TABLE transacoes (
     descricao VARCHAR(10) NOT NULL,
     realizada_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     cliente_id INT,
-    CONSTRAINT fk_cliente_transacoes FOREIGN KEY (cliente_id) REFERENCES clientes(id)
+    CONSTRAINT fk_cliente_transacoes FOREIGN KEY (cliente_id) REFERENCES members(id)
 );
 
 CREATE INDEX idx_transacoes_cliente_id_id_desc ON transacoes (cliente_id, id DESC);
 
-INSERT INTO clientes (id, limite, saldo) VALUES
+INSERT INTO members (id, limite, saldo) VALUES
 (1, 100000, 0),
 (2, 80000, 0),
 (3, 1000000, 0),
@@ -24,5 +24,5 @@ INSERT INTO clientes (id, limite, saldo) VALUES
 (5, 500000, 0);
 
 CREATE EXTENSION IF NOT EXISTS pg_prewarm;
-SELECT pg_prewarm('clientes');
+SELECT pg_prewarm('members');
 SELECT pg_prewarm('transacoes');

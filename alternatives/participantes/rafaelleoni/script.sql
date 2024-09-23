@@ -1,4 +1,4 @@
-CREATE TABLE clientes (
+CREATE TABLE members (
     id SERIAL PRIMARY KEY,
     nome VARCHAR(100) NOT NULL,
     limite INT NOT NULL,
@@ -13,7 +13,7 @@ CREATE TABLE transacoes (
     tipo CHAR(1) NOT NULL CHECK (tipo IN ('c', 'd')),
     descricao VARCHAR(10),
     realizada_em TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (id_cliente) REFERENCES clientes(id)
+    FOREIGN KEY (id_cliente) REFERENCES members(id)
 );
 
 
@@ -23,7 +23,7 @@ DECLARE
     novo_saldo INTEGER;
 BEGIN
     -- Verifiar se cliente existe
-    SELECT c.saldo, c.limite INTO saldo, limite FROM clientes c WHERE id = id_cliente;
+    SELECT c.saldo, c.limite INTO saldo, limite FROM members c WHERE id = id_cliente;
     IF NOT FOUND THEN
         RAISE EXCEPTION 'CLIENTE_NAO_ENCONTRADO';
     END IF;
@@ -42,7 +42,7 @@ BEGIN
 
     novo_saldo := saldo;
     INSERT INTO transacoes (id_cliente, valor, tipo, descricao) VALUES (id_cliente, valor, tipo, descricao);
-    UPDATE clientes SET saldo = novo_saldo WHERE id = id_cliente;
+    UPDATE members SET saldo = novo_saldo WHERE id = id_cliente;
 
     RETURN NEXT;
     
@@ -52,7 +52,7 @@ $$ LANGUAGE plpgsql;
 
 
 INSERT INTO 
-    clientes (nome, limite)
+    members (nome, limite)
 VALUES
     ('o barato sai caro', 1000 * 100),
     ('zan corp ltda', 800 * 100),

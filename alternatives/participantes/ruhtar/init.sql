@@ -1,4 +1,4 @@
-CREATE TABLE clientes (
+CREATE TABLE members (
     id SERIAL PRIMARY KEY,
     nome VARCHAR(50) NOT NULL,
     limite INTEGER NOT NULL
@@ -11,26 +11,26 @@ CREATE TABLE transacoes (
     tipo CHAR(1) NOT NULL,
     descricao VARCHAR(10) NOT NULL,
     realizada_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_clientes_transacoes_id
-        FOREIGN KEY (cliente_id) REFERENCES clientes(id)
+    CONSTRAINT fk_members_transacoes_id
+        FOREIGN KEY (cliente_id) REFERENCES members(id)
 );
 
 CREATE TABLE saldos (
    id SERIAL PRIMARY KEY,
    cliente_id INTEGER NOT NULL,
    valor INTEGER NOT NULL,
-   CONSTRAINT fk_clientes_saldos_id
-       FOREIGN KEY (cliente_id) REFERENCES clientes(id)
+   CONSTRAINT fk_members_saldos_id
+       FOREIGN KEY (cliente_id) REFERENCES members(id)
 );
 
 
-CREATE INDEX idx_clientes_id ON clientes (id);
+CREATE INDEX idx_members_id ON members (id);
 CREATE INDEX idx_transacoes_cliente_id ON transacoes (cliente_id);
 CREATE INDEX idx_saldos_cliente_id ON saldos (cliente_id);
 
 BEGIN TRANSACTION;
 
-INSERT INTO clientes (nome, limite)
+INSERT INTO members (nome, limite)
 VALUES
     ('o barato sai caro', 1000 * 100),
     ('zan corp ltda', 800 * 100),
@@ -39,7 +39,7 @@ VALUES
     ('kid mais', 5000 * 100);
 
 INSERT INTO saldos (cliente_id, valor)
-SELECT id, 0 FROM clientes;
+SELECT id, 0 FROM members;
 
 CREATE OR REPLACE FUNCTION atualizar_saldo_transacao(
     cliente_id_param INTEGER,
@@ -55,7 +55,7 @@ DECLARE
     descricao VARCHAR(10);
 BEGIN
     -- Obter o limite do cliente
-    SELECT limite INTO limite_cliente FROM clientes WHERE id = cliente_id_param; -- FOR UPDATE --POSSO ALTERAR ISSO PQ ELE NÃO PRECISA CONSULTAR ISSO
+    SELECT limite INTO limite_cliente FROM members WHERE id = cliente_id_param; -- FOR UPDATE --POSSO ALTERAR ISSO PQ ELE NÃO PRECISA CONSULTAR ISSO
     
     -- Obter o saldo atual do cliente
     SELECT valor INTO saldo_valor FROM saldos WHERE cliente_id = cliente_id_param FOR UPDATE; -- FOR UPDATE

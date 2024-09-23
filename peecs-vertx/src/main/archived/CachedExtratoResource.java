@@ -15,10 +15,10 @@ import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-@Path("/cached/clientes/{id}/extrato")
+@Path("/cached/members/{id}/extrato")
 public class CachedExtratoResource {
 
-    // curl -v -X GET http://localhost:9999/clientes/1/extrato
+    // curl -v -X GET http://localhost:9999/members/1/extrato
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Transactional

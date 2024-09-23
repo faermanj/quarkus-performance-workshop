@@ -1,5 +1,5 @@
 INSERT INTO
-    clientes (id, limite)
+    members (id, limite)
 VALUES
     (1, 1000 * 100),
     (2, 800 * 100),
@@ -10,7 +10,7 @@ VALUES
 CREATE EXTENSION IF NOT EXISTS pg_prewarm;
 
 SELECT
-    pg_prewarm('clientes');
+    pg_prewarm('members');
 
 SELECT
     pg_prewarm('transacoes');

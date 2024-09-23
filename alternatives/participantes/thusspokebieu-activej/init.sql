@@ -1,10 +1,10 @@
-CREATE UNLOGGED TABLE IF NOT EXISTS clientes (
+CREATE UNLOGGED TABLE IF NOT EXISTS members (
 	id SERIAL PRIMARY KEY,
 	limite INTEGER NOT NULL,
   saldo INTEGER NOT NULL 
 );
 
-CREATE INDEX IF NOT EXISTS idx_clientes ON clientes USING btree(id);
+CREATE INDEX IF NOT EXISTS idx_members ON members USING btree(id);
 
 CREATE UNLOGGED TABLE IF NOT EXISTS transacoes (
 	id SERIAL PRIMARY KEY,
@@ -13,8 +13,8 @@ CREATE UNLOGGED TABLE IF NOT EXISTS transacoes (
 	tipo CHAR NOT NULL,
 	descricao VARCHAR(10) NOT NULL,
 	realizada_em TIMESTAMP NOT NULL DEFAULT NOW(),
-	CONSTRAINT fk_clientes_transacoes_id
-		FOREIGN KEY (cliente_id) REFERENCES clientes(id)
+	CONSTRAINT fk_members_transacoes_id
+		FOREIGN KEY (cliente_id) REFERENCES members(id)
     ON DELETE CASCADE
 );
 
@@ -22,8 +22,8 @@ CREATE INDEX IF NOT EXISTS idx_transacoes_cliente_id ON transacoes USING btree(c
 
 DO $$
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM clientes) THEN
-        INSERT INTO clientes (limite, saldo)
+    IF NOT EXISTS (SELECT 1 FROM members) THEN
+        INSERT INTO members (limite, saldo)
         VALUES
             (1000 * 100, 0),
             (800 * 100, 0),
@@ -51,7 +51,7 @@ BEGIN
     INTO
         saldo
     FROM
-        clientes c
+        members c
     WHERE
         c.id = _cliente_id;
 
@@ -106,7 +106,7 @@ RETURNS record AS
 $$
 BEGIN
         IF _tipo = 'c' THEN
-            UPDATE clientes 
+            UPDATE members 
             SET saldo = saldo + _valor 
             WHERE id = _cliente_id 
             RETURNING json_build_object('limite', limite, 'saldo', saldo) INTO resultado;
@@ -114,7 +114,7 @@ BEGIN
             VALUES (_cliente_id, _valor, _tipo, _descricao);
             status := 200;
         ELSIF _tipo = 'd' THEN
-            UPDATE clientes
+            UPDATE members
             SET saldo = saldo - _valor
             WHERE id = _cliente_id AND saldo - _valor > -limite
             RETURNING json_build_object('limite', limite, 'saldo', saldo) INTO resultado;
@@ -136,7 +136,7 @@ $$
 LANGUAGE plpgsql;
 
 CREATE EXTENSION IF NOT EXISTS pg_prewarm;
-SELECT pg_prewarm('clientes');
+SELECT pg_prewarm('members');
 SELECT pg_prewarm('transacoes');
-SELECT pg_prewarm('idx_clientes');
+SELECT pg_prewarm('idx_members');
 SELECT pg_prewarm('idx_transacoes_cliente_id');

@@ -27,7 +27,7 @@ CREATE UNLOGGED TABLE transacao (
     descricao varchar(10) NOT NULL,
     data_lancamento timestamp(6) NOT NULL,
     cliente_id integer NOT NULL,
-    CONSTRAINT fk_transacoes_clientes_id
+    CONSTRAINT fk_transacoes_members_id
            FOREIGN KEY (cliente_id) REFERENCES cliente (id)
 );
 

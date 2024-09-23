@@ -42,7 +42,7 @@ Caso queira rodar em modo debug, basta rodar:
 ```shel
 gcc src/main.c -DDEBUG && ./a.out 
 ```
-Em modo debug os arquivos dos clientes terão nomes e chaves sem abreviatura, e a aplicação irá rodar em single process
+Em modo debug os arquivos dos members terão nomes e chaves sem abreviatura, e a aplicação irá rodar em single process
 
 # Arquitetura 
 
@@ -135,12 +135,12 @@ Framework web usado para construir fazer as requisições http
 
 ### DoTheWorld
 Biblioteca de armazenamento transacional usada para armazenar os arquivos
-dos clientes,controlar os bloqueamentos de cada cliente
+dos members,controlar os bloqueamentos de cada cliente
 
 [Repositório](https://github.com/OUIsolutions/DoTheWorld)
 
 ### CXpathJson 
-Usada para escrever/ler todos os jsons do projeto, tanto os dos arquivos dos clientes, quanto as entradas e saidas da api 
+Usada para escrever/ler todos os jsons do projeto, tanto os dos arquivos dos members, quanto as entradas e saidas da api 
 
 [Repositório](https://github.com/OUIsolutions/cxpathjson)
 

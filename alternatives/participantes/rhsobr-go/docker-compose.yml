@@ -13,7 +13,7 @@ services:
       pgbouncer:
         condition: service_healthy
     healthcheck:
-      test: curl --fail http://localhost:3000/clientes/1/extrato || exit 1
+      test: curl --fail http://localhost:3000/members/1/extrato || exit 1
       interval: 10s
       timeout: 2s
       retries: 5

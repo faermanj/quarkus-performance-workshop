@@ -1,4 +1,4 @@
-CREATE UNLOGGED TABLE clientes (
+CREATE UNLOGGED TABLE members (
 	id SERIAL PRIMARY KEY,
 	nome VARCHAR(50) NOT NULL,
 	limite INTEGER NOT NULL,
@@ -12,13 +12,13 @@ CREATE UNLOGGED TABLE transacoes (
 	tipo CHAR(1) NOT NULL,
 	descricao VARCHAR(10) NOT NULL,
 	realizada_em TIMESTAMP NOT NULL DEFAULT NOW(),
-	CONSTRAINT fk_clientes_transacoes_id
-		FOREIGN KEY (cliente_id) REFERENCES clientes(id)
+	CONSTRAINT fk_members_transacoes_id
+		FOREIGN KEY (cliente_id) REFERENCES members(id)
 );
 
 DO $$
 BEGIN
-	INSERT INTO clientes (nome, limite, saldo)
+	INSERT INTO members (nome, limite, saldo)
 	VALUES
 		('o barato sai caro', 1000 * 100, 0),
 		('zan corp ltda', 800 * 100, 0),
@@ -45,38 +45,38 @@ DECLARE
 BEGIN
 	PERFORM pg_advisory_xact_lock(cliente_id_tx);
 	SELECT 
-		clientes.limite,
+		members.limite,
 		COALESCE(saldo, 0)
 	INTO
 		limite_atual,
 		saldo_atual
-	FROM clientes
+	FROM members
 	WHERE id = cliente_id_tx;
 
 	IF saldo_atual - valor_tx >= limite_atual * -1 THEN
 		INSERT INTO transacoes
 			VALUES(DEFAULT, cliente_id_tx, valor_tx, 'd', descricao_tx, NOW());
 		
-		UPDATE clientes
+		UPDATE members
 		SET saldo = saldo - valor_tx
 		WHERE id = cliente_id_tx;
 
 		RETURN QUERY
 			SELECT
 				saldo,
-				clientes.limite,
+				members.limite,
 				FALSE,
 				'ok'::VARCHAR(20)
-			FROM clientes
+			FROM members
 			WHERE id = cliente_id_tx;
 	ELSE
 		RETURN QUERY
 			SELECT
 				saldo,
-				clientes.limite,
+				members.limite,
 				TRUE,
 				'saldo insuficiente'::VARCHAR(20)
-			FROM clientes
+			FROM members
 			WHERE id = cliente_id_tx;
 	END IF;
 END;
@@ -100,9 +100,9 @@ BEGIN
 		VALUES(DEFAULT, cliente_id_tx, valor_tx, 'c', descricao_tx, NOW());
 
 	RETURN QUERY
-		UPDATE clientes
+		UPDATE members
 		SET saldo = saldo + valor_tx
 		WHERE id = cliente_id_tx
-		RETURNING saldo, clientes.limite, FALSE, 'ok'::VARCHAR(20);
+		RETURNING saldo, members.limite, FALSE, 'ok'::VARCHAR(20);
 END;
 $$;

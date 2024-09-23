@@ -1,4 +1,4 @@
-CREATE TABLE clientes (
+CREATE TABLE members (
     id SERIAL PRIMARY KEY,
     limit_value INT8 NOT NULL,
     current INT8 NOT NULL
@@ -6,7 +6,7 @@ CREATE TABLE clientes (
 
 DO $$ BEGIN
 INSERT INTO
-    clientes (limit_value, current)
+    members (limit_value, current)
 VALUES
     (1000 * 100, 0),
     (800 * 100, 0),
@@ -16,7 +16,7 @@ VALUES
 END $$;
 
 CREATE TABLE transactions (
-    client_id INT REFERENCES clientes(id),
+    client_id INT REFERENCES members(id),
     value INT8 NOT NULL,
     type CHAR NOT NULL,
     description VARCHAR(10) NOT NULL,

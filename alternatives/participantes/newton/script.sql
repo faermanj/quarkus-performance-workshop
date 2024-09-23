@@ -1,4 +1,4 @@
-CREATE UNLOGGED TABLE IF NOT EXISTS clientes (
+CREATE UNLOGGED TABLE IF NOT EXISTS members (
     id SERIAL PRIMARY KEY NOT NULL,
     nome VARCHAR(50) NOT NULL,
     limite INTEGER NOT NULL,
@@ -17,7 +17,7 @@ CREATE UNLOGGED TABLE IF NOT EXISTS transacoes (
 CREATE INDEX idx_cliente_id
 ON transacoes(cliente_id);
 
-INSERT INTO clientes (nome, limite, saldo)
+INSERT INTO members (nome, limite, saldo)
 VALUES
     ('Newton', 100000, 0),
     ('Joe', 80000, 0),
@@ -32,7 +32,7 @@ DECLARE
     v_limite INTEGER;
 BEGIN
     SELECT saldo, limite INTO v_saldo, v_limite
-    FROM clientes WHERE id = NEW.cliente_id
+    FROM members WHERE id = NEW.cliente_id
     FOR UPDATE;
 
     IF NEW.tipo = 'd' AND (v_saldo - NEW.valor) < -v_limite THEN
@@ -40,9 +40,9 @@ BEGIN
     END IF;
 
     IF NEW.tipo = 'd' THEN
-        UPDATE clientes SET saldo = saldo - NEW.valor WHERE id = NEW.cliente_id;
+        UPDATE members SET saldo = saldo - NEW.valor WHERE id = NEW.cliente_id;
     ELSE
-        UPDATE clientes SET saldo = saldo + NEW.valor WHERE id = NEW.cliente_id;
+        UPDATE members SET saldo = saldo + NEW.valor WHERE id = NEW.cliente_id;
     END IF;
 
     RETURN NEW;

@@ -21,10 +21,10 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
--- Name: clientes; Type: TABLE; Schema: public; Owner: -
+-- Name: members; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.clientes (
+CREATE TABLE public.members (
     id bigint NOT NULL,
     limite integer NOT NULL,
     saldo integer NOT NULL
@@ -32,10 +32,10 @@ CREATE TABLE public.clientes (
 
 
 --
--- Name: clientes_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: members_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE public.clientes_id_seq
+CREATE SEQUENCE public.members_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -44,10 +44,10 @@ CREATE SEQUENCE public.clientes_id_seq
 
 
 --
--- Name: clientes_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: members_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE public.clientes_id_seq OWNED BY public.clientes.id;
+ALTER SEQUENCE public.members_id_seq OWNED BY public.members.id;
 
 
 --
@@ -75,18 +75,18 @@ CREATE TABLE public.transacoes (
 
 
 --
--- Name: clientes id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: members id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.clientes ALTER COLUMN id SET DEFAULT nextval('public.clientes_id_seq'::regclass);
+ALTER TABLE ONLY public.members ALTER COLUMN id SET DEFAULT nextval('public.members_id_seq'::regclass);
 
 
 --
--- Name: clientes clientes_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: members members_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.clientes
-    ADD CONSTRAINT clientes_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.members
+    ADD CONSTRAINT members_pkey PRIMARY KEY (id);
 
 
 --

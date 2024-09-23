@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS clientes (
+CREATE TABLE IF NOT EXISTS members (
   id serial primary key,
   nome varchar(255) not null,
   limite bigint not null,
@@ -13,10 +13,10 @@ CREATE TABLE IF NOT EXISTS transacoes (
   tipo char not null,
   descricao varchar not null,
   realizada_em timestamp not null,
-  FOREIGN KEY(cliente_id) REFERENCES clientes(id)
+  FOREIGN KEY(cliente_id) REFERENCES members(id)
 );
 
-INSERT INTO clientes (id, nome, limite, saldo) VALUES
+INSERT INTO members (id, nome, limite, saldo) VALUES
 (1, 'Cliente 1', 100000, 0),
 (2, 'Cliente 2', 80000, 0),
 (3, 'Cliente 3', 1000000, 0),

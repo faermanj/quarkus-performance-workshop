@@ -10,7 +10,7 @@ services:
             POSTGRES_USER: rinha
             POSTGRES_PASSWORD: rinha
         volumes:
-            - ./init_clientes.sql:/docker-entrypoint-initdb.d/init_clientes.sql:ro
+            - ./init_members.sql:/docker-entrypoint-initdb.d/init_members.sql:ro
             - ./postgres.conf:/docker-entrypoint-initdb.d/postgres.conf
         deploy:
             resources:

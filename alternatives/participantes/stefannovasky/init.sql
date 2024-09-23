@@ -1,4 +1,4 @@
-CREATE UNLOGGED TABLE clientes (
+CREATE UNLOGGED TABLE members (
 	id SERIAL PRIMARY KEY,
 	nome VARCHAR(50) NOT NULL, -- nem precisa mas ta aí
 	limite INTEGER NOT NULL,
@@ -12,8 +12,8 @@ CREATE UNLOGGED TABLE transacoes (
 	tipo CHAR(1) NOT NULL,
 	descricao VARCHAR(10) NOT NULL,
 	realizada_em TIMESTAMP NOT NULL DEFAULT NOW(),
-	CONSTRAINT fk_clientes_transacoes_id
-		FOREIGN KEY (cliente_id) REFERENCES clientes(id)
+	CONSTRAINT fk_members_transacoes_id
+		FOREIGN KEY (cliente_id) REFERENCES members(id)
 );
 
 CREATE INDEX ix_transacoes_cliente_id_realizada_em ON transacoes (cliente_id, realizada_em DESC);
@@ -29,7 +29,7 @@ BEGIN
 		saldo - valor_transacao,
 		limite
 	INTO cliente_novo_saldo, cliente_limite
-	FROM clientes
+	FROM members
 	WHERE id = cliente_id
 	FOR UPDATE;
 
@@ -39,7 +39,7 @@ BEGIN
 	VALUES (cliente_id, valor_transacao, 'd', descricao_transacao);
 
 	RETURN QUERY
-	UPDATE clientes
+	UPDATE members
 	SET saldo = cliente_novo_saldo
 	WHERE id = cliente_id
 	RETURNING saldo;
@@ -56,14 +56,14 @@ BEGIN
 	VALUES (cliente_id, valor_transacao, 'c', descricao_transacao);
 
 	RETURN QUERY
-	UPDATE clientes
+	UPDATE members
 	SET saldo = saldo + valor_transacao
 	WHERE id = cliente_id
 	RETURNING saldo;
 END;
 $BODY$;
 
-INSERT INTO clientes (nome, limite) values
+INSERT INTO members (nome, limite) values
 	('eh', 1000 * 100),
 	('os', 800 * 100),
 	('guri', 10000 * 100),

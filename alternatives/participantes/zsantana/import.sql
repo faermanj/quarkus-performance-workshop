@@ -29,7 +29,7 @@ CREATE TABLE public.saldocliente (
     id SERIAL PRIMARY KEY,
 	cliente_id INTEGER NOT NULL,
 	valor INTEGER NOT NULL,
-	CONSTRAINT fk_clientes_saldos_id FOREIGN KEY (cliente_id) REFERENCES public.cliente(id)
+	CONSTRAINT fk_members_saldos_id FOREIGN KEY (cliente_id) REFERENCES public.cliente(id)
 );
 
 CREATE TABLE public.transacao (
@@ -39,7 +39,7 @@ CREATE TABLE public.transacao (
     tipo CHAR(1) NOT NULL,
     descricao VARCHAR(10) NOT NULL,
     realizada_em TIMESTAMP NOT NULL,
-    CONSTRAINT fk_clientes_transacoes_id FOREIGN KEY (cliente_id) REFERENCES public.cliente(id)
+    CONSTRAINT fk_members_transacoes_id FOREIGN KEY (cliente_id) REFERENCES public.cliente(id)
 );
 
 ALTER TABLE public.transacao ALTER COLUMN id SET DEFAULT nextval('transacao_id_seq');

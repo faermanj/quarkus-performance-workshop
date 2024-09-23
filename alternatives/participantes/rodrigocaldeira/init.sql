@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS clientes
+CREATE TABLE IF NOT EXISTS members
 (
     id integer NOT NULL,
     nome varchar(50) NOT NULL,
@@ -7,13 +7,13 @@ CREATE TABLE IF NOT EXISTS clientes
     ultimas_transacoes jsonb[] DEFAULT ARRAY[]::jsonb[],
     inserted_at timestamp(0) without time zone NOT NULL,
     updated_at timestamp(0) without time zone NOT NULL,
-    CONSTRAINT clientes_pkey PRIMARY KEY (id),
+    CONSTRAINT members_pkey PRIMARY KEY (id),
     CONSTRAINT saldo_maior_que_o_limite CHECK (saldo >= (limite * '-1'::integer))
 );
 
 DO $$
 BEGIN
-  INSERT INTO clientes ("id", "nome", "limite", "inserted_at", "updated_at")
+  INSERT INTO members ("id", "nome", "limite", "inserted_at", "updated_at")
   VALUES
     (1, 'o barato sai caro', 1000 * 100, now(), now()),
     (2, 'zan corp ltda', 800 * 100, now(), now()),

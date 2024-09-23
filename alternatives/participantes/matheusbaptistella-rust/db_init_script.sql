@@ -1,6 +1,6 @@
 -- A table for storing/updating all client's data.
 -- A single entry per client.
-CREATE TABLE clientes (
+CREATE TABLE members (
     id SERIAL PRIMARY KEY,
     limite INTEGER NOT NULL,
     saldo INTEGER NOT NULL DEFAULT 0 CHECK (saldo >= -limite)
@@ -9,14 +9,14 @@ CREATE TABLE clientes (
 -- A table for storing the transactions executed by all clients.
 -- Multiple entries for each client.
 CREATE TABLE transacoes (
-    id INTEGER REFERENCES clientes(id),
+    id INTEGER REFERENCES members(id),
     valor INTEGER NOT NULL,
     tipo VARCHAR(1) NOT NULL,
     descricao VARCHAR(10),
     realizada_em TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
-INSERT INTO clientes (limite) 
+INSERT INTO members (limite) 
 VALUES 
     (100000),
     (80000),

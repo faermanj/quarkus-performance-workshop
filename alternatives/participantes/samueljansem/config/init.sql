@@ -2,14 +2,14 @@ SET CLIENT_MIN_MESSAGES = WARNING;
 SET ROW_SECURITY = OFF;
 
 CREATE UNLOGGED TABLE
-    "clientes" (
+    "members" (
         "id" INT PRIMARY KEY,
         "saldo" INTEGER NOT NULL,
         "limite" INTEGER NOT NULL
     );
 
-CREATE INDEX idx_pk_clientes ON clientes (id) INCLUDE (saldo);
-CLUSTER clientes USING idx_pk_clientes;
+CREATE INDEX idx_pk_members ON members (id) INCLUDE (saldo);
+CLUSTER members USING idx_pk_members;
 
 CREATE UNLOGGED TABLE
     "transacoes" (
@@ -19,7 +19,7 @@ CREATE UNLOGGED TABLE
         "tipo" VARCHAR(1) NOT NULL,
         "descricao" VARCHAR(10) NOT NULL,
         "realizada_em" TIMESTAMP WITH TIME ZONE NOT NULL,
-        CONSTRAINT "fk_transacoes_id_cliente" FOREIGN KEY ("id_cliente") REFERENCES "clientes" ("id")
+        CONSTRAINT "fk_transacoes_id_cliente" FOREIGN KEY ("id_cliente") REFERENCES "members" ("id")
     );
 
 CREATE INDEX idx_transacoes_id_cliente ON transacoes (id_cliente);
@@ -27,11 +27,11 @@ CREATE INDEX idx_transacoes_realizada_em ON transacoes (realizada_em DESC);
 CLUSTER transacoes USING idx_transacoes_id_cliente;
 
 
-ALTER TABLE "clientes" SET (autovacuum_enabled = false);
+ALTER TABLE "members" SET (autovacuum_enabled = false);
 ALTER TABLE "transacoes" SET (autovacuum_enabled = false);
 
 INSERT INTO
-    clientes (id, saldo, limite)
+    members (id, saldo, limite)
 VALUES
     (1, 0, 100000),
     (2, 0, 80000),
@@ -59,7 +59,7 @@ BEGIN
         valor := -valor;
     END IF;
 
-    UPDATE clientes
+    UPDATE members
     SET saldo = saldo + valor
     WHERE id = id_cliente AND (saldo + valor) >= -limite
     RETURNING saldo, limite INTO saldo_atual, limite_atual;

@@ -1,15 +1,15 @@
 -- DROP TABLE IF EXISTS
 DROP TABLE IF EXISTS "transacoes";
 
-DROP TABLE IF EXISTS "clientes";
+DROP TABLE IF EXISTS "members";
 
 -- CreateTable
-CREATE TABLE "clientes" (
+CREATE TABLE "members" (
   "id" SERIAL NOT NULL,
   "nome" VARCHAR(255) NOT NULL,
   "limite" INTEGER NOT NULL,
   "saldo" INTEGER NOT NULL DEFAULT 0,
-  CONSTRAINT "clientes_pkey" PRIMARY KEY ("id")
+  CONSTRAINT "members_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -27,12 +27,12 @@ CREATE TABLE "transacoes" (
 ALTER TABLE
   "transacoes"
 ADD
-  CONSTRAINT "transacoes_cliente_id_fkey" FOREIGN KEY ("cliente_id") REFERENCES "clientes"("id") ON DELETE
+  CONSTRAINT "transacoes_cliente_id_fkey" FOREIGN KEY ("cliente_id") REFERENCES "members"("id") ON DELETE
 SET
   NULL ON UPDATE CASCADE;
 
 INSERT INTO
-  clientes (id, nome, limite, saldo)
+  members (id, nome, limite, saldo)
 VALUES
   (1, 'o barato sai caro', 100000, 0),
   (2, 'zan corp ltda', 80000, 0),

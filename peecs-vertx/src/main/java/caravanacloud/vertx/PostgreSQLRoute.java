@@ -24,9 +24,9 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Response;
 
 @ApplicationScoped
-@Path("/clientes")
+@Path("/members")
 public class PostgreSQLRoute {
-    private static final String VERSION_ID = "0.0.1 TDC";
+    private static final String VERSION_ID = "Devoxx";
     private static final String EXTRATO_QUERY = "select status_code, body from proc_extrato($1)";
     private static final String TRANSACAO_QUERY = "select status_code, body from proc_transacao($1, $2, $3, $4)";
     private static final String WARMUP_QUERY = "select 1+1;";
@@ -49,7 +49,7 @@ public class PostgreSQLRoute {
     PgPool client;
 
     public void onStartup(@Observes StartupEvent event) {
-        Log.infof("StartupEvent version[" + VERSION_ID + "] 🐔💥");
+        Log.infof("StartupEvent [" + VERSION_ID + "]");
         boolean ready = false;
         do {
             try {

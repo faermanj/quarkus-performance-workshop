@@ -21,7 +21,7 @@ services:
           memory: "80MB"
 
     healthcheck:
-      test: ["CMD-SHELL", "wget -q --spider http://localhost:8080/clientes/1/extrato || exit 1"]
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:8080/members/1/extrato || exit 1"]
       start_interval: 0.20s
       retries: 10
       interval: 0.20s
@@ -35,7 +35,7 @@ services:
       SERVER_PORT: 8081
 
     healthcheck:
-      test: ["CMD-SHELL", "wget -q --spider http://localhost:8081/clientes/1/extrato || exit 1"]
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:8081/members/1/extrato || exit 1"]
       start_interval: 0.20s
       retries: 10
       interval: 0.20s

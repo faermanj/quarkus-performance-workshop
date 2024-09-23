@@ -1,6 +1,6 @@
--- create clientes table
+-- create members table
 
-CREATE UNLOGGED TABLE IF NOT EXISTS clientes (
+CREATE UNLOGGED TABLE IF NOT EXISTS members (
    id SMALLINT PRIMARY KEY NOT NULL,
    limite INTEGER NOT NULL,
    saldo INTEGER NOT NULL,
@@ -8,9 +8,9 @@ CREATE UNLOGGED TABLE IF NOT EXISTS clientes (
    CONSTRAINT limite_minimo CHECK (saldo > limite)
 );
 
--- insert clientes
+-- insert members
 
-INSERT INTO clientes (id, limite, saldo)
+INSERT INTO members (id, limite, saldo)
 VALUES
     (1, -100000,0),
     (2, -80000,0),
@@ -33,7 +33,7 @@ BEGIN
       'ultimas_transacoes', c.ultimas_transacoes
    )
    INTO saldo_result
-   FROM clientes c
+   FROM members c
    WHERE c.id = p_client_id;
 
    IF NOT FOUND THEN
@@ -58,7 +58,7 @@ BEGIN
 
    END IF;
 
-   UPDATE clientes
+   UPDATE members
       SET
          saldo = saldo + novosaldo,
          ultimas_transacoes = jsonb_path_query_array(jsonb_insert(ultimas_transacoes,'{0}', transaction), '$[0 to 9]')

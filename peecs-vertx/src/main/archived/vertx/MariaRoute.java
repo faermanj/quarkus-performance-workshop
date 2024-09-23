@@ -22,7 +22,7 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.core.Response;
 
 @ApplicationScoped
-@Path("/clientes")
+@Path("/members")
 public class MariaRoute {
     private static final String VERSION_ID = "vertx-2tables-0.0.2";
     private static final String EXTRATO_CALL = "{CALL proc_extrato($1, $2, $3)}";

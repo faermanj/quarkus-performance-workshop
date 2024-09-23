@@ -1,5 +1,5 @@
 -- Coloque scripts iniciais aqui
-CREATE TABLE IF NOT EXISTS clientes (
+CREATE TABLE IF NOT EXISTS members (
     id SERIAL PRIMARY KEY,
     limite int,
     saldo int default 0,
@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS clientes (
 );
 
 BEGIN;
-INSERT INTO clientes (id, nome, limite)
+INSERT INTO members (id, nome, limite)
 VALUES
     (1, 'o barato sai caro', 1000 * 100),
     (2, 'zan corp ltda', 800 * 100),
@@ -23,6 +23,6 @@ CREATE TABLE IF NOT EXISTS transacoes (
     tipo VARCHAR(1) NOT NULL,
     descricao VARCHAR(10) NOT NULL,
     realizada_em TIMESTAMP NOT NULL DEFAULT NOW(),
-    FOREIGN KEY (cliente_id) REFERENCES clientes(id)
+    FOREIGN KEY (cliente_id) REFERENCES members(id)
 );
 

@@ -1,4 +1,4 @@
-CREATE UNLOGGED TABLE clientes (
+CREATE UNLOGGED TABLE members (
 	id SERIAL PRIMARY KEY,
 	nome VARCHAR(50) NOT NULL,
 	limite INTEGER NOT NULL,
@@ -12,8 +12,8 @@ CREATE UNLOGGED TABLE transacoes (
 	tipo CHAR(1) NOT NULL,
 	descricao VARCHAR(10) NOT NULL,
 	realizada_em TIMESTAMP NOT NULL DEFAULT NOW(),
-	CONSTRAINT fk_clientes_transacoes_id
-		FOREIGN KEY (cliente_id) REFERENCES clientes(id)
+	CONSTRAINT fk_members_transacoes_id
+		FOREIGN KEY (cliente_id) REFERENCES members(id)
 );
 
 CREATE INDEX CONCURRENTLY idx_transacoes_cliente_id
@@ -21,7 +21,7 @@ CREATE INDEX CONCURRENTLY idx_transacoes_cliente_id
 
 DO $$
 BEGIN
-	INSERT INTO clientes (nome, limite, saldo)
+	INSERT INTO members (nome, limite, saldo)
 	VALUES
 		('o barato sai caro', 1000 * 100, 0),
 		('zan corp ltda', 800 * 100, 0),
@@ -47,7 +47,7 @@ DECLARE
 BEGIN
 	PERFORM pg_advisory_xact_lock(cliente_id_tx);
 	
-  UPDATE clientes
+  UPDATE members
      SET saldo = saldo - valor_tx
    WHERE id = cliente_id_tx
      AND ABS(saldo - valor_tx) <= limite
@@ -62,7 +62,7 @@ RETURNING saldo, limite INTO _saldo, _limite;
 		SELECT success, _saldo, _limite INTO record;
   ELSE 
   	SELECT 0, saldo, limite
-      FROM clientes
+      FROM members
      WHERE id = cliente_id_tx
       INTO record;
 	END IF;
@@ -85,7 +85,7 @@ BEGIN
 		VALUES(DEFAULT, cliente_id_tx, valor_tx, 'c', descricao_tx, NOW());
 
 	RETURN QUERY
-		UPDATE clientes
+		UPDATE members
 		SET saldo = saldo + valor_tx
 		WHERE id = cliente_id_tx
 		RETURNING saldo, limite;

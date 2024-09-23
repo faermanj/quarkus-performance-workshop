@@ -12,7 +12,7 @@ SET default_tablespace = '';
 
 SET default_table_access_method = heap;
 
-CREATE UNLOGGED TABLE clientes (
+CREATE UNLOGGED TABLE members (
         id SERIAL PRIMARY KEY,
         limite INTEGER NOT NULL,
         saldo INTEGER NOT NULL
@@ -25,8 +25,8 @@ CREATE UNLOGGED TABLE transacoes (
         tipo CHAR(1) NOT NULL,
         descricao VARCHAR(10) NOT NULL,
         realizada_em TIMESTAMP WITH TIME ZONE NOT NULL,
-        CONSTRAINT fk_clientes_transacoes_id
-                FOREIGN KEY (cliente_id) REFERENCES clientes(id)
+        CONSTRAINT fk_members_transacoes_id
+                FOREIGN KEY (cliente_id) REFERENCES members(id)
 );
 
 CREATE INDEX ix_transacao_idcliente ON transacoes
@@ -36,7 +36,7 @@ CREATE INDEX ix_transacao_idcliente ON transacoes
 
 DO $$
 BEGIN
-        INSERT INTO clientes (limite, saldo)
+        INSERT INTO members (limite, saldo)
         VALUES
                 (100000, 0),
                 (80000, 0),

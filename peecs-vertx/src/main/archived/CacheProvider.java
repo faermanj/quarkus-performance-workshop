@@ -27,7 +27,7 @@ public class CacheProvider {
     @DefaultBean
     public Cache<Integer, Cliente> newCache() {
         Cache<Integer, Cliente> cache = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE)
-                .getOrCreateCache("clientesCache", builder.build());
+                .getOrCreateCache("membersCache", builder.build());
         return cache;
 
     }

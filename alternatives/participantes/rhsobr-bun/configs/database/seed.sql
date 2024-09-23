@@ -1,5 +1,5 @@
 INSERT INTO
-    clientes (id, limite)
+    members (id, limite)
 VALUES
     (1, 1000 * 100),
     (2, 800 * 100),

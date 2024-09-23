@@ -4,7 +4,7 @@ CREATE UNLOGGED TABLE public.cliente (
     limite int NOT NULL,
     saldo_inicial int NOT NULL
 );
- CREATE INDEX clientes_id_idx ON cliente (id);
+ CREATE INDEX members_id_idx ON cliente (id);
 
 INSERT INTO public.cliente (limite, saldo_inicial)
 VALUES

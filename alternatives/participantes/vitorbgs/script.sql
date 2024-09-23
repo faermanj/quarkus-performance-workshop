@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS public.contas
     cliente_id integer NOT NULL,
     limite integer NOT NULL,
     saldo integer NOT NULL,
-    CONSTRAINT pk_clientes PRIMARY KEY (id)
+    CONSTRAINT pk_members PRIMARY KEY (id)
 );
 
 CREATE INDEX IF NOT EXISTS idx_contas_cliente_id ON public.contas(cliente_id);

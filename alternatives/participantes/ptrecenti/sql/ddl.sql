@@ -1,4 +1,4 @@
-CREATE TABLE clientes
+CREATE TABLE members
 (
     id     SERIAL PRIMARY KEY,
     nome   VARCHAR(50) NOT NULL,
@@ -13,8 +13,8 @@ CREATE TABLE transacoes
     tipo         CHAR(1)     NOT NULL,
     descricao    VARCHAR(10) NOT NULL,
     realizada_em TIMESTAMP   NOT NULL DEFAULT NOW(),
-    CONSTRAINT fk_clientes_transacoes_id
-        FOREIGN KEY (cliente_id) REFERENCES clientes (id)
+    CONSTRAINT fk_members_transacoes_id
+        FOREIGN KEY (cliente_id) REFERENCES members (id)
 );
 
 CREATE INDEX i_cliente_realizada_em
@@ -27,6 +27,6 @@ CREATE TABLE saldos
     cliente_id INTEGER NOT NULL,
     valor      INTEGER NOT NULL,
     versao     INTEGER NOT NULL,
-    CONSTRAINT fk_clientes_saldos_id
-        FOREIGN KEY (cliente_id) REFERENCES clientes (id)
+    CONSTRAINT fk_members_saldos_id
+        FOREIGN KEY (cliente_id) REFERENCES members (id)
 );

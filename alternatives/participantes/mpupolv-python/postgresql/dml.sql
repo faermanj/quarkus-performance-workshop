@@ -1,5 +1,5 @@
 DO $$ BEGIN
-INSERT INTO clientes (limite, saldo)
+INSERT INTO members (limite, saldo)
 VALUES (1000 * 100, 0),
      (800 * 100, 0),
      (10000 * 100, 0),

@@ -1,4 +1,4 @@
-CREATE UNLOGGED TABLE IF NOT EXISTS clientes (
+CREATE UNLOGGED TABLE IF NOT EXISTS members (
     id SERIAL PRIMARY KEY NOT NULL,
     limite INTEGER NOT NULL,
     saldo INTEGER NOT NULL
@@ -15,7 +15,7 @@ CREATE UNLOGGED TABLE IF NOT EXISTS transacoes (
 
 CREATE INDEX idx_cliente_id ON transacoes(cliente_id);
 
-INSERT INTO clientes (limite, saldo)
+INSERT INTO members (limite, saldo)
 VALUES
     (100000, 0),
     (80000, 0),
@@ -30,7 +30,7 @@ DECLARE
     v_limite INTEGER;
 BEGIN
      SELECT saldo, limite INTO v_saldo, v_limite
-     FROM clientes WHERE id = NEW.cliente_id
+     FROM members WHERE id = NEW.cliente_id
      FOR UPDATE;
 
     IF NEW.tipo = 'd' AND (v_saldo - NEW.valor) < -v_limite THEN
@@ -39,7 +39,7 @@ BEGIN
             message='Limite insuficiente';
     END IF;
 
-    UPDATE clientes SET saldo =
+    UPDATE members SET saldo =
         CASE WHEN NEW.tipo = 'd' THEN saldo - NEW.valor
             ELSE saldo + NEW.valor
         END

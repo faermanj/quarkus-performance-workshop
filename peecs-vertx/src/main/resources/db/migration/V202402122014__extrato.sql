@@ -8,7 +8,7 @@ DECLARE
 BEGIN
     SELECT saldo, limite
     INTO v_saldo, v_limite
-    FROM clientes
+    FROM members
     WHERE id = p_id;
 
     GET DIAGNOSTICS row_count = ROW_COUNT;

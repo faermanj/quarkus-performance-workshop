@@ -1,11 +1,11 @@
 CREATE table
-  clientes (
+  members (
     id int primary key,
     limite int not null default 0,
     saldo int not null default 0
   );
 
--- ALTER TABLE clientes ADD CONSTRAINT check_limite CHECK (saldo >= (limite * -1));
+-- ALTER TABLE members ADD CONSTRAINT check_limite CHECK (saldo >= (limite * -1));
 
 CREATE table
   transacoes (
@@ -21,7 +21,7 @@ CREATE table
 
 START TRANSACTION;
 
-insert into clientes(id, limite, saldo)
+insert into members(id, limite, saldo)
 values
   (1, 1000 * 100, 0),
   (2, 800 * 100, 0),
@@ -65,12 +65,12 @@ START TRANSACTION READ WRITE;
 
 SELECT saldo, limite 
   INTO v_saldo, v_limite
-  FROM clientes
+  FROM members
   WHERE id = p_cliente_id
   FOR UPDATE;
 
 IF tipo = 'c' THEN
-  UPDATE clientes
+  UPDATE members
     SET saldo = v_saldo + valor
     WHERE id = p_cliente_id;
   INSERT INTO transacoes (cliente_id, valor, tipo, descricao, realizada_em)
@@ -83,7 +83,7 @@ ELSE
     SET status_code = 422;
     ROLLBACK;
   ELSE
-    UPDATE clientes
+    UPDATE members
       SET saldo = v_saldo - valor
       WHERE id = p_cliente_id;
     INSERT INTO transacoes (cliente_id, valor, tipo, descricao, realizada_em)
@@ -109,7 +109,7 @@ START TRANSACTION READ ONLY;
 
 SELECT saldo, limite 
   INTO v_saldo, v_limit
-  FROM clientes
+  FROM members
   WHERE id = p_cliente_id;
 
 SET json_body = JSON_OBJECT(

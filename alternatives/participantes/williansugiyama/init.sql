@@ -1,4 +1,4 @@
-CREATE TABLE clientes (
+CREATE TABLE members (
     id SERIAL PRIMARY KEY,
     nome VARCHAR(100) NOT NULL,
     limite INT NOT NULL,
@@ -12,12 +12,12 @@ CREATE TABLE transacoes (
     tipo VARCHAR(1) NOT NULL,
     descricao VARCHAR(100) NOT NULL,
     realizada_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (id_cliente) REFERENCES clientes(id)
+    FOREIGN KEY (id_cliente) REFERENCES members(id)
 );
 
 DO $$
 BEGIN
-  INSERT INTO clientes (nome, limite)
+  INSERT INTO members (nome, limite)
   VALUES
     ('o barato sai caro', 1000 * 100),
     ('zan corp ltda', 800 * 100),

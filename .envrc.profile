@@ -1,4 +1,4 @@
-export RINHA_WARMUP_QUERY="SELECT pg_prewarm('transacoes'); SELECT pg_prewarm('clientes'); select * from transacoes limit 5; select * from clientes limit 5;"
+export RINHA_WARMUP_QUERY="SELECT pg_prewarm('transacoes'); SELECT pg_prewarm('members'); select * from transacoes limit 5; select * from members limit 5;"
 export QUARKUS_HTTP_PORT=9000
 export QUARKUS_BANNER_ENABLED=false
 export QUARKUS_HTTP_IDLE_TIMEOUT=45

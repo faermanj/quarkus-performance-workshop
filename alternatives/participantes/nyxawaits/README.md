@@ -34,4 +34,4 @@ Pelo que eu testei, no momento está database bounded =D
 \* -> Feito com as configurações iniciais do docker-compose.yml
 
 - Ferramenta usada: Oha
-- Comando: `oha -n 200000 -z 60s --rand-regex-url  http://127.0.0.1:9999/clientes/[1-5]/extrato`
+- Comando: `oha -n 200000 -z 60s --rand-regex-url  http://127.0.0.1:9999/members/[1-5]/extrato`

@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS clientes (
+CREATE TABLE IF NOT EXISTS members (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(50) NOT NULL,
     saldo INT NOT NULL,
@@ -12,10 +12,10 @@ CREATE TABLE IF NOT EXISTS transacoes (
     tipo CHAR(1) NOT NULL,
     descricao VARCHAR(10) NOT NULL,
     realizada_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (id_cliente) REFERENCES clientes(id) ON DELETE RESTRICT ON UPDATE CASCADE
+    FOREIGN KEY (id_cliente) REFERENCES members(id) ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
-INSERT INTO clientes (nome, limite, saldo) VALUES
+INSERT INTO members (nome, limite, saldo) VALUES
 	('Akari', 100000 * 100, 0),
 	('Isabella', 80000 * 100, 0),
 	('Julia', 1000000 * 100, 0),

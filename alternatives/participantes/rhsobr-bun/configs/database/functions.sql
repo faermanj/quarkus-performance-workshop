@@ -19,7 +19,7 @@ BEGIN
                         NULL :: JSONB
                     )
                 FROM
-                    clientes cl
+                    members cl
                 WHERE
                     cl.id = cliente_id_p
                 LIMIT
@@ -78,7 +78,7 @@ BEGIN
             tipo_p,
             descricao_p
         FROM
-            clientes cl
+            members cl
         WHERE
             cl.id = cliente_id_p
             AND (
@@ -91,7 +91,7 @@ BEGIN
             RETURNING cliente_id
     )
     UPDATE
-        clientes cl
+        members cl
     SET
         saldo = saldo + (
             CASE

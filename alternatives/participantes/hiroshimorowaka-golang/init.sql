@@ -1,14 +1,14 @@
               DROP TABLE IF EXISTS "transacoes";
-              DROP TABLE IF EXISTS "clientes";
+              DROP TABLE IF EXISTS "members";
             
             
-              CREATE UNLOGGED TABLE "clientes" (
+              CREATE UNLOGGED TABLE "members" (
                   id SERIAL NOT NULL,
                   nome TEXT NOT NULL,
                   limite INTEGER NOT NULL,
                   saldo INTEGER NOT NULL DEFAULT 0,
               
-                  CONSTRAINT "clientes_pkey" PRIMARY KEY ("id")
+                  CONSTRAINT "members_pkey" PRIMARY KEY ("id")
               );
               
               CREATE UNLOGGED TABLE "transacoes" (
@@ -24,15 +24,15 @@
               
               CREATE INDEX idx_extrato ON transacoes (id DESC);
         
-              CREATE UNIQUE INDEX "clientes_id_key" ON "clientes"("id");
+              CREATE UNIQUE INDEX "members_id_key" ON "members"("id");
               
               CREATE UNIQUE INDEX "transacoes_id_key" ON "transacoes"("id");
               
-              ALTER TABLE "transacoes" ADD CONSTRAINT "transacoes_clientesId_fkey" FOREIGN KEY ("client_id") REFERENCES "clientes"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+              ALTER TABLE "transacoes" ADD CONSTRAINT "transacoes_membersId_fkey" FOREIGN KEY ("client_id") REFERENCES "members"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
             
               DO $$
               BEGIN
-                INSERT INTO clientes (nome, limite)
+                INSERT INTO members (nome, limite)
                 VALUES
                   ('o barato sai caro', 1000 * 100),
                   ('zan corp ltda', 800 * 100),

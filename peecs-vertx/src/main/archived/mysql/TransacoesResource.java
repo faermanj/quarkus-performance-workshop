@@ -19,14 +19,14 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
 
-@Path("/mysql/clientes/{id}/transacoes")
+@Path("/mysql/members/{id}/transacoes")
 public class TransacoesResource {
     @Inject
     DataSource ds;
 
     // curl -v -X POST -H "Content-Type: application/json" -d '{"valor": 100,
     // "tipo": "c", "descricao": "Compra"}'
-    // http://localhost:9999/clientes/1/transacoes
+    // http://localhost:9999/members/1/transacoes
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Transactional(Transactional.TxType.NEVER) 
@@ -99,7 +99,7 @@ public class TransacoesResource {
                 if (msg.contains("LIMITE_INDISPONIVEL")) {
                     return Response.status(422).entity("Erro: Limite indisponivel").build();
                 }
-                if (msg.contains("fk_clientes_transacoes_id")) {
+                if (msg.contains("fk_members_transacoes_id")) {
                     return Response.status(Status.NOT_FOUND).entity("Erro: Cliente inexistente").build();
                 }
                 if (msg.contains("CLIENTE_NAO_ENCONTRADO")) {

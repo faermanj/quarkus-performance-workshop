@@ -143,7 +143,7 @@ public class CachedServlet extends HttpServlet {
         return result;
     }
 
-    // curl -v -X GET http://localhost:9999/clientes/1/extrato
+    // curl -v -X GET http://localhost:9999/members/1/extrato
     @Override
     protected synchronized void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         var id = getId(req, resp);
@@ -207,7 +207,7 @@ public class CachedServlet extends HttpServlet {
 
     // curl -v -X POST -H "Content-Type: application/json" -d '{"valor": 100,
     // "tipo": "c", "descricao": "Deposito"}'
-    // http:///localhost:9999/clientes/1/transacoes
+    // http:///localhost:9999/members/1/transacoes
     @Override
     public synchronized void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         var id = getId(req, resp);
@@ -317,7 +317,7 @@ public class CachedServlet extends HttpServlet {
         var msg = e.getMessage();
         if (msg.contains("LIMITE_INDISPONIVEL")) {
             sendError(resp, 422, "Erro: Limite indisponivel");
-        } else if (msg.contains("fk_clientes_transacoes_id")) {
+        } else if (msg.contains("fk_members_transacoes_id")) {
             sendError(resp, SC_NOT_FOUND, "Erro: Cliente inexistente");
         } else {
             sendError(resp, SC_INTERNAL_SERVER_ERROR, "Erro SQL ao manipular a transacao: " + e.getMessage());

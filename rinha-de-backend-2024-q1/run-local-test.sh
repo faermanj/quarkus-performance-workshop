@@ -16,9 +16,9 @@ runGatling() {
 startTest() {
     for i in {1..20}; do
         # 2 requests to wake the 2 api instances up :)
-        curl --fail http://localhost:9999/clientes/1/extrato && \
+        curl --fail http://localhost:9999/members/1/extrato && \
         echo "" && \
-        curl --fail http://localhost:9999/clientes/1/extrato && \
+        curl --fail http://localhost:9999/members/1/extrato && \
         echo "" && \
         runGatling && \
         break || sleep 2;

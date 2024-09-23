@@ -2,14 +2,14 @@ CREATE SCHEMA api;
 CREATE ROLE anon NOLOGIN;
 GRANT USAGE ON SCHEMA api TO anon;
 
-CREATE UNLOGGED TABLE api.clientes (
+CREATE UNLOGGED TABLE api.members (
   id SERIAL PRIMARY KEY,
   limite INT NOT NULL DEFAULT 0,
   saldo INT NOT NULL DEFAULT 0 CHECK (saldo >= -limite)
 );
 
 CREATE UNLOGGED TABLE api.transacoes (
-  cliente_id INT REFERENCES api.clientes (id),
+  cliente_id INT REFERENCES api.members (id),
   valor INT NOT NULL,
   descricao VARCHAR(10) NOT NULL,
   tipo CHAR(1) NOT NULL,
@@ -36,7 +36,7 @@ BEGIN
   INSERT INTO api.transacoes (cliente_id, valor, tipo, descricao)
     VALUES (cliente_id, valor, tipo, descricao);
 
-  UPDATE api.clientes
+  UPDATE api.members
   SET saldo = saldo + ajuste_valor
   WHERE id = cliente_id
   RETURNING saldo, limite INTO novo_saldo, novo_limite;
@@ -74,7 +74,7 @@ BEGIN
   ),
   saldo AS (
     SELECT saldo AS total, NOW() AS data_extrato, limite
-    FROM api.clientes c
+    FROM api.members c
     WHERE id = p_cliente_id
   )
   SELECT json_build_object(
@@ -87,12 +87,12 @@ END;
 $$
 LANGUAGE PLPGSQL;
 
-GRANT SELECT, UPDATE ON api.clientes TO anon;
+GRANT SELECT, UPDATE ON api.members TO anon;
 GRANT SELECT, INSERT ON api.transacoes TO anon;
 
 DO $$
 BEGIN
-  INSERT INTO api.clientes
+  INSERT INTO api.members
   (id, limite)
 VALUES
   (1, 100000),

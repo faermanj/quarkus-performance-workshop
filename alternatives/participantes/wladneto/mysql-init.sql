@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS clientes (
+CREATE TABLE IF NOT EXISTS members (
   id INTEGER PRIMARY KEY AUTO_INCREMENT, 
   limite INTEGER NOT NULL,
   saldo INTEGER NOT NULL
@@ -13,10 +13,10 @@ CREATE TABLE IF NOT EXISTS transacoes (
   realizada_em TIMESTAMP NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-ALTER TABLE transacoes add foreign key(cliente_id) references clientes(id);
+ALTER TABLE transacoes add foreign key(cliente_id) references members(id);
 
-INSERT INTO clientes(limite, saldo) VALUES (100000,0);
-INSERT INTO clientes(limite, saldo) VALUES (80000,0);
-INSERT INTO clientes(limite, saldo) VALUES (1000000,0);
-INSERT INTO clientes(limite, saldo) VALUES (10000000,0);
-INSERT INTO clientes(limite, saldo) VALUES (500000,0);
+INSERT INTO members(limite, saldo) VALUES (100000,0);
+INSERT INTO members(limite, saldo) VALUES (80000,0);
+INSERT INTO members(limite, saldo) VALUES (1000000,0);
+INSERT INTO members(limite, saldo) VALUES (10000000,0);
+INSERT INTO members(limite, saldo) VALUES (500000,0);

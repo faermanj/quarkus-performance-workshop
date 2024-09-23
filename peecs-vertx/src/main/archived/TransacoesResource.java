@@ -16,7 +16,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
 
-@Path("/clientes/{id}/transacoes")
+@Path("/members/{id}/transacoes")
 public class TransacoesResource {
     @Inject
     DataSource ds;
@@ -83,7 +83,7 @@ public class TransacoesResource {
             if (msg.contains("LIMITE_INDISPONIVEL")) {
                 return Response.status(422).entity("Erro: Limite indisponivel").build();
             }
-            if (msg.contains("fk_clientes_transacoes_id")) {
+            if (msg.contains("fk_members_transacoes_id")) {
                 return Response.status(Status.NOT_FOUND).entity("Erro: Cliente inexistente").build();
             }
             //e.printStackTrace();

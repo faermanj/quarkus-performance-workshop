@@ -2,7 +2,7 @@ ALTER SYSTEM SET TIMEZONE TO 'UTC';
 
 CREATE TYPE tipo_movimentacao AS ENUM ('c', 'd');
 
-CREATE UNLOGGED TABLE clientes (
+CREATE UNLOGGED TABLE members (
   id SERIAL PRIMARY KEY,
   nome VARCHAR(255) NOT NULL,
   saldo INTEGER NOT NULL DEFAULT 0,
@@ -11,7 +11,7 @@ CREATE UNLOGGED TABLE clientes (
 
 CREATE UNLOGGED TABLE transacoes (
   id  SERIAL PRIMARY KEY,
-  id_cliente INTEGER NOT NULL REFERENCES clientes(id),
+  id_cliente INTEGER NOT NULL REFERENCES members(id),
   tipo tipo_movimentacao NOT NULL,
   valor INTEGER NOT NULL,
   descricao VARCHAR(10) NOT NULL,
@@ -22,7 +22,7 @@ CREATE INDEX idx_ultima_transacoes_por_cliente ON transacoes (id_cliente, realiz
 
 DO $$
 BEGIN
-  INSERT INTO clientes (nome, limite)
+  INSERT INTO members (nome, limite)
   VALUES
     ('o barato sai caro', 1000 * 100),
     ('zan corp ltda', 800 * 100),

@@ -1,7 +1,7 @@
-DROP TABLE IF EXISTS clientes;
+DROP TABLE IF EXISTS members;
 DROP TABLE IF EXISTS transacoes;
 
-CREATE UNLOGGED TABLE clientes (
+CREATE UNLOGGED TABLE members (
 	id SERIAL PRIMARY KEY,
     saldo INTEGER NOT NULL,
     limite INTEGER NOT NULL
@@ -17,7 +17,7 @@ CREATE UNLOGGED TABLE transacoes (
 );
 CREATE INDEX ix_transacoes_cliente_id ON transacoes (cliente_id);
 
-INSERT INTO clientes (id, limite, saldo) VALUES
+INSERT INTO members (id, limite, saldo) VALUES
 (1, 1000 * 100, 0),
 (2, 800 * 100, 0),
 (3, 10000 * 100, 0),
@@ -43,7 +43,7 @@ BEGIN
     (DEFAULT, cliente_id_tx, valor_tx, 'c', descricao_tx, NOW());
 
 	RETURN QUERY
-		UPDATE clientes
+		UPDATE members
 		SET saldo = saldo + valor_tx
 		WHERE id = cliente_id_tx
 		RETURNING saldo, FALSE, 'ok'::VARCHAR(20);
@@ -70,25 +70,25 @@ BEGIN
 
 	SELECT limite, COALESCE(saldo, 0)
 	INTO limite_atual, saldo_atual
-	FROM clientes
+	FROM members
 	WHERE id = cliente_id_tx;
 
 	IF saldo_atual - valor_tx >= limite_atual * -1 THEN
 		INSERT INTO transacoes VALUES
         (DEFAULT, cliente_id_tx, valor_tx, 'd', descricao_tx, NOW());
 
-		UPDATE clientes
+		UPDATE members
 		SET saldo = saldo - valor_tx
 		WHERE id = cliente_id_tx;
 
 		RETURN QUERY
 			SELECT saldo, FALSE, 'ok'::VARCHAR(20)
-			FROM clientes
+			FROM members
 			WHERE id = cliente_id_tx;
 	ELSE
 		RETURN QUERY
 			SELECT saldo, TRUE, 'not enough cash'::VARCHAR(20)
-			FROM clientes
+			FROM members
 			WHERE id = cliente_id_tx;
 	END IF;
 END;
