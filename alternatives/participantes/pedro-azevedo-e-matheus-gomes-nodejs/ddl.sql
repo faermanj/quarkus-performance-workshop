@@ -5,7 +5,7 @@ CREATE unlogged TABLE IF NOT EXISTS public.members (
 	saldo INTEGER NOT NULL DEFAULT 0
 );
 
-CREATE unlogged TABLE IF NOT EXISTS public.transacoes (
+CREATE unlogged TABLE IF NOT EXISTS public.transactions (
 	id SERIAL PRIMARY KEY,
 	valor INTEGER NOT NULL,
 	tipo CHAR(1) NOT NULL,
@@ -15,7 +15,7 @@ CREATE unlogged TABLE IF NOT EXISTS public.transacoes (
 	FOREIGN KEY (cliente_id) REFERENCES members (id)
 );
 
-create index ix_transacao_cliente_data on transacoes(cliente_id, realizada_em desc);
+create index ix_transacao_cliente_data on transactions(cliente_id, realizada_em desc);
 
 DO $$
 BEGIN

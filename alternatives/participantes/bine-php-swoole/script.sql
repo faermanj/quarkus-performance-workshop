@@ -18,7 +18,7 @@ CREATE UNLOGGED TABLE IF NOT EXISTS clientes(
     CONSTRAINT check_limit CHECK (saldo >= -limite)
 );
 
-CREATE UNLOGGED TABLE IF NOT EXISTS transacoes(
+CREATE UNLOGGED TABLE IF NOT EXISTS transactions(
     id SERIAL PRIMARY KEY,
     cliente_id INTEGER NOT NULL REFERENCES clientes (id),
     valor INTEGER NOT NULL,
@@ -27,7 +27,7 @@ CREATE UNLOGGED TABLE IF NOT EXISTS transacoes(
     realizada_em TIMESTAMP DEFAULT current_timestamp
 );
 
-CREATE INDEX idx_cliente_id ON transacoes(cliente_id);
+CREATE INDEX idx_cliente_id ON transactions(cliente_id);
 
 CREATE OR REPLACE PROCEDURE create_transaction(
   p_cliente_id INTEGER,
@@ -59,7 +59,7 @@ BEGIN
     RAISE EXCEPTION 'Invalid transaction!';
   END IF;
 
-  INSERT INTO transacoes (cliente_id, valor, tipo, descricao)
+  INSERT INTO transactions (cliente_id, valor, tipo, descricao)
   VALUES (p_cliente_id, p_valor, p_tipo, p_descricao);
 END;
 $$;

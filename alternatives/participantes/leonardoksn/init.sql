@@ -7,8 +7,8 @@
     );
     
     
-    -- Criar tabela transacoes
-    CREATE TABLE IF NOT EXISTS transacoes (
+    -- Criar tabela transactions
+    CREATE TABLE IF NOT EXISTS transactions (
         id SERIAL PRIMARY KEY,
         valor INT NOT NULL,
         tipo VARCHAR(1) NOT NULL,

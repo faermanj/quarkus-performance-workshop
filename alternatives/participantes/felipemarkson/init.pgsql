@@ -4,7 +4,7 @@ CREATE UNLOGGED TABLE clientes (
     saldo INTEGER NOT NULL CHECK(saldo >= -limite)
 );
 
-CREATE UNLOGGED TABLE transacoes (
+CREATE UNLOGGED TABLE transactions (
     id SERIAL PRIMARY KEY,
     cliente_id INTEGER NOT NULL REFERENCES clientes(id),
     valor INTEGER NOT NULL,
@@ -46,7 +46,7 @@ BEGIN
     IF NOT FOUND THEN RETURN NULL;
     END IF;
 
-    INSERT INTO transacoes(cliente_id, valor, tipo, descricao)
+    INSERT INTO transactions(cliente_id, valor, tipo, descricao)
     VALUES (cliente_id_in, valor_in, 'c' ,descricao_in);
 
     RETURN ret;
@@ -73,7 +73,7 @@ BEGIN
     IF NOT FOUND THEN RETURN NULL;
     END IF;
 
-    INSERT INTO transacoes(cliente_id, valor, tipo, descricao)
+    INSERT INTO transactions(cliente_id, valor, tipo, descricao)
     VALUES (cliente_id_in, valor_in, 'd' ,descricao_in);
     
     RETURN ret;
@@ -100,9 +100,9 @@ BEGIN
                 FROM clientes WHERE clientes.id = cliente_id_in LIMIT 1
             ) sld
         ),
-        'ultimas_transacoes',(
+        'ultimas_transactions',(
             SELECT coalesce(json_agg(tr), '[]'::json) FROM (
-                SELECT valor, tipo, descricao, realizada_em FROM transacoes
+                SELECT valor, tipo, descricao, realizada_em FROM transactions
                 WHERE cliente_id = cliente_id_in ORDER BY realizada_em DESC LIMIT 10
             ) tr
         )

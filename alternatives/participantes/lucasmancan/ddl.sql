@@ -17,7 +17,7 @@ CREATE UNLOGGED TABLE public.clientes (
     primary key (cliente_id)
 );
 
-CREATE UNLOGGED TABLE public.transacoes (
+CREATE UNLOGGED TABLE public.transactions (
     id serial not null,
     cliente_id int not null,
     realizada_em timestamp not null default current_timestamp,
@@ -27,7 +27,7 @@ CREATE UNLOGGED TABLE public.transacoes (
     primary key (id)
 );
 
-CREATE INDEX idx_transacoes_id_cliente ON transacoes
+CREATE INDEX idx_transactions_id_cliente ON transactions
 (
     cliente_id ASC
 );

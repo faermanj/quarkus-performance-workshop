@@ -4,14 +4,14 @@ CREATE TABLE clientes (
 	limite INTEGER NOT NULL
 );
 
-CREATE TABLE transacoes (
+CREATE TABLE transactions (
 	id SERIAL PRIMARY KEY,
 	cliente_id INTEGER NOT NULL,
 	valor INTEGER NOT NULL,
 	tipo CHAR(1) NOT NULL,
 	descricao VARCHAR(10) NOT NULL,
 	realizada_em TIMESTAMP NOT NULL DEFAULT NOW(),
-	CONSTRAINT fk_clientes_transacoes_id
+	CONSTRAINT fk_clientes_transactions_id
 		FOREIGN KEY (cliente_id) REFERENCES clientes(id)
 );
 
@@ -25,7 +25,7 @@ CREATE TABLE saldos (
 
 -- INDEX
 CREATE INDEX idx_clientes_id ON clientes (id);
-CREATE INDEX idx_transacoes_cliente_id ON transacoes (cliente_id);
+CREATE INDEX idx_transactions_cliente_id ON transactions (cliente_id);
 CREATE INDEX idx_saldos_cliente_id ON saldos (cliente_id);
 
 ---	STORE PROCEDURE
@@ -55,14 +55,14 @@ BEGIN
             'data_extrato', NOW(),
             'limite', (SELECT limite FROM clientes WHERE id = cliente_id_param)
         ),
-        'ultimas_transacoes', COALESCE((
+        'ultimas_transactions', COALESCE((
             SELECT json_agg(json_build_object(
                 'valor', t.valor,
                 'tipo', t.tipo,
                 'descricao', t.descricao,
                 'realizada_em', t.realizada_em
             ) ORDER BY t.realizada_em DESC)
-            FROM transacoes t
+            FROM transactions t
             WHERE t.cliente_id = cliente_id_param
             LIMIT 10
         ), '[]'::JSON)
@@ -87,7 +87,7 @@ BEGIN
     IF (valor_param > (saldo_atual + limite_atual)) THEN
         resultado := json_build_object('limite', limite_atual, 'saldo', saldo_atual);
     ELSE
-        INSERT INTO transacoes (cliente_id, valor, tipo, descricao)
+        INSERT INTO transactions (cliente_id, valor, tipo, descricao)
         VALUES (cliente_id_param, valor_param, tipo_param, descricao_param);
 
         novo_saldo := saldo_atual - valor_param;
@@ -104,7 +104,7 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION reset_db()
 RETURNS VOID AS $$
 BEGIN
-    DELETE FROM transacoes;
+    DELETE FROM transactions;
     UPDATE saldos SET valor = 0;
 END;
 $$ LANGUAGE plpgsql;

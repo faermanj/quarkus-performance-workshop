@@ -1,5 +1,5 @@
 -- DROP TABLE IF EXISTS
-DROP TABLE IF EXISTS "transacoes";
+DROP TABLE IF EXISTS "transactions";
 
 DROP TABLE IF EXISTS "members";
 
@@ -13,21 +13,21 @@ CREATE TABLE "members" (
 );
 
 -- CreateTable
-CREATE TABLE "transacoes" (
+CREATE TABLE "transactions" (
   "id" SERIAL NOT NULL,
   "valor" INTEGER NOT NULL,
   "tipo" CHAR(1) NOT NULL,
   "descricao" TEXT,
   "realizada_em" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "cliente_id" INTEGER,
-  CONSTRAINT "transacoes_pkey" PRIMARY KEY ("id")
+  CONSTRAINT "transactions_pkey" PRIMARY KEY ("id")
 );
 
 -- AddForeignKey
 ALTER TABLE
-  "transacoes"
+  "transactions"
 ADD
-  CONSTRAINT "transacoes_cliente_id_fkey" FOREIGN KEY ("cliente_id") REFERENCES "members"("id") ON DELETE
+  CONSTRAINT "transactions_cliente_id_fkey" FOREIGN KEY ("cliente_id") REFERENCES "members"("id") ON DELETE
 SET
   NULL ON UPDATE CASCADE;
 

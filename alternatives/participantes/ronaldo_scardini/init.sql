@@ -4,7 +4,7 @@ CREATE TABLE members (
     limite INTEGER NOT NULL
 );
 
-CREATE TABLE transacoes (
+CREATE TABLE transactions (
     id SERIAL PRIMARY KEY,
     cliente_id INTEGER NOT NULL,
     valor INTEGER NOT NULL,
@@ -41,7 +41,7 @@ CREATE PROCEDURE atualizar_saldo(v1 INT, i INT, v2 INT, t CHAR, d VARCHAR(10))
     LANGUAGE SQL
     BEGIN ATOMIC
     UPDATE saldos SET valor = valor + v1 WHERE cliente_id = i;
-    INSERT INTO transacoes (cliente_id, valor, tipo, descricao) VALUES (i, v2, t, d);
+    INSERT INTO transactions (cliente_id, valor, tipo, descricao) VALUES (i, v2, t, d);
 END;
 
 ---------- FUNCTIONS
@@ -60,7 +60,7 @@ BEGIN
     END IF;
     UPDATE saldos SET valor = valor + v1 WHERE cliente_id = i;
     saldo_atualizado := saldo_atual + v1;
-    INSERT INTO transacoes (cliente_id, valor, tipo, descricao) VALUES (i, v2, t, d);
+    INSERT INTO transactions (cliente_id, valor, tipo, descricao) VALUES (i, v2, t, d);
     st := 1;
     sa := saldo_atualizado;
     RETURN;

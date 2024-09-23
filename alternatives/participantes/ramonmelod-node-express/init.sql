@@ -6,14 +6,14 @@ CREATE TABLE members(
   CONSTRAINT saldo_maior_ou_igual_limite CHECK (saldo >= -limite) 
 );
 
-CREATE TABLE transacoes(
+CREATE TABLE transactions(
   id  SERIAL PRIMARY KEY,
   cliente_id INT NOT NULL,
   valor INT NOT NULL,
   tipo  CHAR(1) NOT NULL,
   descricao   VARCHAR(10) NOT NULL,
   realizada_em  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT fk_members_transacoes_id
+  CONSTRAINT fk_members_transactions_id
       FOREIGN KEY (cliente_id) REFERENCES members(id)
 );
 

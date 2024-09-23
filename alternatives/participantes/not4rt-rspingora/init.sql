@@ -13,7 +13,7 @@ CREATE UNLOGGED TABLE backend.members (
 
 CREATE INDEX idx_membersaldo ON backend.members (id, saldo);
 
-CREATE UNLOGGED TABLE backend.transacoes (
+CREATE UNLOGGED TABLE backend.transactions (
 	id      SERIAL PRIMARY KEY,
     cliente_id SERIAL REFERENCES backend.members(id),
 	valor  INTEGER NOT NULL,
@@ -23,7 +23,7 @@ CREATE UNLOGGED TABLE backend.transacoes (
 	realizada_em   VARCHAR(200) NOT NULL
 );
 
-CREATE INDEX idx_extrato ON backend.transacoes (id desc, cliente_id);
+CREATE INDEX idx_extrato ON backend.transactions (id desc, cliente_id);
 
 INSERT INTO backend.members (nome, limite)
 VALUES
@@ -53,7 +53,7 @@ BEGIN
 		RETURNING saldo, limite
 	),
 	INSERT_TRANSACAO AS (
-		INSERT INTO backend.transacoes (cliente_id, valor, tipo, descricao, saldo_rmsc, realizada_em)
+		INSERT INTO backend.transactions (cliente_id, valor, tipo, descricao, saldo_rmsc, realizada_em)
 		SELECT p_id_cliente, p_valor, 'd', p_descricao, saldo, p_realizada_em
 		from UPDATE_members
 	)
@@ -82,7 +82,7 @@ BEGIN
 		RETURNING saldo, limite
 	),
 	INSERT_TRANSACAO AS (
-		INSERT INTO backend.transacoes (cliente_id, valor, tipo, descricao, saldo_rmsc, realizada_em)
+		INSERT INTO backend.transactions (cliente_id, valor, tipo, descricao, saldo_rmsc, realizada_em)
 		SELECT p_id_cliente, p_valor, 'c', p_descricao, saldo, p_realizada_em
 		from UPDATE_members
 	)

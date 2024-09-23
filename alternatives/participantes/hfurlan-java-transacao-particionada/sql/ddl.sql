@@ -20,7 +20,7 @@ create or replace function inserir_saldo()
 $$
 begin
     insert into saldos (cliente_id, saldo, limite) values (NEW.cliente_id, NEW.saldo_inicial, NEW.limite);
-    EXECUTE format('create table %I (id serial, valor int, descricao varchar(10), tipo char(1), saldo int, data_hora_inclusao timestamp default NOW())', 'transacoes_' || cast(NEW.cliente_id as varchar));
+    EXECUTE format('create table %I (id serial, valor int, descricao varchar(10), tipo char(1), saldo int, data_hora_inclusao timestamp default NOW())', 'transactions_' || cast(NEW.cliente_id as varchar));
     return NEW;
 end;
 $$;
@@ -32,7 +32,7 @@ create or replace function remover_saldo()
 $$
 begin
     delete from saldos where cliente_id = OLD.cliente_id;
-    execute format('drop table %I', 'transacoes_' || cast(cliente_id as varchar));
+    execute format('drop table %I', 'transactions_' || cast(cliente_id as varchar));
     return OLD;
 end;
 $$;

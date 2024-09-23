@@ -8,7 +8,7 @@ CREATE TABLE members (
 
 -- A table for storing the transactions executed by all clients.
 -- Multiple entries for each client.
-CREATE TABLE transacoes (
+CREATE TABLE transactions (
     id INTEGER REFERENCES members(id),
     valor INTEGER NOT NULL,
     tipo VARCHAR(1) NOT NULL,

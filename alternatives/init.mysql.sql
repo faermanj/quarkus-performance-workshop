@@ -7,7 +7,7 @@ CREATE TABLE clientes (
     saldo INT NOT NULL DEFAULT 0
 );
 
-CREATE TABLE transacoes (
+CREATE TABLE transactions (
     id INT AUTO_INCREMENT PRIMARY KEY,
     cliente_id INT NOT NULL,
     valor INT NOT NULL,
@@ -64,8 +64,8 @@ BEGIN
         -- Update clientes saldo
         UPDATE clientes SET saldo = n_saldo WHERE id = p_cliente_id;
         
-        -- Insert into transacoes
-        INSERT INTO transacoes (cliente_id, valor, tipo, descricao, realizada_em)
+        -- Insert into transactions
+        INSERT INTO transactions (cliente_id, valor, tipo, descricao, realizada_em)
             VALUES (p_cliente_id, p_valor, p_tipo, p_descricao, now(6));
 
         SELECT n_saldo, r_limite AS resultado;
@@ -90,7 +90,7 @@ BEGIN
             FROM clientes
             WHERE id = p_id
         ),
-        'ultimas_transacoes', (
+        'ultimas_transactions', (
             SELECT COALESCE(JSON_ARRAYAGG(
                 JSON_OBJECT(
                     'valor', valor,
@@ -99,7 +99,7 @@ BEGIN
                     'realizada_em', DATE_FORMAT(realizada_em, '%Y-%m-%dT%H:%i:%sZ')
                 )
             ), JSON_ARRAY()) 
-            FROM transacoes
+            FROM transactions
             WHERE cliente_id = p_id
             ORDER BY realizada_em DESC
             LIMIT 10

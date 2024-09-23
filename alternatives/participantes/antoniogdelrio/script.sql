@@ -4,7 +4,7 @@ CREATE TABLE clientes (
   saldo INT
 );
 
-CREATE TABLE transacoes (
+CREATE TABLE transactions (
   client_id INT,
   valor INT,
   tipo VARCHAR(1),
@@ -47,9 +47,9 @@ BEGIN
       RETURN NULL;
     END IF;
 
-    INSERT INTO transacoes (client_id, valor, tipo, descricao, data_transacao) VALUES (client_id, valor, tipo, descricao, NOW());
+    INSERT INTO transactions (client_id, valor, tipo, descricao, data_transacao) VALUES (client_id, valor, tipo, descricao, NOW());
 
     RETURN (l, s);
 END $$;
 
-CREATE INDEX idx_client ON transacoes (client_id ASC)
+CREATE INDEX idx_client ON transactions (client_id ASC)

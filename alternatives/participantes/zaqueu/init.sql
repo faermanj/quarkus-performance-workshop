@@ -1,5 +1,5 @@
 DROP TABLE IF EXISTS members;
-DROP TABLE IF EXISTS transacoes;
+DROP TABLE IF EXISTS transactions;
 
 CREATE UNLOGGED TABLE members (
 	id SERIAL PRIMARY KEY,
@@ -7,7 +7,7 @@ CREATE UNLOGGED TABLE members (
     limite INTEGER NOT NULL
 );
 
-CREATE UNLOGGED TABLE transacoes (
+CREATE UNLOGGED TABLE transactions (
 	id SERIAL PRIMARY KEY,
     cliente_id INTEGER NOT NULL,
     valor INTEGER NOT NULL,
@@ -15,7 +15,7 @@ CREATE UNLOGGED TABLE transacoes (
     descricao VARCHAR(10),
     realizada_em TIMESTAMP NOT NULL DEFAULT NOW()
 );
-CREATE INDEX ix_transacoes_cliente_id ON transacoes (cliente_id);
+CREATE INDEX ix_transactions_cliente_id ON transactions (cliente_id);
 
 INSERT INTO members (id, limite, saldo) VALUES
 (1, 1000 * 100, 0),
@@ -39,7 +39,7 @@ $$
 BEGIN
 	PERFORM pg_advisory_xact_lock(cliente_id_tx);
 
-	INSERT INTO transacoes VALUES
+	INSERT INTO transactions VALUES
     (DEFAULT, cliente_id_tx, valor_tx, 'c', descricao_tx, NOW());
 
 	RETURN QUERY
@@ -74,7 +74,7 @@ BEGIN
 	WHERE id = cliente_id_tx;
 
 	IF saldo_atual - valor_tx >= limite_atual * -1 THEN
-		INSERT INTO transacoes VALUES
+		INSERT INTO transactions VALUES
         (DEFAULT, cliente_id_tx, valor_tx, 'd', descricao_tx, NOW());
 
 		UPDATE members

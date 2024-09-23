@@ -5,7 +5,7 @@ CREATE UNLOGGED TABLE IF NOT EXISTS members (
     saldo INTEGER NOT NULL
 );
 
-CREATE UNLOGGED TABLE IF NOT EXISTS transacoes (
+CREATE UNLOGGED TABLE IF NOT EXISTS transactions (
     id SERIAL PRIMARY KEY NOT NULL,
     tipo CHAR(1) NOT NULL,
     descricao VARCHAR(10) NOT NULL,
@@ -15,7 +15,7 @@ CREATE UNLOGGED TABLE IF NOT EXISTS transacoes (
 );
 
 CREATE INDEX idx_cliente_id
-ON transacoes(cliente_id);
+ON transactions(cliente_id);
 
 INSERT INTO members (nome, limite, saldo)
 VALUES
@@ -50,7 +50,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER atualizar_saldo_trigger
-AFTER INSERT ON transacoes
+AFTER INSERT ON transactions
 FOR EACH ROW
 EXECUTE FUNCTION atualizar_saldo();
 

@@ -102,7 +102,7 @@ BEGIN
                                 ELSE -1
                               END
                 ),
-                'ultimas_transacoes', extrato
+                'ultimas_transactions', extrato
             )
         )::faermanj_result
         FROM clientes

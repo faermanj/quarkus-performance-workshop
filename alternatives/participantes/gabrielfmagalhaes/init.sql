@@ -5,7 +5,7 @@ CREATE TABLE clientes (
     limite integer NOT NULL
 );
 
-CREATE TABLE transacoes (
+CREATE TABLE transactions (
     id SERIAL PRIMARY KEY,
     clienteId integer NOT NULL,
     tipo char(1) NOT NULL,
@@ -14,12 +14,12 @@ CREATE TABLE transacoes (
     efetuadaEm timestamp NOT NULL
 );
 
-CREATE INDEX fk_transacao_clienteid ON transacoes
+CREATE INDEX fk_transacao_clienteid ON transactions
 (
     clienteId ASC
 );
 
-DELETE FROM transacoes;
+DELETE FROM transactions;
 DELETE FROM clientes;
 
 INSERT INTO clientes (id, nome, saldo, limite)

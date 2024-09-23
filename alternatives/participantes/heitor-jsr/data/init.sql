@@ -55,7 +55,7 @@ CREATE TABLE public.saldo (
 
 ALTER TABLE public.saldo OWNER TO postgres;
 
-CREATE TABLE public.transacoes (
+CREATE TABLE public.transactions (
     id integer DEFAULT nextval('public.client_id_seq'::regclass) NOT NULL,
     PRIMARY KEY (id),
     valor integer,
@@ -63,11 +63,11 @@ CREATE TABLE public.transacoes (
     descricao varchar(255),
     realizada_em timestamp without time zone default now(),
 	cliente_id INTEGER NOT NULL,
-	CONSTRAINT fk_clientes_transacoes_id
+	CONSTRAINT fk_clientes_transactions_id
 		FOREIGN KEY (cliente_id) REFERENCES clientes(id)
 );
 
-ALTER TABLE public.transacoes OWNER TO postgres;
+ALTER TABLE public.transactions OWNER TO postgres;
 
 INSERT INTO public.clientes (nome, limite, saldo) VALUES
 		('o barato sai caro', 1000 * 100, 0),

@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS clientes (
 );
 
 
-CREATE TABLE IF NOT EXISTS transacoes (
+CREATE TABLE IF NOT EXISTS transactions (
    id SERIAL PRIMARY KEY,
    cliente_id INT,
    valor INT,

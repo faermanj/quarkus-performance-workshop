@@ -5,7 +5,7 @@ CREATE UNLOGGED TABLE IF NOT EXISTS clientes (
     saldo INTEGER NOT NULL DEFAULT 0
 );
 
-CREATE UNLOGGED TABLE IF NOT EXISTS transacoes (
+CREATE UNLOGGED TABLE IF NOT EXISTS transactions (
     id SERIAL PRIMARY KEY,
     cliente_id INTEGER NOT NULL,
     tipo CHAR(1) NOT NULL,
@@ -14,7 +14,7 @@ CREATE UNLOGGED TABLE IF NOT EXISTS transacoes (
     realizada_em TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_transacoes ON transacoes (cliente_id, realizada_em desc);
+CREATE INDEX idx_transactions ON transactions (cliente_id, realizada_em desc);
 
 CREATE OR REPLACE FUNCTION inserir_transcacao(cliente INTEGER, tipo CHAR(1), valor INTEGER, descricao VARCHAR(10))
 RETURNS TABLE(saldo_novo INTEGER, limite INTEGER, erro BOOLEAN) AS $$
@@ -34,7 +34,7 @@ BEGIN
     IF saldo_novo + limite >= 0 THEN
         UPDATE clientes SET saldo = saldo_novo WHERE id = cliente;
 
-        INSERT INTO transacoes (cliente_id, tipo, valor, descricao) VALUES (cliente, tipo, valor, descricao);
+        INSERT INTO transactions (cliente_id, tipo, valor, descricao) VALUES (cliente, tipo, valor, descricao);
 
         RETURN QUERY SELECT saldo_novo, limite, false;
     ELSE

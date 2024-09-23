@@ -5,8 +5,8 @@ CREATE TABLE IF NOT EXISTS clientes (
 	saldo INT DEFAULT 0
 );
 
-CREATE TABLE IF NOT EXISTS transacoes (
-	transacoes_id BIGSERIAL PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS transactions (
+	transactions_id BIGSERIAL PRIMARY KEY,
 	cliente_id INT,
 	valor INT,
 	tipo VARCHAR(1),

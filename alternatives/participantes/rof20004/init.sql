@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS members(
     saldo  BIGINT NOT NULL DEFAULT 0
 );
 
-CREATE TABLE IF NOT EXISTS transacoes(
+CREATE TABLE IF NOT EXISTS transactions(
     id           BIGSERIAL PRIMARY KEY,
     cliente_id   BIGINT NOT NULL,
     valor        BIGINT NOT NULL,
@@ -22,8 +22,8 @@ CREATE TABLE IF NOT EXISTS saldos(
 );
 
 CREATE INDEX IF NOT EXISTS members_id_idx ON members(id);
-CREATE INDEX IF NOT EXISTS transacoes_cliente_id_idx ON transacoes(cliente_id);
-CREATE INDEX IF NOT EXISTS transacoes_realizada_em_idx ON transacoes(realizada_em);
+CREATE INDEX IF NOT EXISTS transactions_cliente_id_idx ON transactions(cliente_id);
+CREATE INDEX IF NOT EXISTS transactions_realizada_em_idx ON transactions(realizada_em);
 CREATE INDEX IF NOT EXISTS saldos_cliente_id_idx ON saldos(cliente_id);
 
 INSERT INTO members(limite) VALUES (100000);

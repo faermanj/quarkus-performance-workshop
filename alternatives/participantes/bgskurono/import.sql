@@ -8,7 +8,7 @@ CREATE TABLE carteiras (
    id SERIAL PRIMARY KEY,
    cliente_id INTEGER NOT NULL,
    valor INTEGER NOT NULL,
-   ultimas_transacoes json[] NULL
+   ultimas_transactions json[] NULL
 );
 
 DO $$

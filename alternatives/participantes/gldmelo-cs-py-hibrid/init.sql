@@ -6,14 +6,14 @@ CREATE TABLE clientes (
 	CONSTRAINT valida_saldo CHECK (saldo >= (- limite))
 );
 
-CREATE TABLE transacoes (
+CREATE TABLE transactions (
 	id SERIAL PRIMARY KEY,
 	cliente_id INTEGER NOT NULL,
 	valor INTEGER NOT NULL,
 	tipo CHAR(1) NOT NULL,
 	descricao VARCHAR(10) NOT NULL,
 	realizada_em TIMESTAMP NOT NULL DEFAULT NOW()
-	--CONSTRAINT fk_clientes_transacoes_id FOREIGN KEY (cliente_id) REFERENCES clientes(id)
+	--CONSTRAINT fk_clientes_transactions_id FOREIGN KEY (cliente_id) REFERENCES clientes(id)
 );
 
 DO $$
@@ -37,7 +37,7 @@ RETURNS int
 AS $$
 	DECLARE saldo_atualizado int;
 BEGIN	
-	INSERT INTO "transacoes" ("cliente_id", "valor", "tipo", "descricao") values (clienteid_in, valor_in, 'c', descricao_in);
+	INSERT INTO "transactions" ("cliente_id", "valor", "tipo", "descricao") values (clienteid_in, valor_in, 'c', descricao_in);
 	UPDATE "clientes" set "saldo" = "saldo" + valor_in where "id" = clienteid_in RETURNING "saldo" into saldo_atualizado;
     return saldo_atualizado;
 END;
@@ -55,11 +55,11 @@ BEGIN
     UPDATE "clientes" set "saldo" = "saldo" - valor_in where "id" = clienteid_in and "saldo" - valor_in >= ("limite" * -1) returning "saldo" into saldo_atualizado;
 
     IF saldo_atualizado IS NOT NULL THEN
-	    INSERT INTO "transacoes" ("cliente_id", "valor", "tipo", "descricao") values (clienteid_in, valor_in, 'd', descricao_in);
+	    INSERT INTO "transactions" ("cliente_id", "valor", "tipo", "descricao") values (clienteid_in, valor_in, 'd', descricao_in);
     END IF;
 
     RETURN saldo_atualizado;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE INDEX idx_transacoes_on_cliente_id_realizado_em ON transacoes USING btree (cliente_id, realizada_em);
+CREATE INDEX idx_transactions_on_cliente_id_realizado_em ON transactions USING btree (cliente_id, realizada_em);

@@ -5,18 +5,18 @@ CREATE UNLOGGED TABLE members (
 	saldo INTEGER NOT NULL DEFAULT 0
 );
 
-CREATE UNLOGGED TABLE transacoes (
+CREATE UNLOGGED TABLE transactions (
 	id SERIAL PRIMARY KEY,
 	cliente_id INTEGER NOT NULL,
 	valor INTEGER NOT NULL,
 	tipo CHAR(1) NOT NULL,
 	descricao VARCHAR(10) NOT NULL,
 	realizada_em TIMESTAMP NOT NULL DEFAULT NOW(),
-	CONSTRAINT fk_members_transacoes_id
+	CONSTRAINT fk_members_transactions_id
 		FOREIGN KEY (cliente_id) REFERENCES members(id)
 );
 
-CREATE INDEX ix_transacoes_cliente_id_realizada_em ON transacoes (cliente_id, realizada_em DESC);
+CREATE INDEX ix_transactions_cliente_id_realizada_em ON transactions (cliente_id, realizada_em DESC);
 
 CREATE FUNCTION debito(cliente_id INTEGER, valor_transacao INTEGER, descricao_transacao TEXT)
 RETURNS SETOF INTEGER -- retorna saldo do cliente apos a transacao
@@ -35,7 +35,7 @@ BEGIN
 
 	IF cliente_novo_saldo < (-cliente_limite) THEN RETURN; END IF;
 
-	INSERT INTO transacoes (cliente_id, valor, tipo, descricao)
+	INSERT INTO transactions (cliente_id, valor, tipo, descricao)
 	VALUES (cliente_id, valor_transacao, 'd', descricao_transacao);
 
 	RETURN QUERY
@@ -52,7 +52,7 @@ LANGUAGE plpgsql
 AS $BODY$
 	DECLARE cliente_novo_saldo INTEGER;
 BEGIN
-	INSERT INTO transacoes (cliente_id, valor, tipo, descricao)
+	INSERT INTO transactions (cliente_id, valor, tipo, descricao)
 	VALUES (cliente_id, valor_transacao, 'c', descricao_transacao);
 
 	RETURN QUERY

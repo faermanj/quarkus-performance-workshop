@@ -1,5 +1,5 @@
 -- Criando a tabela de transações com a coluna adicional saldo
-CREATE UNLOGGED TABLE IF NOT EXISTS transacoes (
+CREATE UNLOGGED TABLE IF NOT EXISTS transactions (
     id SERIAL PRIMARY KEY,
     cliente_id INTEGER NOT NULL,
     valor INTEGER NOT NULL,
@@ -10,7 +10,7 @@ CREATE UNLOGGED TABLE IF NOT EXISTS transacoes (
 );
 
 -- Inserções iniciais
-INSERT INTO transacoes (cliente_id, valor, tipo, descricao, saldo)
+INSERT INTO transactions (cliente_id, valor, tipo, descricao, saldo)
 VALUES 
     (1, 0, 'c', 'Deposito inicial', 0),
     (2, 0, 'c', 'Deposito inicial', 0),
@@ -20,7 +20,7 @@ VALUES
 
 -- Preparando o ambiente
 CREATE EXTENSION IF NOT EXISTS pg_prewarm;
-SELECT pg_prewarm('transacoes');
+SELECT pg_prewarm('transactions');
 
 -- Definindo o tipo para o resultado da transação
 CREATE TYPE transacao_result AS (saldo INT, limite INT);
@@ -62,7 +62,7 @@ BEGIN
 
     SELECT saldo 
         INTO v_saldo_atual 
-        FROM transacoes 
+        FROM transactions 
         WHERE cliente_id = p_cliente_id 
         ORDER BY id 
         DESC LIMIT 1;
@@ -77,7 +77,7 @@ BEGIN
         RAISE EXCEPTION 'LIMITE_INDISPONIVEL';
     END IF;
 
-    INSERT INTO transacoes (cliente_id, valor, tipo, descricao, saldo)
+    INSERT INTO transactions (cliente_id, valor, tipo, descricao, saldo)
     VALUES (p_cliente_id, valor, p_tipo, p_descricao, v_novo_saldo);
 
     
@@ -90,21 +90,21 @@ LANGUAGE plpgsql AS $$
 DECLARE
     v_saldo INTEGER;
     v_limite INTEGER;
-    transacoes json;
+    transactions json;
 BEGIN
     PERFORM pg_advisory_xact_lock(p_cliente_id);
 
     -- Chamada para obter o limite do cliente
     v_limite := limite_cliente(p_cliente_id);
 
-    SELECT saldo INTO v_saldo FROM transacoes WHERE cliente_id = p_cliente_id ORDER BY realizada_em DESC LIMIT 1;
+    SELECT saldo INTO v_saldo FROM transactions WHERE cliente_id = p_cliente_id ORDER BY realizada_em DESC LIMIT 1;
     IF NOT FOUND THEN
         v_saldo := 0;
     END IF;
 
-    SELECT json_agg(row_to_json(t.*)) INTO transacoes FROM (
+    SELECT json_agg(row_to_json(t.*)) INTO transactions FROM (
         SELECT valor, tipo, descricao, TO_CHAR(realizada_em, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') AS realizada_em
-        FROM transacoes
+        FROM transactions
         WHERE cliente_id = p_cliente_id
         ORDER BY id DESC
         LIMIT 10

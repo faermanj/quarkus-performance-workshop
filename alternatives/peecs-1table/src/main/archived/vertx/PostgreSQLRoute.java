@@ -98,7 +98,7 @@ public class PostgreSQLRoute {
                 .onFailure().recoverWithItem(e -> errorOf(e,"err_extrato"))); 
     }
 
-    @Path("/{id}/transacoes")
+    @Path("/{id}/transactions")
     @Consumes("application/json")
     @POST
     public Uni<Response> doPost(@PathParam("id") int id, Map<String, String> txx) {

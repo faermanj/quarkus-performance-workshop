@@ -1,5 +1,5 @@
 -- Criando as tabelas de transações para cada cliente
-CREATE UNLOGGED TABLE transacoes_1 (
+CREATE UNLOGGED TABLE transactions_1 (
 	id SERIAL PRIMARY KEY,
 	valor INTEGER NOT NULL,
 	tipo CHAR(1) NOT NULL,
@@ -8,7 +8,7 @@ CREATE UNLOGGED TABLE transacoes_1 (
     saldo INTEGER NOT NULL
 );
 
-CREATE UNLOGGED TABLE transacoes_2 (
+CREATE UNLOGGED TABLE transactions_2 (
 	id SERIAL PRIMARY KEY,
 	valor INTEGER NOT NULL,
 	tipo CHAR(1) NOT NULL,
@@ -17,7 +17,7 @@ CREATE UNLOGGED TABLE transacoes_2 (
     saldo INTEGER NOT NULL
 );
 
-CREATE UNLOGGED TABLE transacoes_3 (
+CREATE UNLOGGED TABLE transactions_3 (
 	id SERIAL PRIMARY KEY,
 	valor INTEGER NOT NULL,
 	tipo CHAR(1) NOT NULL,
@@ -26,7 +26,7 @@ CREATE UNLOGGED TABLE transacoes_3 (
     saldo INTEGER NOT NULL
 );
 
-CREATE UNLOGGED TABLE transacoes_4 (
+CREATE UNLOGGED TABLE transactions_4 (
 	id SERIAL PRIMARY KEY,
 	valor INTEGER NOT NULL,
 	tipo CHAR(1) NOT NULL,
@@ -35,7 +35,7 @@ CREATE UNLOGGED TABLE transacoes_4 (
     saldo INTEGER NOT NULL
 );
 
-CREATE UNLOGGED TABLE transacoes_5 (
+CREATE UNLOGGED TABLE transactions_5 (
 	id SERIAL PRIMARY KEY,
 	valor INTEGER NOT NULL,
 	tipo CHAR(1) NOT NULL,
@@ -48,7 +48,7 @@ CREATE UNLOGGED TABLE transacoes_5 (
 -- A extensão e a função limite_cliente permanecem inalteradas
 
 CREATE EXTENSION IF NOT EXISTS pg_prewarm;
-SELECT pg_prewarm('transacoes_1'), pg_prewarm('transacoes_2'), pg_prewarm('transacoes_3'), pg_prewarm('transacoes_4'), pg_prewarm('transacoes_5');
+SELECT pg_prewarm('transactions_1'), pg_prewarm('transactions_2'), pg_prewarm('transactions_3'), pg_prewarm('transactions_4'), pg_prewarm('transactions_5');
 
 CREATE OR REPLACE FUNCTION limite_cliente(p_cliente_id INTEGER)
 RETURNS INTEGER AS $$
@@ -78,8 +78,8 @@ BEGIN
     SELECT limite_cliente(p_cliente_id) INTO v_limite;
 
     IF p_cliente_id = 1 THEN
-        LOCK TABLE transacoes_1 IN ACCESS EXCLUSIVE MODE;
-        SELECT saldo INTO v_saldo FROM transacoes_1 ORDER BY id DESC LIMIT 1;
+        LOCK TABLE transactions_1 IN ACCESS EXCLUSIVE MODE;
+        SELECT saldo INTO v_saldo FROM transactions_1 ORDER BY id DESC LIMIT 1;
 
         IF p_tipo = 'd' THEN
             diff := p_valor * -1;
@@ -91,12 +91,12 @@ BEGIN
             RAISE EXCEPTION 'LIMITE_INDISPONIVEL [%]', p_cliente_id;
         END IF;
 
-        INSERT INTO transacoes_1(valor, tipo, descricao, realizada_em, saldo)
+        INSERT INTO transactions_1(valor, tipo, descricao, realizada_em, saldo)
         VALUES (p_valor, p_tipo, p_descricao, clock_timestamp(), v_saldo + diff);
 
     ELSIF p_cliente_id = 2 THEN
-        LOCK TABLE transacoes_2 IN ACCESS EXCLUSIVE MODE;
-        SELECT saldo INTO v_saldo FROM transacoes_2 ORDER BY id DESC LIMIT 1;
+        LOCK TABLE transactions_2 IN ACCESS EXCLUSIVE MODE;
+        SELECT saldo INTO v_saldo FROM transactions_2 ORDER BY id DESC LIMIT 1;
 
         IF p_tipo = 'd' THEN
             diff := p_valor * -1;
@@ -108,14 +108,14 @@ BEGIN
             RAISE EXCEPTION 'LIMITE_INDISPONIVEL [%]', p_cliente_id;
         END IF;
 
-        INSERT INTO transacoes_2(valor, tipo, descricao, realizada_em, saldo)
+        INSERT INTO transactions_2(valor, tipo, descricao, realizada_em, saldo)
         VALUES (p_valor, p_tipo, p_descricao, clock_timestamp(), v_saldo + diff);
 
-    -- Repita esta lógica para transacoes_3, transacoes_4, e transacoes_5
-    -- Exemplo para transacoes_3:
+    -- Repita esta lógica para transactions_3, transactions_4, e transactions_5
+    -- Exemplo para transactions_3:
     ELSIF p_cliente_id = 3 THEN
-        LOCK TABLE transacoes_3 IN ACCESS EXCLUSIVE MODE;
-        SELECT saldo INTO v_saldo FROM transacoes_3 ORDER BY id DESC LIMIT 1;
+        LOCK TABLE transactions_3 IN ACCESS EXCLUSIVE MODE;
+        SELECT saldo INTO v_saldo FROM transactions_3 ORDER BY id DESC LIMIT 1;
 
         IF p_tipo = 'd' THEN
             diff := p_valor * -1;
@@ -127,10 +127,10 @@ BEGIN
             RAISE EXCEPTION 'LIMITE_INDISPONIVEL [%]', p_cliente_id;
         END IF;
 
-        INSERT INTO transacoes_3(valor, tipo, descricao, realizada_em, saldo)
+        INSERT INTO transactions_3(valor, tipo, descricao, realizada_em, saldo)
         VALUES (p_valor, p_tipo, p_descricao, clock_timestamp(), v_saldo + diff);
 
-    -- Adicione condicionais semelhantes para p_cliente_id = 4 e p_cliente_id = 5, ajustando para transacoes_4 e transacoes_5 respectivamente.
+    -- Adicione condicionais semelhantes para p_cliente_id = 4 e p_cliente_id = 5, ajustando para transactions_4 e transactions_5 respectivamente.
     
     ELSE
         RAISE EXCEPTION 'CLIENTE_NAO_ENCONTRADO [%]', p_cliente_id;
@@ -156,8 +156,8 @@ BEGIN
     SELECT limite_cliente(p_cliente_id) INTO v_limite;
 
     IF p_cliente_id = 1 THEN
-        LOCK TABLE transacoes_1 IN ACCESS SHARE MODE;
-        SELECT saldo INTO v_saldo FROM transacoes_1 ORDER BY id DESC LIMIT 1;
+        LOCK TABLE transactions_1 IN ACCESS SHARE MODE;
+        SELECT saldo INTO v_saldo FROM transactions_1 ORDER BY id DESC LIMIT 1;
 
         SELECT json_build_object(
             'saldo', json_build_object(
@@ -165,11 +165,11 @@ BEGIN
                 'data_extrato', TO_CHAR(clock_timestamp(), 'YYYY-MM-DD HH24:MI:SS.US'),
                 'limite', v_limite
             ),
-            'ultimas_transacoes', COALESCE((
+            'ultimas_transactions', COALESCE((
                 SELECT json_agg(row_to_json(t))
                 FROM (
                     SELECT valor, tipo, descricao, TO_CHAR(realizada_em, 'YYYY-MM-DD HH24:MI:SS.US') AS realizada_em
-                    FROM transacoes_1
+                    FROM transactions_1
                     ORDER BY realizada_em DESC, id DESC
                     LIMIT 10
                 ) t
@@ -177,8 +177,8 @@ BEGIN
         ) INTO result;
 
     ELSIF p_cliente_id = 2 THEN
-        LOCK TABLE transacoes_2 IN ACCESS SHARE MODE;
-        SELECT saldo INTO v_saldo FROM transacoes_2 ORDER BY id DESC LIMIT 1;
+        LOCK TABLE transactions_2 IN ACCESS SHARE MODE;
+        SELECT saldo INTO v_saldo FROM transactions_2 ORDER BY id DESC LIMIT 1;
 
         SELECT json_build_object(
             'saldo', json_build_object(
@@ -186,11 +186,11 @@ BEGIN
                 'data_extrato', TO_CHAR(clock_timestamp(), 'YYYY-MM-DD HH24:MI:SS.US'),
                 'limite', v_limite
             ),
-            'ultimas_transacoes', COALESCE((
+            'ultimas_transactions', COALESCE((
                 SELECT json_agg(row_to_json(t))
                 FROM (
                     SELECT valor, tipo, descricao, TO_CHAR(realizada_em, 'YYYY-MM-DD HH24:MI:SS.US') AS realizada_em
-                    FROM transacoes_2
+                    FROM transactions_2
                     ORDER BY realizada_em DESC, id DESC
                     LIMIT 10
                 ) t
@@ -198,8 +198,8 @@ BEGIN
         ) INTO result;
 
     ELSIF p_cliente_id = 3 THEN
-        LOCK TABLE transacoes_3 IN ACCESS SHARE MODE;
-        SELECT saldo INTO v_saldo FROM transacoes_3 ORDER BY id DESC LIMIT 1;
+        LOCK TABLE transactions_3 IN ACCESS SHARE MODE;
+        SELECT saldo INTO v_saldo FROM transactions_3 ORDER BY id DESC LIMIT 1;
 
         SELECT json_build_object(
             'saldo', json_build_object(
@@ -207,11 +207,11 @@ BEGIN
                 'data_extrato', TO_CHAR(clock_timestamp(), 'YYYY-MM-DD HH24:MI:SS.US'),
                 'limite', v_limite
             ),
-            'ultimas_transacoes', COALESCE((
+            'ultimas_transactions', COALESCE((
                 SELECT json_agg(row_to_json(t))
                 FROM (
                     SELECT valor, tipo, descricao, TO_CHAR(realizada_em, 'YYYY-MM-DD HH24:MI:SS.US') AS realizada_em
-                    FROM transacoes_3
+                    FROM transactions_3
                     ORDER BY realizada_em DESC, id DESC
                     LIMIT 10
                 ) t
@@ -219,8 +219,8 @@ BEGIN
         ) INTO result;
 
     ELSIF p_cliente_id = 4 THEN
-        LOCK TABLE transacoes_4 IN ACCESS SHARE MODE;
-        SELECT saldo INTO v_saldo FROM transacoes_4 ORDER BY id DESC LIMIT 1;
+        LOCK TABLE transactions_4 IN ACCESS SHARE MODE;
+        SELECT saldo INTO v_saldo FROM transactions_4 ORDER BY id DESC LIMIT 1;
 
         SELECT json_build_object(
             'saldo', json_build_object(
@@ -228,11 +228,11 @@ BEGIN
                 'data_extrato', TO_CHAR(clock_timestamp(), 'YYYY-MM-DD HH24:MI:SS.US'),
                 'limite', v_limite
             ),
-            'ultimas_transacoes', COALESCE((
+            'ultimas_transactions', COALESCE((
                 SELECT json_agg(row_to_json(t))
                 FROM (
                     SELECT valor, tipo, descricao, TO_CHAR(realizada_em, 'YYYY-MM-DD HH24:MI:SS.US') AS realizada_em
-                    FROM transacoes_4
+                    FROM transactions_4
                     ORDER BY realizada_em DESC, id DESC
                     LIMIT 10
                 ) t
@@ -240,8 +240,8 @@ BEGIN
         ) INTO result;
 
     ELSIF p_cliente_id = 5 THEN
-        LOCK TABLE transacoes_5 IN ACCESS SHARE MODE;
-        SELECT saldo INTO v_saldo FROM transacoes_5 ORDER BY id DESC LIMIT 1;
+        LOCK TABLE transactions_5 IN ACCESS SHARE MODE;
+        SELECT saldo INTO v_saldo FROM transactions_5 ORDER BY id DESC LIMIT 1;
 
         SELECT json_build_object(
             'saldo', json_build_object(
@@ -249,11 +249,11 @@ BEGIN
                 'data_extrato', TO_CHAR(clock_timestamp(), 'YYYY-MM-DD HH24:MI:SS.US'),
                 'limite', v_limite
             ),
-            'ultimas_transacoes', COALESCE((
+            'ultimas_transactions', COALESCE((
                 SELECT json_agg(row_to_json(t))
                 FROM (
                     SELECT valor, tipo, descricao, TO_CHAR(realizada_em, 'YYYY-MM-DD HH24:MI:SS.US') AS realizada_em
-                    FROM transacoes_5
+                    FROM transactions_5
                     ORDER BY realizada_em DESC, id DESC
                     LIMIT 10
                 ) t

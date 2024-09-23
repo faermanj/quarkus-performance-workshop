@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS clientes (
 );
 
 -- Tabela de transações
-CREATE TABLE IF NOT EXISTS transacoes (
+CREATE TABLE IF NOT EXISTS transactions (
   	id SERIAL PRIMARY KEY,
     cliente_id INTEGER NOT NULL,
     valor INTEGER NOT NULL,

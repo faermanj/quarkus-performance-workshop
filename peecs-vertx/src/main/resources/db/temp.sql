@@ -34,7 +34,7 @@ BEGIN
         SET result_status_code = 422; -- Unprocessable Entity
     ELSE
         -- Proceed with inserting the transaction
-        INSERT INTO transacoes (cliente_id, valor, tipo, descricao, realizada_em, realizada_em_char)
+        INSERT INTO transactions (cliente_id, valor, tipo, descricao, realizada_em, realizada_em_char)
         VALUES (p_cliente_id, p_valor, p_tipo, p_descricao, NOW(), DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i:%s.%f'));
         
         -- Update the balance

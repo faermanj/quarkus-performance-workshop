@@ -5,7 +5,7 @@ CREATE TABLE clientes (
     saldo_inicial BIGINT
 );
 
-CREATE TABLE transacoes (
+CREATE TABLE transactions (
     id SERIAL PRIMARY KEY,
     cliente_id INT,
     valor BIGINT,

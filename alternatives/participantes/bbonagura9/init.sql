@@ -5,7 +5,7 @@ CREATE UNLOGGED TABLE clientes (
     saldo bigint
 );
 
-CREATE UNLOGGED TABLE transacoes (
+CREATE UNLOGGED TABLE transactions (
     id BIGSERIAL PRIMARY KEY NOT NULL,
     created_at timestamp with time zone DEFAULT now(),
     valor bigint,
@@ -15,7 +15,7 @@ CREATE UNLOGGED TABLE transacoes (
 );
 
 CREATE UNIQUE INDEX idx_cliente ON clientes (id);
-CREATE INDEX idx_transacao_created_at ON transacoes (created_at DESC);
+CREATE INDEX idx_transacao_created_at ON transactions (created_at DESC);
 
 INSERT INTO clientes (limite, saldo) VALUES
   (100000, 0),

@@ -6,8 +6,8 @@ create table clientes
     limite       int    not null,
     data_extrato timestamp WITH TIME ZONE not null default CURRENT_TIMESTAMP
 );
-drop table if exists transacoes;
-create table transacoes
+drop table if exists transactions;
+create table transactions
 (
     id           serial  NOT NULL primary key,
     cliente_id   integer NOT NULL REFERENCES clientes (id),
@@ -17,7 +17,7 @@ create table transacoes
     realizada_em timestamp WITH TIME ZONE not null default CURRENT_TIMESTAMP
 );
 
-create index transacoes_cliente_id_realizado_em ON transacoes
+create index transactions_cliente_id_realizado_em ON transactions
     USING btree (cliente_id, realizada_em);
 
 insert into clientes

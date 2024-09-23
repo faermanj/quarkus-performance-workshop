@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS Clientes (
     limite INTEGER
 );
 
-CREATE TABLE IF NOT EXISTS Transacoes (
+CREATE TABLE IF NOT EXISTS transactions (
     id INTEGER PRIMARY KEY,
     valor INTEGER,
     tipo VARCHAR(1),

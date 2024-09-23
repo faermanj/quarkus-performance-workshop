@@ -4,14 +4,14 @@ CREATE TABLE members (
     limite INTEGER NOT NULL
 );
 
-CREATE TABLE transacoes (
+CREATE TABLE transactions (
     id SERIAL PRIMARY KEY,
     cliente_id INTEGER NOT NULL,
     valor INTEGER NOT NULL,
     tipo CHAR(1) NOT NULL,
     descricao VARCHAR(10) NOT NULL,
     realizada_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_members_transacoes_id
+    CONSTRAINT fk_members_transactions_id
         FOREIGN KEY (cliente_id) REFERENCES members(id)
 );
 
@@ -25,7 +25,7 @@ CREATE TABLE saldos (
 
 
 CREATE INDEX idx_members_id ON members (id);
-CREATE INDEX idx_transacoes_cliente_id ON transacoes (cliente_id);
+CREATE INDEX idx_transactions_cliente_id ON transactions (cliente_id);
 CREATE INDEX idx_saldos_cliente_id ON saldos (cliente_id);
 
 BEGIN TRANSACTION;
@@ -75,7 +75,7 @@ BEGIN
         -- Se não, atualizar o saldo do cliente e inserir a transação
         UPDATE saldos SET valor = novo_saldo WHERE cliente_id = cliente_id_param;
         
-        INSERT INTO transacoes (cliente_id, valor, tipo, descricao) 
+        INSERT INTO transactions (cliente_id, valor, tipo, descricao) 
         VALUES (cliente_id_param, valor_transacao_param, tipo_transacao_param, descricao_transacao_param);
 
         -- Se bem-sucedido, retornar true e o novo saldo
@@ -88,28 +88,28 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION ObterSaldoETransacoes(clienteId integer)
-RETURNS TABLE (saldo integer, ultimas_transacoes jsonb)
+CREATE OR REPLACE FUNCTION ObterSaldoEtransactions(clienteId integer)
+RETURNS TABLE (saldo integer, ultimas_transactions jsonb)
 AS $$
 DECLARE
     saldo_result integer;
-    transacoes_result jsonb;
+    transactions_result jsonb;
 BEGIN
     -- Consulta de Saldo
     SELECT valor INTO saldo_result FROM saldos WHERE cliente_id = clienteId; -- FOR UPDATE
 
     SELECT jsonb_agg(jsonb_build_object('valor', t.valor, 'tipo', t.tipo, 'descricao', t.descricao, 'realizada_em', t.realizada_em))
-INTO transacoes_result
+INTO transactions_result
 FROM (
     SELECT valor, tipo, descricao, realizada_em
-    FROM transacoes
+    FROM transactions
     WHERE cliente_id = clienteId
     ORDER BY realizada_em DESC
     LIMIT 10
 ) t;
 
     -- Retornar os resultados
-    RETURN QUERY SELECT saldo_result, transacoes_result;
+    RETURN QUERY SELECT saldo_result, transactions_result;
 END;
 $$
 LANGUAGE plpgsql;

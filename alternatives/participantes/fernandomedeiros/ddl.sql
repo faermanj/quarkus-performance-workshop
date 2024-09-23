@@ -27,15 +27,15 @@ CREATE UNLOGGED TABLE transacao (
     descricao varchar(10) NOT NULL,
     data_lancamento timestamp(6) NOT NULL,
     cliente_id integer NOT NULL,
-    CONSTRAINT fk_transacoes_members_id
+    CONSTRAINT fk_transactions_members_id
            FOREIGN KEY (cliente_id) REFERENCES cliente (id)
 );
 
-CREATE INDEX idx_transacoes_cliente_id ON transacao (cliente_id);
+CREATE INDEX idx_transactions_cliente_id ON transacao (cliente_id);
 
-CREATE INDEX idx_transacoes_cliente_id_realizada_em ON transacao (cliente_id, data_lancamento desc);
+CREATE INDEX idx_transactions_cliente_id_realizada_em ON transacao (cliente_id, data_lancamento desc);
 
-CREATE INDEX idx_transacoes_realizada_em ON transacao (data_lancamento desc);
+CREATE INDEX idx_transactions_realizada_em ON transacao (data_lancamento desc);
 
 --DML
 INSERT INTO public.cliente(	limite, saldo, id) 	VALUES (100000, 0, 1);

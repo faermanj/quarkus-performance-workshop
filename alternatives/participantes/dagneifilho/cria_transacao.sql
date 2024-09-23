@@ -37,7 +37,7 @@ BEGIN
   END IF;
 
   -- Inserir na tabela de transações
-  INSERT INTO "Transacoes" ("Tipo", "Valor", "Descricao", "RealizadaEm", "ClienteId") 
+  INSERT INTO "transactions" ("Tipo", "Valor", "Descricao", "RealizadaEm", "ClienteId") 
   VALUES (p_tipo, p_valor, p_descricao, p_realizadaEm, p_id);
 
   -- Retornar um record com os valores atualizados

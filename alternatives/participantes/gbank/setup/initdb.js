@@ -1,8 +1,8 @@
 db = connect("mongodb://localhost/gbank");
 
-// drop clientes and transacoes collections, if exist
+// drop clientes and transactions collections, if exist
 db.clientes.drop();
-db.transacoes.drop();
+db.transactions.drop();
 
 // insert 5 default clientes in collection
 db.clientes.insertMany([
@@ -13,6 +13,6 @@ db.clientes.insertMany([
   { clienteId: 5, limite: 500000, saldo: 0 },
 ]);
 
-// create indexes for clientes and transacoes collections
+// create indexes for clientes and transactions collections
 db.clientes.createIndex({ clienteId: 1 });
-db.transacoes.createIndex({ clienteId: 1 });
+db.transactions.createIndex({ clienteId: 1 });

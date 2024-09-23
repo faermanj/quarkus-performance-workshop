@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS clientes (
     CHECK (saldo >= -limite)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
-CREATE TABLE IF NOT EXISTS transacoes (
+CREATE TABLE IF NOT EXISTS transactions (
     id INT AUTO_INCREMENT PRIMARY KEY,
     cliente_id INT NOT NULL,
     valor INT NOT NULL,
@@ -18,12 +18,12 @@ CREATE TABLE IF NOT EXISTS transacoes (
     FOREIGN KEY (cliente_id) REFERENCES clientes(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
-CREATE INDEX idx_cliente_id ON transacoes(cliente_id);
+CREATE INDEX idx_cliente_id ON transactions(cliente_id);
 
 DELIMITER //
 CREATE TRIGGER create_transaction_trigger
 BEFORE INSERT
-ON transacoes FOR EACH ROW
+ON transactions FOR EACH ROW
 BEGIN
     DECLARE v_limite INT;
     DECLARE v_saldo INT;

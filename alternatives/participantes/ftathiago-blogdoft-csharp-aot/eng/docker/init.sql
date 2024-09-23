@@ -8,7 +8,7 @@ CREATE UNLOGGED TABLE clientes (
     versao integer not null default 0
 );
 
-CREATE UNLOGGED TABLE transacoes (
+CREATE UNLOGGED TABLE transactions (
     id SERIAL PRIMARY KEY,
     cliente_id INTEGER NOT NULL,
     valor INTEGER NOT NULL,
@@ -16,11 +16,11 @@ CREATE UNLOGGED TABLE transacoes (
     descricao VARCHAR(10) NOT NULL,
     realizada_em TIMESTAMP NOT NULL DEFAULT NOW(),
     versao integer not null,
-    CONSTRAINT fk_clientes_transacoes_id
+    CONSTRAINT fk_clientes_transactions_id
         FOREIGN KEY (cliente_id) REFERENCES clientes(id)
 );
 
-CREATE UNIQUE INDEX uk_clientes_transacoes_versao ON transacoes (cliente_id,versao);
+CREATE UNIQUE INDEX uk_clientes_transactions_versao ON transactions (cliente_id,versao);
 
 DO $$
 BEGIN
@@ -89,7 +89,7 @@ begin
     end if;
      
     -- Registra transação 
-    INSERT INTO transacoes (
+    INSERT INTO transactions (
           cliente_id
         , valor
         , tipo

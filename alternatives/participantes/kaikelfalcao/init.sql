@@ -8,7 +8,7 @@ CREATE TABLE clientes
 
 CREATE TYPE TipoOperacao AS ENUM('c', 'd');
 
-CREATE TABLE transacoes
+CREATE TABLE transactions
 (
     id SERIAL PRIMARY KEY,
     cliente_id INTEGER NOT NULL,
@@ -20,8 +20,8 @@ CREATE TABLE transacoes
         FOREIGN KEY (cliente_id) REFERENCES clientes (id)
 );
 
-CREATE INDEX idx_transacoes_cliente_id ON transacoes (cliente_id);
-CREATE INDEX idx_transacoes_criado_em ON transacoes (criado_em);
+CREATE INDEX idx_transactions_cliente_id ON transactions (cliente_id);
+CREATE INDEX idx_transactions_criado_em ON transactions (criado_em);
 
 INSERT INTO clientes (id, nome, limite_conta)
 VALUES

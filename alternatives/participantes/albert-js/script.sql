@@ -1,5 +1,5 @@
 
-CREATE UNLOGGED TABLE transacoes(
+CREATE UNLOGGED TABLE transactions(
     id SERIAL PRIMARY KEY,
     cliente_id INTEGER NOT NULL,
     saldo INTEGER NOT NULL,
@@ -9,7 +9,7 @@ CREATE UNLOGGED TABLE transacoes(
     realizada_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX transacoes_idx ON transacoes(cliente_id);
+CREATE INDEX transactions_idx ON transactions(cliente_id);
 SET enable_seqscan=off;
 
 CREATE TYPE json_result AS (
@@ -26,7 +26,7 @@ CREATE OR REPLACE FUNCTION calcular_saldo(clientId INT, t_tipo CHAR, t_valor DEC
     BEGIN
 
         SELECT saldo INTO saldo_atual
-        FROM transacoes
+        FROM transactions
         WHERE cliente_id = clientId
         ORDER BY realizada_em DESC, id DESC
         LIMIT 1;
@@ -60,7 +60,7 @@ CREATE OR REPLACE FUNCTION calcular_saldo(clientId INT, t_tipo CHAR, t_valor DEC
             RETURN json_build_object('error','Tipo de transação inválido', 'code', 400);
         END IF;
 
-        INSERT INTO transacoes (cliente_id, valor, tipo, descricao, realizada_em, saldo)
+        INSERT INTO transactions (cliente_id, valor, tipo, descricao, realizada_em, saldo)
         VALUES (clientId, t_valor, t_tipo, t_descricao, now(), saldo_atual);
 
     RETURN json_build_object('saldo', saldo_atual,'limite', t_limite, 'code', 200);

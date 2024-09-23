@@ -4,7 +4,7 @@ CREATE TABLE members (
      saldo INTEGER NOT NULL
 );
 
-CREATE TABLE transacoes (
+CREATE TABLE transactions (
   id SERIAL PRIMARY KEY,
   cliente_id INTEGER REFERENCES members(id),
   valor INTEGER NOT NULL,

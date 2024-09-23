@@ -4,7 +4,7 @@ CREATE UNLOGGED TABLE IF NOT EXISTS clientes (
    id SMALLINT PRIMARY KEY NOT NULL,
    limite INTEGER NOT NULL,
    saldo INTEGER NOT NULL,
-   ultimas_transacoes JSONB not null default '[]'::jsonb,
+   ultimas_transactions JSONB not null default '[]'::jsonb,
    CONSTRAINT limite_minimo CHECK (saldo > limite)
 );
 
@@ -36,7 +36,7 @@ BEGIN
    UPDATE clientes
       SET
          saldo = saldo + novosaldo,
-         ultimas_transacoes = jsonb_path_query_array(jsonb_insert(ultimas_transacoes,'{0}', transaction), '$[0 to 9]')
+         ultimas_transactions = jsonb_path_query_array(jsonb_insert(ultimas_transactions,'{0}', transaction), '$[0 to 9]')
       WHERE id = client_id
       RETURNING * INTO cliente;
 

@@ -5,14 +5,14 @@ CREATE UNLOGGED TABLE clientes (
    saldo INTEGER NOT NULL DEFAULT 0
 );
 
-CREATE UNLOGGED TABLE transacoes (
+CREATE UNLOGGED TABLE transactions (
     id         SERIAL PRIMARY KEY,
     cliente_id INTEGER     NOT NULL,
     valor      INTEGER     NOT NULL,
     tipo   CHAR(1)     NOT NULL,
     descricao  VARCHAR(10) NOT NULL,
     realizado_em  TIMESTAMP   NOT NULL DEFAULT (NOW() AT TIME ZONE 'UTC'),
-    CONSTRAINT fk_transacoes_cliente_id
+    CONSTRAINT fk_transactions_cliente_id
         FOREIGN KEY (cliente_id) REFERENCES clientes(id)
 );
 
@@ -45,7 +45,7 @@ BEGIN
     RETURN QUERY SELECT 0, 0, 0;
   END IF;
 
-  INSERT INTO transacoes (valor, descricao, tipo, realizado_em, cliente_id)
+  INSERT INTO transactions (valor, descricao, tipo, realizado_em, cliente_id)
     VALUES (valor, descricao, tipo, now() at time zone 'utc', idcliente);
 
   UPDATE clientes 
@@ -75,7 +75,7 @@ BEGIN
                 )) INTO result
     FROM (
         SELECT valor, tipo, descricao, realizado_em
-        FROM transacoes
+        FROM transactions
         WHERE cliente_id = idcliente
         ORDER BY realizado_em DESC
         LIMIT 10
@@ -86,7 +86,7 @@ $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION extrato(
   IN idcliente integer
-) RETURNS TABLE (total INT, data_extrato TIMESTAMP, limitee INT, ultimas_transacoes JSON)  AS $$
+) RETURNS TABLE (total INT, data_extrato TIMESTAMP, limitee INT, ultimas_transactions JSON)  AS $$
 DECLARE
   saldo_cliente INT;
   limite_cliente INT;

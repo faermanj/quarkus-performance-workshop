@@ -6,7 +6,7 @@ CREATE TABLE members (
 );
 
 CREATE TYPE tipo_transacao AS ENUM ('c', 'd');
-CREATE TABLE transacoes(
+CREATE TABLE transactions(
     id SERIAL PRIMARY KEY, -- TODO ver se precisa disso
     valor BIGINT NOT NULL,
     tipo tipo_transacao NOT NULL,
@@ -65,7 +65,7 @@ BEGIN
               return;
           end if;
     end if;
-    INSERT INTO transacoes
+    INSERT INTO transactions
     (valor, tipo, descricao, cliente_id)
     VALUES
     (pvalor, ptipo, pdescricao, pcliente_id);
@@ -76,7 +76,7 @@ $$;
 CREATE OR REPLACE PROCEDURE extrato(
   cid INTEGER,
   INOUT cliente refcursor,
-  INOUT transacoes refcursor
+  INOUT transactions refcursor
 )
 LANGUAGE plpgsql
 AS $$
@@ -85,8 +85,8 @@ BEGIN
     SELECT id, limite, saldo AS total FROM members
     WHERE id = cid;
 
-    OPEN transacoes FOR
-    SELECT valor, tipo, descricao, realizada_em FROM transacoes
+    OPEN transactions FOR
+    SELECT valor, tipo, descricao, realizada_em FROM transactions
     WHERE cliente_id = cid
     ORDER BY id DESC
     LIMIT 10;
@@ -94,6 +94,6 @@ END;
 $$;
 
 CREATE INDEX IF NOT EXISTS saldo_index ON members(saldo);
-CREATE INDEX IF NOT EXISTS id_trc ON transacoes(id DESC);
-CREATE INDEX IF NOT EXISTS cid_transacoes ON transacoes(cliente_id);
+CREATE INDEX IF NOT EXISTS id_trc ON transactions(id DESC);
+CREATE INDEX IF NOT EXISTS cid_transactions ON transactions(cliente_id);
 

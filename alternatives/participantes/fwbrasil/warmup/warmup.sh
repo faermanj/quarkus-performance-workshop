@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # URLs
-transactionUrl1="http://localhost:8081/clientes/0/transacoes"
+transactionUrl1="http://localhost:8081/clientes/0/transactions"
 extratoUrl1="http://localhost:8081/clientes/0/extrato"
-transactionUrl2="http://localhost:8082/clientes/0/transacoes"
+transactionUrl2="http://localhost:8082/clientes/0/transactions"
 extratoUrl2="http://localhost:8082/clientes/0/extrato"
 
 # Headers

@@ -70,7 +70,7 @@ as
 $$
 declare
     _saldo_json      json;
-    _transacoes_json json;
+    _transactions_json json;
     _data_extrato    timestamp(6);
 begin
     _data_extrato := current_timestamp(6);
@@ -81,7 +81,7 @@ begin
     where c.id = in_id_cliente;
 
     select json_agg(x.object)
-    into _transacoes_json
+    into _transactions_json
     from (select json_build_object('valor',
                                    t.valor,
                                    'tipo',
@@ -96,11 +96,11 @@ begin
           order by t.realizada_em desc
           limit 10) x;
 
-    if _transacoes_json is null then
-        _transacoes_json := json_build_array();
+    if _transactions_json is null then
+        _transactions_json := json_build_array();
     end if;
     out_extrato := json_build_object('saldo', _saldo_json,
-                                     'ultimas_transacoes', _transacoes_json);
+                                     'ultimas_transactions', _transactions_json);
 end;
 
 $$ language plpgsql;

@@ -7,14 +7,14 @@ CREATE UNLOGGED TABLE
 );
 
 CREATE UNLOGGED TABLE
-    "transacoes" (
+    "transactions" (
                      "id" SERIAL NOT NULL,
                      "valor" INTEGER NOT NULL,
                      "id_cliente" INTEGER NOT NULL,
                      "tipo" char(1) NOT NULL,
                      "descricao" VARCHAR(10) NOT NULL,
                      "realizada_em" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                     CONSTRAINT "transacoes_pkey" PRIMARY KEY ("id")
+                     CONSTRAINT "transactions_pkey" PRIMARY KEY ("id")
 );
 
 CREATE OR REPLACE FUNCTION get_extrato(customer_id INT)
@@ -33,7 +33,7 @@ SELECT COALESCE(json_agg(json_build_object('valor', valor, 'tipo', tipo, 'descri
 INTO statements_data
 FROM (
          SELECT valor, tipo, descricao, realizada_em
-         FROM transacoes
+         FROM transactions
          WHERE id_cliente = customer_id
          ORDER BY realizada_em DESC
              LIMIT 10
@@ -41,13 +41,13 @@ FROM (
 
 RETURN json_build_object(
         'saldo', customer_data,
-        'ultimas_transacoes', statements_data
+        'ultimas_transactions', statements_data
        );
 END;
 $$
 LANGUAGE plpgsql;
 
-CREATE INDEX transacoes_ordering ON transacoes (realizada_em DESC, id_cliente);
+CREATE INDEX transactions_ordering ON transactions (realizada_em DESC, id_cliente);
 
 INSERT INTO
     members (saldo, limite)

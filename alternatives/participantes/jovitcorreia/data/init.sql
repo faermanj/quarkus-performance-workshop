@@ -51,7 +51,7 @@ BEGIN
         LIMIT 10
     ) AS t;
 
-    RETURN json_build_object('saldo', holder, 'ultimas_transacoes', COALESCE(tnxs, '[]'::json));
+    RETURN json_build_object('saldo', holder, 'ultimas_transactions', COALESCE(tnxs, '[]'::json));
 END;
 $$ LANGUAGE plpgsql;
 

@@ -1,6 +1,6 @@
 -- Drop tables and recreate them
 
-DROP TABLE IF EXISTS transacoes;
+DROP TABLE IF EXISTS transactions;
 DROP TABLE IF EXISTS clientes;
 
 CREATE UNLOGGED TABLE clientes (
@@ -13,7 +13,7 @@ CREATE UNLOGGED TABLE clientes (
 -- -- create composite index of id saldo and limite
 -- CREATE INDEX idx_clientes_id_saldo_limite ON clientes (id, saldo, limite);
 
-CREATE UNLOGGED TABLE transacoes (
+CREATE UNLOGGED TABLE transactions (
     id SERIAL PRIMARY KEY,
     clienteid integer,
     clientenome varchar(100),
@@ -25,8 +25,8 @@ CREATE UNLOGGED TABLE transacoes (
     ultimosaldo int
 );
 
--- CREATE INDEX idx_transacoes_id ON transacoes (id DESC);
-CREATE INDEX idx_transacoes_clienteid ON transacoes (clienteid);
+-- CREATE INDEX idx_transactions_id ON transactions (id DESC);
+CREATE INDEX idx_transactions_clienteid ON transactions (clienteid);
 
 INSERT INTO clientes (id, nome, limite, saldo)
   VALUES
@@ -36,5 +36,5 @@ INSERT INTO clientes (id, nome, limite, saldo)
     (4, 'padaria joia de cocaia', 100000 * 100, 0),
     (5, 'kid mais', 5000 * 100, 0);
 
-INSERT INTO transacoes (clienteid, valor, tipo, descricao, clientenome, ultimolimite, ultimosaldo)
+INSERT INTO transactions (clienteid, valor, tipo, descricao, clientenome, ultimolimite, ultimosaldo)
   SELECT id, 0, 'c', 'inicial', nome, limite, saldo FROM clientes;

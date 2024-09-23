@@ -133,7 +133,7 @@ services:
               do \
                 echo -n \. \$i; \
                 curl -s http://127.0.0.1:9999/clientes/333/extrato > /dev/null  & \
-                curl -s -H 'Content-Type: application/json' -d '{\"valor\": 0, \"tipo\": \"d\", \"descricao\": \"warmup\"}' http://127.0.0.1:9999/clientes/333/transacoes > /dev/null  & \
+                curl -s -H 'Content-Type: application/json' -d '{\"valor\": 0, \"tipo\": \"d\", \"descricao\": \"warmup\"}' http://127.0.0.1:9999/clientes/333/transactions > /dev/null  & \
               done; 
               wait; 
               echo 'warmup done';"

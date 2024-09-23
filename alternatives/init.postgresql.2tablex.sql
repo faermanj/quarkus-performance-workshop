@@ -13,7 +13,7 @@ INSERT INTO clientes(id, extrato) VALUES
 
 CREATE EXTENSION IF NOT EXISTS pg_prewarm;
 SELECT pg_prewarm('clientes');
-SELECT pg_prewarm('transacoes');
+SELECT pg_prewarm('transactions');
 
 CREATE TYPE json_result AS (
   status_code INT,
@@ -55,7 +55,7 @@ BEGIN
       n_saldo := v_saldo + p_valor;
     END IF;
     
-    INSERT INTO transacoes 
+    INSERT INTO transactions 
                      (cliente_id,   valor,   tipo,   descricao,      realizada_em)
             VALUES (p_cliente_id, p_valor, p_tipo, p_descricao, now());
 
@@ -67,10 +67,10 @@ BEGIN
                     'data_extrato', TO_CHAR(now(), 'YYYY-MM-DD HH:MI:SS.US'),
                     'limite', v_limite
                 ),
-                'ultimas_transacoes', COALESCE((
+                'ultimas_transactions', COALESCE((
                     SELECT json_agg(row_to_json(t)) FROM (
                         SELECT valor, tipo, descricao
-                        FROM transacoes
+                        FROM transactions
                         WHERE cliente_id = p_cliente_id
                         ORDER BY realizada_em DESC
                         LIMIT 10

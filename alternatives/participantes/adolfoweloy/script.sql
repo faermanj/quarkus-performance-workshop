@@ -10,11 +10,11 @@ CREATE TABLE if NOT EXISTS clientes(
 
 ALTER sequence clientes_sq owned BY clientes.id;
 
--- transacoes
-CREATE SEQUENCE transacoes_sq INCREMENT BY 1 START 1;
+-- transactions
+CREATE SEQUENCE transactions_sq INCREMENT BY 1 START 1;
 
-CREATE TABLE transacoes(
-  id INTEGER PRIMARY KEY DEFAULT nextval('transacoes_sq'),
+CREATE TABLE transactions(
+  id INTEGER PRIMARY KEY DEFAULT nextval('transactions_sq'),
   cliente_id INTEGER REFERENCES clientes(id),
   valor INTEGER DEFAULT 0,
   tipo CHAR CHECK (tipo = 'c' OR tipo = 'd'),
@@ -22,7 +22,7 @@ CREATE TABLE transacoes(
   realizada_em TIMESTAMP WITH TIME ZONE
 );
 
-ALTER SEQUENCE transacoes_sq OWNED BY transacoes.id;
+ALTER SEQUENCE transactions_sq OWNED BY transactions.id;
 
 -- initial data
 DO $$

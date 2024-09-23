@@ -84,9 +84,9 @@ generateResults() {
             responsesOkMenos250ms=$(cat $arquivoStats | jq '.stats.group1.count')
             porcentagemRespostasAceitaveis=$(python3 -c "print(round(${responsesOkMenos250ms} / ${totalRequests} * 100, 2))")
             inconsistenciasSaldoLimite=$(grep "ConsistenciaSaldoLimite" $simulationFile | wc -l)
-            inconsistenciaTransacoesSaldo=$(grep "jmesPath(saldo.total).find.is" $simulationFile | wc -l)
+            inconsistenciatransactionsSaldo=$(grep "jmesPath(saldo.total).find.is" $simulationFile | wc -l)
             multaSLA250ms=$(python3 -c "print(max(0.0, round(((${SLARespostasOk} - ${porcentagemRespostasAceitaveis}) * 1000), 2)))")
-            multaSLAInconsSaldo=$(python3 -c "print(round(((${inconsistenciasSaldoLimite} + ${inconsistenciaTransacoesSaldo}) * ${multaInconsistenciaSaldoLimiteUnidade}), 2))")
+            multaSLAInconsSaldo=$(python3 -c "print(round(((${inconsistenciasSaldoLimite} + ${inconsistenciatransactionsSaldo}) * ${multaInconsistenciaSaldoLimiteUnidade}), 2))")
             multaSLATotal=$(python3 -c "print(round(${multaSLA250ms} + ${multaSLAInconsSaldo}, 2))")
             pagamento=$(python3 -c "print(max(0.0, round(${valorContrato} - ${multaSLATotal}, 2)))")
 

@@ -11,7 +11,7 @@ db.accounts.insertMany(
         "total": 0,
         "limite": 100000
       },
-      "ultimas_transacoes": [],
+      "ultimas_transactions": [],
       "gordurinha": 100000
     },
     {
@@ -20,7 +20,7 @@ db.accounts.insertMany(
         "total": 0,
         "limite": 80000
       },
-      "ultimas_transacoes": [],
+      "ultimas_transactions": [],
       "gordurinha": 80000
     },
     {
@@ -29,7 +29,7 @@ db.accounts.insertMany(
         "total": 0,
         "limite": 1000000
       },
-      "ultimas_transacoes": [],
+      "ultimas_transactions": [],
       "gordurinha": 1000000
     },
     {
@@ -38,7 +38,7 @@ db.accounts.insertMany(
         "total": 0,
         "limite": 10000000
       },
-      "ultimas_transacoes": [],
+      "ultimas_transactions": [],
       "gordurinha": 10000000
     },
     {
@@ -47,7 +47,7 @@ db.accounts.insertMany(
         "total": 0,
         "limite": 500000
       },
-      "ultimas_transacoes": [],
+      "ultimas_transactions": [],
       "gordurinha": 500000
     }
 

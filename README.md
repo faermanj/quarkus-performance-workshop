@@ -11,7 +11,7 @@ In this repository you will find everything you need. Not only the PEECS code, c
 The system interface is very simple, taking HTTP requests and returning json data. Here's a sample transaction with the minimal information required (person id, value, type and description).
 
 ```
-POST /members/[id]/transacoes
+POST /members/[id]/transactions
 
 {
     "valor": 1000,
@@ -31,7 +31,7 @@ GET /members/[id]/extrato
     "data_extrato": "2024-01-17T02:34:41.217753Z",
     "limite": 100000
   },
-  "ultimas_transacoes": [
+  "ultimas_transactions": [
     {
       "valor": 10,
       "tipo": "c",

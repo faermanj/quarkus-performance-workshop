@@ -7,20 +7,20 @@ CREATE UNLOGGED TABLE clientes (
   CONSTRAINT saldo_limite CHECK (saldo >= limite * -1)
 );
 
-CREATE UNLOGGED TABLE transacoes (
+CREATE UNLOGGED TABLE transactions (
 	id SERIAL PRIMARY KEY,
 	cliente_id INTEGER NOT NULL,
 	valor INTEGER NOT NULL,
 	tipo CHAR(1) NOT NULL,
 	descricao VARCHAR(10) NOT NULL,
 	data_registro TIMESTAMP NOT NULL DEFAULT NOW(),
-  CONSTRAINT fk_clientes_transacoes_id FOREIGN KEY (cliente_id) REFERENCES clientes(id)
+  CONSTRAINT fk_clientes_transactions_id FOREIGN KEY (cliente_id) REFERENCES clientes(id)
 );
 
 -- Indices
 
 CREATE INDEX idx_clientes_id ON clientes (id);
-CREATE INDEX idx_transacoes_cliente_id ON transacoes (cliente_id);
+CREATE INDEX idx_transactions_cliente_id ON transactions (cliente_id);
 
 -- Funcoes
 
@@ -33,7 +33,7 @@ BEGIN
 
   PERFORM pg_advisory_xact_lock(_id);
 
-  INSERT INTO transacoes (cliente_id, valor, tipo, descricao) VALUES (_id, valor, 'c', descricao);
+  INSERT INTO transactions (cliente_id, valor, tipo, descricao) VALUES (_id, valor, 'c', descricao);
   UPDATE clientes SET saldo = saldo + valor WHERE id = _id;
 
   SELECT saldo, limite INTO saldo_final, limite_final FROM clientes WHERE id = _id;
@@ -58,7 +58,7 @@ BEGIN
     RETURN json_build_object('error', true);
   END IF;
 
-  INSERT INTO transacoes (cliente_id, valor, tipo, descricao) VALUES (_id, valor, 'd', descricao);
+  INSERT INTO transactions (cliente_id, valor, tipo, descricao) VALUES (_id, valor, 'd', descricao);
   UPDATE clientes SET saldo = saldo - valor WHERE id = _id;
 
   SELECT saldo, limite INTO saldo_final, limite_final FROM clientes WHERE id = _id;
@@ -71,7 +71,7 @@ CREATE OR REPLACE FUNCTION historico(_id INTEGER)
 RETURNS json AS $$
 DECLARE
   cliente_info json;
-  transacoes_info json;
+  transactions_info json;
 BEGIN
 
   PERFORM pg_advisory_xact_lock(_id);
@@ -80,11 +80,11 @@ BEGIN
     SELECT limite, saldo FROM clientes WHERE id = _id
   ) t;
 
-  SELECT json_agg(row_to_json(t)) INTO transacoes_info FROM (
-    SELECT valor, tipo, descricao, data_registro FROM transacoes WHERE cliente_id = _id ORDER BY data_registro DESC LIMIT 10
+  SELECT json_agg(row_to_json(t)) INTO transactions_info FROM (
+    SELECT valor, tipo, descricao, data_registro FROM transactions WHERE cliente_id = _id ORDER BY data_registro DESC LIMIT 10
   ) t;
 
-  RETURN json_build_object('cliente', cliente_info, 'transacoes', transacoes_info);
+  RETURN json_build_object('cliente', cliente_info, 'transactions', transactions_info);
 
 END;
 $$ LANGUAGE plpgsql;

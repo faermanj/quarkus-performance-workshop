@@ -4,14 +4,14 @@ CREATE TABLE clientes (
 	limite INTEGER NOT NULL
 );
 
-CREATE TABLE transacoes (
+CREATE TABLE transactions (
 	id SERIAL PRIMARY KEY,
 	cliente_id INTEGER NOT NULL,
 	valor INTEGER NOT NULL,
 	tipo CHAR(1) NOT NULL,
 	descricao VARCHAR(10) NOT NULL,
 	realizada_em TIMESTAMP NOT NULL DEFAULT NOW(),
-	CONSTRAINT fk_clientes_transacoes_id
+	CONSTRAINT fk_clientes_transactions_id
 		FOREIGN KEY (cliente_id) REFERENCES clientes(id)
 );
 
@@ -23,8 +23,8 @@ CREATE TABLE saldos (
 		FOREIGN KEY (cliente_id) REFERENCES clientes(id)
 );
 
-CREATE INDEX idx_transacoes_cliente_id ON transacoes(cliente_id);
-CREATE INDEX idx_transacoes_realizada_em ON transacoes(realizada_em);
+CREATE INDEX idx_transactions_cliente_id ON transactions(cliente_id);
+CREATE INDEX idx_transactions_realizada_em ON transactions(realizada_em);
 CREATE INDEX idx_saldos_cliente_id ON saldos(cliente_id);
 
 DO $$

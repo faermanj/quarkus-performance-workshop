@@ -4,7 +4,7 @@ CREATE TABLE clientes (
 	limite INTEGER NOT NULL
 );
 
-CREATE TABLE transacoes (
+CREATE TABLE transactions (
 	id SERIAL PRIMARY KEY,
 	cliente_id INTEGER NOT NULL,
 	valor INTEGER NOT NULL,
@@ -12,7 +12,7 @@ CREATE TABLE transacoes (
 	descricao VARCHAR(10) NOT NULL,
 	realizada_em VARCHAR(30) NOT NULL,
 	--realizada_em TIMESTAMP NOT NULL DEFAULT NOW(),
-	CONSTRAINT fk_clientes_transacoes_id
+	CONSTRAINT fk_clientes_transactions_id
 		FOREIGN KEY (cliente_id) REFERENCES clientes(id)
 );
 
@@ -58,7 +58,7 @@ BEGIN
 	WHERE c.id = cliente_id_tx;
 
 	IF saldo_atual - valor_tx >= limite_atual * -1 THEN
-		INSERT INTO transacoes
+		INSERT INTO transactions
 			VALUES(DEFAULT, cliente_id_tx, valor_tx, 'd', descricao_tx, NOW());
 		
 		UPDATE saldos
@@ -97,7 +97,7 @@ AS $$
 BEGIN
 	PERFORM pg_advisory_xact_lock(cliente_id_tx);
 
-	INSERT INTO transacoes
+	INSERT INTO transactions
 		VALUES(DEFAULT, cliente_id_tx, valor_tx, 'c', descricao_tx, NOW());
 
 	RETURN QUERY

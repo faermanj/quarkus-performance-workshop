@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS members (
 			saldo INT DEFAULT 0
 		);
 
-CREATE TABLE IF NOT EXISTS transacoes (
+CREATE TABLE IF NOT EXISTS transactions (
 			id SERIAL PRIMARY KEY,
 			valor INT,
 			tipo CHAR(1),

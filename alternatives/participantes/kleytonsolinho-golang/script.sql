@@ -4,7 +4,7 @@ CREATE TABLE clientes (
   limite INTEGER NOT NULL,
   saldo INTEGER DEFAULT 0
 );
-CREATE TABLE transacoes (
+CREATE TABLE transactions (
   id SERIAL PRIMARY KEY,
   valor INTEGER,
   tipo CHAR(1) CHECK (type IN ('c', 'd')),

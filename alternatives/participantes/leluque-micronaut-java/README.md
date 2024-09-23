@@ -31,7 +31,7 @@ O diagrama de sequências da UML apresentado a seguir (gerado com [PlantUML](htt
          │                             ┌─────┐          ┌──────────┐          ┌──────────┐          ┌──────────┐          
         ┌┴┐                            │Nginx│          │Java API 1│          │Java API 2│          │PostgreSQL│          
       Cliente                          └──┬──┘          └────┬─────┘          └────┬─────┘          └────┬─────┘          
-        ┌┴┐POST /clientes/[id]/transacoes┌┴┐                 │                     │                     │                
+        ┌┴┐POST /clientes/[id]/transactions┌┴┐                 │                     │                     │                
         │ │ ────────────────────────────>│ │                 │                     │                     │                
         │ │                              │ │                 │                     │                     │                
         │ │                              │ │                 │                     │                     │                
@@ -82,7 +82,7 @@ participant "Java API 2" as api2
 participant "PostgreSQL" as db
 
 activate client
-client ->loadBalancer : POST /clientes/[id]/transacoes
+client ->loadBalancer : POST /clientes/[id]/transactions
 
 alt "Se API 1 usando estratégia Round Robin"
   loadBalancer -> api1 : Send request
@@ -162,7 +162,7 @@ interface Contas << interface >> {
     + obterContaPorIdCliente(long idCliente):Mono<Conta>
     + obterContaPorIdClienteEBloquearParaAtualizacao(idCliente:long):Mono<Conta>
     + atualizar(conta:Conta):Mono<Long>
-    + obterTransacoesDaContaParaExtrato(idCliente:long):Flux<Transacao>
+    + obtertransactionsDaContaParaExtrato(idCliente:long):Flux<Transacao>
     + realizarTransacao(idCliente:long, tipo:String, valorEmCentavos:long, descricao:String):Mono<Long>
 }
 
@@ -189,7 +189,7 @@ class "ContaRepositorioR2DBC" {
     + findByIdCliente(idCliente:long):Mono<Conta>
     + obterContaPorIdClienteEBloquearParaAtualizacao(idCliente:long):Mono<Conta>
     + update(conta:Conta):Mono<Long>
-    + obterTransacoesDaContaParaExtrato(idCliente:long):Flux<Transacao>
+    + obtertransactionsDaContaParaExtrato(idCliente:long):Flux<Transacao>
     + realizarTransacao(idCliente:long, tipo:String, valorEmCentavos:long, descricao:String):Mono<Long>
 }
 

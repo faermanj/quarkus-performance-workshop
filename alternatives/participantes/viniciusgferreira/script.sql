@@ -16,7 +16,7 @@ VALUES
     (5, 'kid mais', 5000 * 100);
 COMMIT;
 
-CREATE TABLE IF NOT EXISTS transacoes (
+CREATE TABLE IF NOT EXISTS transactions (
     id SERIAL PRIMARY KEY,
     cliente_id int NOT NULL,
     valor int NOT NULL,

@@ -22,7 +22,7 @@ CREATE UNLOGGED TABLE public.historico_cliente (
     descricao VARCHAR(10) NOT NULL,
     realizada_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
-CREATE INDEX idx_transacoes_cliente_id ON public.historico_cliente (id_cliente);
+CREATE INDEX idx_transactions_cliente_id ON public.historico_cliente (id_cliente);
 
 ALTER TABLE ONLY public.historico_cliente
     ADD CONSTRAINT historico_cliente_fk FOREIGN KEY (id_cliente) REFERENCES cliente(id);

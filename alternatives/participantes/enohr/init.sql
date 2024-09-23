@@ -5,7 +5,7 @@ CREATE UNLOGGED TABLE IF NOT EXISTS users (
     CONSTRAINT chk_limite CHECK (-saldo <= limite)
 );
 
-CREATE UNLOGGED TABLE IF NOT EXISTS transacoes (
+CREATE UNLOGGED TABLE IF NOT EXISTS transactions (
     id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL,
     valor INTEGER NOT NULL,
@@ -15,8 +15,8 @@ CREATE UNLOGGED TABLE IF NOT EXISTS transacoes (
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
-CREATE INDEX idx_transacoes_realizada_em ON transacoes(realizada_em DESC, user_id);
-CREATE INDEX idx_transacoes_user_id ON transacoes(user_id);
+CREATE INDEX idx_transactions_realizada_em ON transactions(realizada_em DESC, user_id);
+CREATE INDEX idx_transactions_user_id ON transactions(user_id);
 
 INSERT INTO users(id, limite)
 VALUES 

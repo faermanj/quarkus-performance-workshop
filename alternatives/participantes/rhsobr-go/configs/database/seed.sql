@@ -13,4 +13,4 @@ SELECT
     pg_prewarm('members');
 
 SELECT
-    pg_prewarm('transacoes');
+    pg_prewarm('transactions');

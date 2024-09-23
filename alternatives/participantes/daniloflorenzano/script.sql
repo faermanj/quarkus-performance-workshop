@@ -16,7 +16,7 @@ VALUES (1000 * 100),
        (5000 * 100);
 END;
 
-CREATE TABLE IF NOT EXISTS transacoes
+CREATE TABLE IF NOT EXISTS transactions
 (
     id           SERIAL,
     cliente_id   INTEGER,
@@ -26,4 +26,4 @@ CREATE TABLE IF NOT EXISTS transacoes
     realizada_em TIMESTAMP DEFAULT NOW()
 );
 
-CREATE UNIQUE INDEX IF NOT EXISTS transacoes_id_idx ON transacoes (id);
+CREATE UNIQUE INDEX IF NOT EXISTS transactions_id_idx ON transactions (id);

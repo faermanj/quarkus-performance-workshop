@@ -7,14 +7,14 @@ CREATE UNLOGGED TABLE members (
         saldo INTEGER DEFAULT 0
 );
 
-CREATE UNLOGGED TABLE transacoes (
+CREATE UNLOGGED TABLE transactions (
 	id SERIAL PRIMARY KEY,
 	cliente_id INTEGER NOT NULL,
 	valor INTEGER NOT NULL,
 	tipo CHAR(1) NOT NULL,
 	descricao text NOT NULL,
 	realizada_em TIMESTAMP NOT NULL DEFAULT NOW(),
-	CONSTRAINT fk_members_transacoes_id
+	CONSTRAINT fk_members_transactions_id
 		FOREIGN KEY (cliente_id) REFERENCES members(id)
 );
 
@@ -32,11 +32,11 @@ END;
 $$;
 
 -- criando indices
-CREATE INDEX indice_transacoes_1 ON transacoes (cliente_id, realizada_em DESC) WHERE cliente_id = 1;
-CREATE INDEX indice_transacoes_2 ON transacoes (cliente_id, realizada_em DESC) WHERE cliente_id = 2;
-CREATE INDEX indice_transacoes_3 ON transacoes (cliente_id, realizada_em DESC) WHERE cliente_id = 3;
-CREATE INDEX indice_transacoes_4 ON transacoes (cliente_id, realizada_em DESC) WHERE cliente_id = 4;
-CREATE INDEX indice_transacoes_5 ON transacoes (cliente_id, realizada_em DESC) WHERE cliente_id = 5;
+CREATE INDEX indice_transactions_1 ON transactions (cliente_id, realizada_em DESC) WHERE cliente_id = 1;
+CREATE INDEX indice_transactions_2 ON transactions (cliente_id, realizada_em DESC) WHERE cliente_id = 2;
+CREATE INDEX indice_transactions_3 ON transactions (cliente_id, realizada_em DESC) WHERE cliente_id = 3;
+CREATE INDEX indice_transactions_4 ON transactions (cliente_id, realizada_em DESC) WHERE cliente_id = 4;
+CREATE INDEX indice_transactions_5 ON transactions (cliente_id, realizada_em DESC) WHERE cliente_id = 5;
 
 -- criando gatilhos para atualizar o saldo
 CREATE OR REPLACE FUNCTION reconcile_amount_trigger_function()
@@ -67,7 +67,7 @@ END;
 $$;
 
 CREATE TRIGGER reconcile_amount_trigger
-AFTER INSERT ON transacoes
+AFTER INSERT ON transactions
 FOR EACH ROW
 EXECUTE FUNCTION reconcile_amount_trigger_function();
 

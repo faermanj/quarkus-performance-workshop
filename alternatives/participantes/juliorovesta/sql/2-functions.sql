@@ -54,7 +54,7 @@ BEGIN
 					tipo,
 					descricao,
 					realizada_em
-				FROM transacoes
+				FROM transactions
 				WHERE cliente_id = clienteId
 				ORDER BY realizada_Em DESC
 				FETCH FIRST 10 ROWS ONLY
@@ -140,7 +140,7 @@ BEGIN
 		-- RAISE EXCEPTION '[LIMIT_EXCEEDED]::O novo saldo do cliente excede o limite permitido.';
 	END IF;
 
-	INSERT INTO transacoes (cliente_id, valor, tipo, descricao, realizada_em, saldo)
+	INSERT INTO transactions (cliente_id, valor, tipo, descricao, realizada_em, saldo)
 	VALUES (
 	  clienteId, valor, tipo, descricao, realizadaEm, v_saldo_atual_cliente.saldo
 	);

@@ -37,7 +37,7 @@ DECLARE
 BEGIN
     SELECT json_build_object(
         'saldo', (SELECT * FROM json_build_object('total', c.balance, 'data_extrato', current_timestamp, 'limite', c.withdraw_limit)),
-        'ultimas_transacoes', (
+        'ultimas_transactions', (
             SELECT COALESCE(json_agg(trx.*), '[]'::json) 
                 FROM (
                     SELECT t.description as "descricao", t.type as "tipo", t.value as "valor", t.created_at AS "realizada_em" 

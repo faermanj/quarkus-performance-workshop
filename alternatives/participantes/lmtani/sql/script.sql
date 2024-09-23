@@ -10,7 +10,7 @@ CREATE UNLOGGED TABLE clientes (
     saldo INTEGER DEFAULT 0
 );
 
-CREATE UNLOGGED TABLE transacoes (
+CREATE UNLOGGED TABLE transactions (
     id SERIAL PRIMARY KEY,
     cliente_id INTEGER NOT NULL REFERENCES clientes(id),
     valor INTEGER NOT NULL,
@@ -19,7 +19,7 @@ CREATE UNLOGGED TABLE transacoes (
     descricao VARCHAR(255)
 );
 
-CREATE INDEX idx_cliente_id_data ON transacoes (cliente_id, realizada_em DESC);
+CREATE INDEX idx_cliente_id_data ON transactions (cliente_id, realizada_em DESC);
 
 INSERT INTO clientes (nome, limite) VALUES
     ('o barato sai caro', 1000 * 100),

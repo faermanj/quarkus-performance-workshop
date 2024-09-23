@@ -5,7 +5,7 @@ CREATE TABLE clientes (
   saldo INTEGER NOT NULL DEFAULT 0
 );
 
-CREATE TABLE transacoes (
+CREATE TABLE transactions (
   id SERIAL PRIMARY KEY NOT NULL,
   id_cliente INTEGER NOT NULL,
   valor INTEGER NOT NULL,
@@ -34,11 +34,11 @@ BEGIN
     SELECT saldo, limite INTO c_saldo, c_limite FROM clientes WHERE id = t_id_cliente FOR UPDATE;
     IF t_tipo = 'c' THEN
       UPDATE clientes SET saldo = c_saldo + t_valor WHERE id = t_id_cliente;
-      INSERT INTO transacoes (id_cliente, valor, tipo, descricao, realizada_em) VALUES (t_id_cliente, t_valor, t_tipo, t_descricao, CURRENT_TIMESTAMP);
+      INSERT INTO transactions (id_cliente, valor, tipo, descricao, realizada_em) VALUES (t_id_cliente, t_valor, t_tipo, t_descricao, CURRENT_TIMESTAMP);
     ELSE
       IF c_saldo - t_valor >= c_limite * -1 THEN
         UPDATE clientes SET saldo = c_saldo - t_valor WHERE id = t_id_cliente;
-        INSERT INTO transacoes (id_cliente, valor, tipo, descricao, realizada_em) VALUES (t_id_cliente, t_valor, t_tipo, t_descricao, CURRENT_TIMESTAMP);
+        INSERT INTO transactions (id_cliente, valor, tipo, descricao, realizada_em) VALUES (t_id_cliente, t_valor, t_tipo, t_descricao, CURRENT_TIMESTAMP);
       ELSE
         RAISE EXCEPTION 'transação ultrapassa o limite disponível';
       END IF;

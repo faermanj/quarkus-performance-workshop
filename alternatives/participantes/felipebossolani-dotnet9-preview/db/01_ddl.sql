@@ -4,7 +4,7 @@ CREATE UNLOGGED TABLE clientes (
     limite integer NOT NULL
 );
 
-CREATE UNLOGGED TABLE transacoes (
+CREATE UNLOGGED TABLE transactions (
     id SERIAL PRIMARY KEY,
     tipo char(1) NOT NULL,
     valor integer NOT NULL,
@@ -13,11 +13,11 @@ CREATE UNLOGGED TABLE transacoes (
     idcliente integer NOT NULL
 );
 
-ALTER TABLE transacoes
-ADD CONSTRAINT fk_transacoes_clientes
+ALTER TABLE transactions
+ADD CONSTRAINT fk_transactions_clientes
 FOREIGN KEY (idcliente) REFERENCES clientes(id);
 
-CREATE INDEX ix_transacoes_idcliente ON transacoes
+CREATE INDEX ix_transactions_idcliente ON transactions
 (
     idcliente ASC
 );

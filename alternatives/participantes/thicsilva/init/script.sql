@@ -36,11 +36,11 @@ insert  into `members`(`id`,`nome`,`limite`,`saldo`) values (3,'les cruders',100
 insert  into `members`(`id`,`nome`,`limite`,`saldo`) values (4,'padaria joia de cocaia',10000000,0);
 insert  into `members`(`id`,`nome`,`limite`,`saldo`) values (5,'kid mais',500000,0);
 
-/*Table structure for table `transacoes` */
+/*Table structure for table `transactions` */
 
-DROP TABLE IF EXISTS `transacoes`;
+DROP TABLE IF EXISTS `transactions`;
 
-CREATE TABLE `transacoes` (
+CREATE TABLE `transactions` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `cliente_id` int(11) NOT NULL,
   `valor` int(11) NOT NULL,
@@ -53,15 +53,15 @@ CREATE TABLE `transacoes` (
   CONSTRAINT `fk_transacao_cliente` FOREIGN KEY (`cliente_id`) REFERENCES `members` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-/*Data for the table `transacoes` */
+/*Data for the table `transactions` */
 
-/* Procedure structure for procedure `SalvarTransacoes` */
+/* Procedure structure for procedure `Salvartransactions` */
 
-/*!50003 DROP PROCEDURE IF EXISTS  `SalvarTransacoes` */;
+/*!50003 DROP PROCEDURE IF EXISTS  `Salvartransactions` */;
 
 DELIMITER $$
 
-/*!50003 CREATE DEFINER=`root`@`localhost` PROCEDURE `SalvarTransacoes`(p_cliente_id INT, p_valor INT, p_tipo CHAR(1), p_descricao VARCHAR(10), OUT o_saldo INT, out o_limite int)
+/*!50003 CREATE DEFINER=`root`@`localhost` PROCEDURE `Salvartransactions`(p_cliente_id INT, p_valor INT, p_tipo CHAR(1), p_descricao VARCHAR(10), OUT o_saldo INT, out o_limite int)
 BEGIN	
 	DECLARE diff INT;
         DECLARE res INT;    
@@ -83,7 +83,7 @@ BEGIN
             ROLLBACK;
         else        
             UPDATE members SET saldo = n_saldo WHERE id=p_cliente_id;               
-            INSERT INTO transacoes (cliente_id, valor, tipo, descricao) VALUES (p_cliente_id, p_valor, p_tipo, p_descricao);
+            INSERT INTO transactions (cliente_id, valor, tipo, descricao) VALUES (p_cliente_id, p_valor, p_tipo, p_descricao);
             SELECT saldo, limite INTO o_saldo, o_limite FROM members WHERE id=p_cliente_id;
             COMMIT;
         END IF;

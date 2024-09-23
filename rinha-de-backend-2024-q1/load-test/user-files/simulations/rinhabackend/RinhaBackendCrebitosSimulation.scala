@@ -68,7 +68,7 @@ class RinhaBackendCrebitosSimulation
     }
     .exec(
       http("débitos")
-      .post(s => s"/members/${s("cliente_id").as[String]}/transacoes")
+      .post(s => s"/members/${s("cliente_id").as[String]}/transactions")
           .header("content-type", "application/json")
           .body(StringBody(s => s("payload").as[String]))
           .check(
@@ -91,7 +91,7 @@ class RinhaBackendCrebitosSimulation
     }
     .exec(
       http("créditos")
-      .post(s => s"/members/${s("cliente_id").as[String]}/transacoes")
+      .post(s => s"/members/${s("cliente_id").as[String]}/transactions")
           .header("content-type", "application/json")
           .body(StringBody(s => s("payload").as[String]))
           .check(
@@ -112,17 +112,17 @@ class RinhaBackendCrebitosSimulation
   )
 
   val validacaConcorrentesNumRequests = 25
-  val validacaoTransacoesConcorrentes = (tipo: String) =>
+  val validacaotransactionsConcorrentes = (tipo: String) =>
     scenario(s"validação concorrência transações - ${tipo}")
     .exec(
       http("validações")
-      .post(s"/members/1/transacoes")
+      .post(s"/members/1/transactions")
           .header("content-type", "application/json")
           .body(StringBody(s"""{"valor": 1, "tipo": "${tipo}", "descricao": "validacao"}"""))
           .check(status.is(200))
     )
   
-  val validacaoTransacoesConcorrentesSaldo = (saldoEsperado: Int) =>
+  val validacaotransactionsConcorrentesSaldo = (saldoEsperado: Int) =>
     scenario(s"validação concorrência saldo - ${saldoEsperado}")
     .exec(
       http("validações")
@@ -166,7 +166,7 @@ class RinhaBackendCrebitosSimulation
     )
     .exec(
       http("validações")
-      .post("/members/#{id}/transacoes")
+      .post("/members/#{id}/transactions")
           .header("content-type", "application/json")
           .body(StringBody(s"""{"valor": 1, "tipo": "c", "descricao": "toma"}"""))
           .check(
@@ -177,7 +177,7 @@ class RinhaBackendCrebitosSimulation
     )
     .exec(
       http("validações")
-      .post("/members/#{id}/transacoes")
+      .post("/members/#{id}/transactions")
           .header("content-type", "application/json")
           .body(StringBody(s"""{"valor": 1, "tipo": "d", "descricao": "devolve"}"""))
           .check(
@@ -190,17 +190,17 @@ class RinhaBackendCrebitosSimulation
       http("validações")
       .get("/members/#{id}/extrato")
       .check(
-        jmesPath("ultimas_transacoes[0].descricao").ofType[String].is("devolve"),
-        jmesPath("ultimas_transacoes[0].tipo").ofType[String].is("d"),
-        jmesPath("ultimas_transacoes[0].valor").ofType[Int].is("1"),
-        jmesPath("ultimas_transacoes[1].descricao").ofType[String].is("toma"),
-        jmesPath("ultimas_transacoes[1].tipo").ofType[String].is("c"),
-        jmesPath("ultimas_transacoes[1].valor").ofType[Int].is("1")
+        jmesPath("ultimas_transactions[0].descricao").ofType[String].is("devolve"),
+        jmesPath("ultimas_transactions[0].tipo").ofType[String].is("d"),
+        jmesPath("ultimas_transactions[0].valor").ofType[Int].is("1"),
+        jmesPath("ultimas_transactions[1].descricao").ofType[String].is("toma"),
+        jmesPath("ultimas_transactions[1].tipo").ofType[String].is("c"),
+        jmesPath("ultimas_transactions[1].valor").ofType[Int].is("1")
       )
     )
     .exec( // Consistencia do extrato
       http("validações")
-      .post("/members/#{id}/transacoes")
+      .post("/members/#{id}/transactions")
           .header("content-type", "application/json")
           .body(StringBody(s"""{"valor": 1, "tipo": "c", "descricao": "danada"}"""))
           .check(
@@ -211,30 +211,30 @@ class RinhaBackendCrebitosSimulation
           .resources(
             // 5 consultas simultâneas ao extrato para verificar consistência
             http("validações").get("/members/#{id}/extrato").check(
-              jmesPath("ultimas_transacoes[0].descricao").ofType[String].is("danada"),
-              jmesPath("ultimas_transacoes[0].tipo").ofType[String].is("c"),
-              jmesPath("ultimas_transacoes[0].valor").ofType[Int].is("1"),
+              jmesPath("ultimas_transactions[0].descricao").ofType[String].is("danada"),
+              jmesPath("ultimas_transactions[0].tipo").ofType[String].is("c"),
+              jmesPath("ultimas_transactions[0].valor").ofType[Int].is("1"),
               jmesPath("saldo.limite").ofType[String].is("#{limite}"),
               jmesPath("saldo.total").ofType[String].is("#{saldo}")
             ),
             http("validações").get("/members/#{id}/extrato").check(
-              jmesPath("ultimas_transacoes[0].descricao").ofType[String].is("danada"),
-              jmesPath("ultimas_transacoes[0].tipo").ofType[String].is("c"),
-              jmesPath("ultimas_transacoes[0].valor").ofType[Int].is("1"),
+              jmesPath("ultimas_transactions[0].descricao").ofType[String].is("danada"),
+              jmesPath("ultimas_transactions[0].tipo").ofType[String].is("c"),
+              jmesPath("ultimas_transactions[0].valor").ofType[Int].is("1"),
               jmesPath("saldo.limite").ofType[String].is("#{limite}"),
               jmesPath("saldo.total").ofType[String].is("#{saldo}")
             ),
             http("validações").get("/members/#{id}/extrato").check(
-              jmesPath("ultimas_transacoes[0].descricao").ofType[String].is("danada"),
-              jmesPath("ultimas_transacoes[0].tipo").ofType[String].is("c"),
-              jmesPath("ultimas_transacoes[0].valor").ofType[Int].is("1"),
+              jmesPath("ultimas_transactions[0].descricao").ofType[String].is("danada"),
+              jmesPath("ultimas_transactions[0].tipo").ofType[String].is("c"),
+              jmesPath("ultimas_transactions[0].valor").ofType[Int].is("1"),
               jmesPath("saldo.limite").ofType[String].is("#{limite}"),
               jmesPath("saldo.total").ofType[String].is("#{saldo}")
             ),
             http("validações").get("/members/#{id}/extrato").check(
-              jmesPath("ultimas_transacoes[0].descricao").ofType[String].is("danada"),
-              jmesPath("ultimas_transacoes[0].tipo").ofType[String].is("c"),
-              jmesPath("ultimas_transacoes[0].valor").ofType[Int].is("1"),
+              jmesPath("ultimas_transactions[0].descricao").ofType[String].is("danada"),
+              jmesPath("ultimas_transactions[0].tipo").ofType[String].is("c"),
+              jmesPath("ultimas_transactions[0].valor").ofType[Int].is("1"),
               jmesPath("saldo.limite").ofType[String].is("#{limite}"),
               jmesPath("saldo.total").ofType[String].is("#{saldo}")
             )
@@ -243,35 +243,35 @@ class RinhaBackendCrebitosSimulation
   
   .exec(
       http("validações")
-      .post("/members/#{id}/transacoes")
+      .post("/members/#{id}/transactions")
           .header("content-type", "application/json")
           .body(StringBody(s"""{"valor": 1.2, "tipo": "d", "descricao": "devolve"}"""))
           .check(status.in(422, 400))
     )
     .exec(
       http("validações")
-      .post("/members/#{id}/transacoes")
+      .post("/members/#{id}/transactions")
           .header("content-type", "application/json")
           .body(StringBody(s"""{"valor": 1, "tipo": "x", "descricao": "devolve"}"""))
           .check(status.in(422, 400))
     )
     .exec(
       http("validações")
-      .post("/members/#{id}/transacoes")
+      .post("/members/#{id}/transactions")
           .header("content-type", "application/json")
           .body(StringBody(s"""{"valor": 1, "tipo": "c", "descricao": "123456789 e mais um pouco"}"""))
           .check(status.in(422, 400))
     )
     .exec(
       http("validações")
-      .post("/members/#{id}/transacoes")
+      .post("/members/#{id}/transactions")
           .header("content-type", "application/json")
           .body(StringBody(s"""{"valor": 1, "tipo": "c", "descricao": ""}"""))
           .check(status.in(422, 400))
     )
     .exec(
       http("validações")
-      .post("/members/#{id}/transacoes")
+      .post("/members/#{id}/transactions")
           .header("content-type", "application/json")
           .body(StringBody(s"""{"valor": 1, "tipo": "c", "descricao": null}"""))
           .check(status.in(422, 400))
@@ -283,17 +283,17 @@ class RinhaBackendCrebitosSimulation
     comportam individualmente.
   */
   setUp(
-    validacaoTransacoesConcorrentes("d").inject(
+    validacaotransactionsConcorrentes("d").inject(
       atOnceUsers(validacaConcorrentesNumRequests)
     ).andThen(
-      validacaoTransacoesConcorrentesSaldo(validacaConcorrentesNumRequests * -1).inject(
+      validacaotransactionsConcorrentesSaldo(validacaConcorrentesNumRequests * -1).inject(
         atOnceUsers(1)
       )
     ).andThen(
-      validacaoTransacoesConcorrentes("c").inject(
+      validacaotransactionsConcorrentes("c").inject(
         atOnceUsers(validacaConcorrentesNumRequests)
       ).andThen(
-        validacaoTransacoesConcorrentesSaldo(0).inject(
+        validacaotransactionsConcorrentesSaldo(0).inject(
           atOnceUsers(1)
         )
       )

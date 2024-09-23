@@ -11,7 +11,7 @@ CREATE UNLOGGED TABLE saldos(
 	FOREIGN KEY (cliente_id) REFERENCES clientes(id)
 );
 
-CREATE UNLOGGED TABLE transacoes (
+CREATE UNLOGGED TABLE transactions (
     id SERIAL PRIMARY KEY,
     valor INT NOT NULL,
     tipo CHAR(1) CHECK (tipo IN ('c', 'd')) NOT NULL,

@@ -1,4 +1,4 @@
-create table transacoes (
+create table transactions (
     cliente_id int,
     valor int,
     descricao varchar(10),
@@ -97,8 +97,8 @@ create function creditar(p_cliente_id int, p_valor int, p_descricao varchar(10))
 declare
   saldo_atualizado int;
 begin
---with novo_saldo as (UPDATE saldos SET saldo = saldo + $1 WHERE cliente_id = $2 RETURNING saldo) insert into transacoes (cliente_id, valor, descricao, tipo, saldo) values ($3, $4, $5, $6, (select * from novo_saldo)) returning saldo
-  insert into transacoes (cliente_id, valor, descricao, tipo) values (p_cliente_id, p_valor, p_descricao, 'c');
+--with novo_saldo as (UPDATE saldos SET saldo = saldo + $1 WHERE cliente_id = $2 RETURNING saldo) insert into transactions (cliente_id, valor, descricao, tipo, saldo) values ($3, $4, $5, $6, (select * from novo_saldo)) returning saldo
+  insert into transactions (cliente_id, valor, descricao, tipo) values (p_cliente_id, p_valor, p_descricao, 'c');
   update saldos set saldo = saldo + p_valor,
     transacao_0_valor = p_valor,
     transacao_0_tipo = 'c',
@@ -149,8 +149,8 @@ create function debitar(p_cliente_id int, p_valor int, p_descricao varchar(10)) 
 declare
   saldo_atualizado int;
 begin
---with novo_saldo as (UPDATE saldos SET saldo = saldo + $1 WHERE cliente_id = $2 RETURNING saldo) insert into transacoes (cliente_id, valor, descricao, tipo, saldo) values ($3, $4, $5, $6, (select * from novo_saldo)) returning saldo
-  insert into transacoes (cliente_id, valor, descricao, tipo) values (p_cliente_id, p_valor, p_descricao, 'd');
+--with novo_saldo as (UPDATE saldos SET saldo = saldo + $1 WHERE cliente_id = $2 RETURNING saldo) insert into transactions (cliente_id, valor, descricao, tipo, saldo) values ($3, $4, $5, $6, (select * from novo_saldo)) returning saldo
+  insert into transactions (cliente_id, valor, descricao, tipo) values (p_cliente_id, p_valor, p_descricao, 'd');
   update saldos set saldo = saldo - p_valor,
     transacao_0_valor = p_valor,
     transacao_0_tipo = 'd',

@@ -27,7 +27,7 @@ BEGIN
         RAISE 'LIMITE_INDISPONIVEL [%, %, %]', v_saldo, diff, v_limite;
     ELSE
         result := (v_saldo, v_limite)::transacao_result;
-        INSERT INTO transacoes (cliente_id, valor, tipo, descricao)
+        INSERT INTO transactions (cliente_id, valor, tipo, descricao)
             VALUES (p_cliente_id, p_valor, p_tipo, p_descricao);
         RETURN result;
     END IF;

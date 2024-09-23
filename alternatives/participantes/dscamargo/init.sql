@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS "clientes" (
 
 CREATE INDEX clientes_id_idx ON "clientes" USING HASH(id);
 
-CREATE TABLE IF NOT EXISTS "transacoes" (
+CREATE TABLE IF NOT EXISTS "transactions" (
                                             "id" serial PRIMARY KEY NOT NULL,
                                             "cliente_id" integer NOT NULL ,
                                             "valor" integer NOT NULL,
@@ -16,8 +16,8 @@ CREATE TABLE IF NOT EXISTS "transacoes" (
                                             "realizado_em" timestamp NOT NULL DEFAULT now()
 );
 
-CREATE INDEX transacoes_id_idx ON "transacoes" USING HASH(id);
-CREATE INDEX transacoes_cliente_id_idx ON "transacoes" USING HASH(cliente_id);
+CREATE INDEX transactions_id_idx ON "transactions" USING HASH(id);
+CREATE INDEX transactions_cliente_id_idx ON "transactions" USING HASH(cliente_id);
 
 create or replace procedure criar_transacao(
     id_cliente INTEGER,
@@ -41,7 +41,7 @@ begin
 
     commit;
 
-    INSERT INTO transacoes (valor, tipo, descricao, cliente_id)
+    INSERT INTO transactions (valor, tipo, descricao, cliente_id)
     VALUES (ABS(valor), tipo, descricao, id_cliente);
 end;
 $$;

@@ -6,7 +6,7 @@ CREATE TABLE if NOT EXISTS members (
     saldo INTEGER NOT NULL
   );
 
-CREATE TABLE if NOT EXISTS transacoes (
+CREATE TABLE if NOT EXISTS transactions (
   id SERIAL PRIMARY KEY,
   valor INTEGER NOT NULL,
   descricao VARCHAR(100) NOT NULL,
@@ -18,7 +18,7 @@ CREATE TABLE if NOT EXISTS transacoes (
 
 CREATE EXTENSION IF NOT EXISTS pg_prewarm;
 SELECT pg_prewarm('members');
-SELECT pg_prewarm( 'transacoes');
+SELECT pg_prewarm( 'transactions');
 
 create or replace function altera_saldo_cliente(
   cliente_id integer, 

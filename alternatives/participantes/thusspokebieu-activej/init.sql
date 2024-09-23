@@ -6,19 +6,19 @@ CREATE UNLOGGED TABLE IF NOT EXISTS members (
 
 CREATE INDEX IF NOT EXISTS idx_members ON members USING btree(id);
 
-CREATE UNLOGGED TABLE IF NOT EXISTS transacoes (
+CREATE UNLOGGED TABLE IF NOT EXISTS transactions (
 	id SERIAL PRIMARY KEY,
 	cliente_id INTEGER NOT NULL,
 	valor INTEGER NOT NULL,
 	tipo CHAR NOT NULL,
 	descricao VARCHAR(10) NOT NULL,
 	realizada_em TIMESTAMP NOT NULL DEFAULT NOW(),
-	CONSTRAINT fk_members_transacoes_id
+	CONSTRAINT fk_members_transactions_id
 		FOREIGN KEY (cliente_id) REFERENCES members(id)
     ON DELETE CASCADE
 );
 
-CREATE INDEX IF NOT EXISTS idx_transacoes_cliente_id ON transacoes USING btree(cliente_id);
+CREATE INDEX IF NOT EXISTS idx_transactions_cliente_id ON transactions USING btree(cliente_id);
 
 DO $$
 BEGIN
@@ -40,7 +40,7 @@ CREATE OR REPLACE FUNCTION extrato(_cliente_id INTEGER)
 RETURNS JSON AS $$
 DECLARE
     saldo JSON;
-    ultimas_transacoes JSON;
+    ultimas_transactions JSON;
 BEGIN
     SELECT
         json_build_object(
@@ -70,7 +70,7 @@ BEGIN
             ELSE '[]'::JSON
         END
     INTO
-        ultimas_transacoes
+        ultimas_transactions
     FROM (
         SELECT
             valor,
@@ -78,7 +78,7 @@ BEGIN
             descricao,
             realizada_em
         FROM
-            transacoes
+            transactions
         WHERE
             cliente_id = _cliente_id
         ORDER BY
@@ -88,7 +88,7 @@ BEGIN
 
     RETURN json_build_object(
         'saldo', saldo,
-        'ultimas_transacoes', ultimas_transacoes
+        'ultimas_transactions', ultimas_transactions
     );
 END;
 $$ LANGUAGE plpgsql;
@@ -110,7 +110,7 @@ BEGIN
             SET saldo = saldo + _valor 
             WHERE id = _cliente_id 
             RETURNING json_build_object('limite', limite, 'saldo', saldo) INTO resultado;
-            INSERT INTO transacoes(cliente_id, valor, tipo, descricao)
+            INSERT INTO transactions(cliente_id, valor, tipo, descricao)
             VALUES (_cliente_id, _valor, _tipo, _descricao);
             status := 200;
         ELSIF _tipo = 'd' THEN
@@ -120,7 +120,7 @@ BEGIN
             RETURNING json_build_object('limite', limite, 'saldo', saldo) INTO resultado;
             
             IF FOUND THEN 
-              INSERT INTO transacoes(cliente_id, valor, tipo, descricao)
+              INSERT INTO transactions(cliente_id, valor, tipo, descricao)
               VALUES (_cliente_id, _valor, _tipo, _descricao);
               status := 200;
             ELSE 
@@ -137,6 +137,6 @@ LANGUAGE plpgsql;
 
 CREATE EXTENSION IF NOT EXISTS pg_prewarm;
 SELECT pg_prewarm('members');
-SELECT pg_prewarm('transacoes');
+SELECT pg_prewarm('transactions');
 SELECT pg_prewarm('idx_members');
-SELECT pg_prewarm('idx_transacoes_cliente_id');
+SELECT pg_prewarm('idx_transactions_cliente_id');

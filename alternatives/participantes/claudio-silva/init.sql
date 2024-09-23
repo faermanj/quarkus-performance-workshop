@@ -18,18 +18,18 @@ VALUES
     ('padaria joia de cocaia', 100000 * 100),
     ('kid mais', 5000 * 100);
 
-CREATE TABLE IF NOT EXISTS transacoes (
+CREATE TABLE IF NOT EXISTS transactions (
                                           id SERIAL PRIMARY KEY,
                                           cliente_id INTEGER NOT NULL,
                                           valor INTEGER NOT NULL,
                                           tipo CHAR(1) NOT NULL,
                                           descricao VARCHAR(10) NOT NULL,
                                           realizada_em TIMESTAMP NOT NULL DEFAULT NOW(),
-                                          CONSTRAINT fk_clientes_transacoes_id
+                                          CONSTRAINT fk_clientes_transactions_id
                                               FOREIGN KEY (cliente_id) REFERENCES clientes(id)
 );
 
-CREATE INDEX IF NOT EXISTS transacoes_clientes_id ON transacoes (cliente_id);
+CREATE INDEX IF NOT EXISTS transactions_clientes_id ON transactions (cliente_id);
 
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
@@ -51,16 +51,16 @@ VALUES
     ('padaria joia de cocaia', 100000 * 100),
     ('kid mais', 5000 * 100);
 
-CREATE TABLE IF NOT EXISTS transacoes (
+CREATE TABLE IF NOT EXISTS transactions (
                                           id SERIAL PRIMARY KEY,
                                           cliente_id INTEGER NOT NULL,
                                           valor INTEGER NOT NULL,
                                           tipo CHAR(1) NOT NULL,
                                           descricao VARCHAR(10) NOT NULL,
                                           realizada_em TIMESTAMP NOT NULL DEFAULT NOW(),
-                                          CONSTRAINT fk_clientes_transacoes_id
+                                          CONSTRAINT fk_clientes_transactions_id
                                               FOREIGN KEY (cliente_id) REFERENCES clientes(id)
 );
 
-CREATE INDEX IF NOT EXISTS transacoes_clientes_id ON transacoes (cliente_id);
+CREATE INDEX IF NOT EXISTS transactions_clientes_id ON transactions (cliente_id);
 

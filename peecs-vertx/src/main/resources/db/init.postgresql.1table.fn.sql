@@ -1,4 +1,4 @@
-CREATE UNLOGGED TABLE transacoes (
+CREATE UNLOGGED TABLE transactions (
 	id SERIAL PRIMARY KEY,
 	cliente_id INTEGER NOT NULL,
 	valor INTEGER NOT NULL,
@@ -8,7 +8,7 @@ CREATE UNLOGGED TABLE transacoes (
     saldo INTEGER NOT NULL
 );
 
-INSERT INTO transacoes (cliente_id, valor, tipo, descricao, realizada_em, saldo) VALUES
+INSERT INTO transactions (cliente_id, valor, tipo, descricao, realizada_em, saldo) VALUES
     (1 , 0, 'c', 'init', clock_timestamp(), 0),
     (2 , 0, 'c', 'init', clock_timestamp(), 0),
     (3 , 0, 'c', 'init', clock_timestamp(), 0),
@@ -17,7 +17,7 @@ INSERT INTO transacoes (cliente_id, valor, tipo, descricao, realizada_em, saldo)
 
 
 CREATE EXTENSION IF NOT EXISTS pg_prewarm;
-SELECT pg_prewarm('transacoes');
+SELECT pg_prewarm('transactions');
 
 
 CREATE OR REPLACE FUNCTION limite_cliente(p_cliente_id INTEGER)
@@ -49,13 +49,13 @@ BEGIN
     -- PERFORM pg_try_advisory_xact_lock(p_cliente_id);
     -- PERFORM pg_advisory_xact_lock(p_cliente_id);
     -- lock table members in ACCESS EXCLUSIVE mode;
-    -- lock table transacoes in ACCESS EXCLUSIVE mode;
+    -- lock table transactions in ACCESS EXCLUSIVE mode;
 
     -- invoke limite_cliente into v_limite
     SELECT limite_cliente(p_cliente_id) INTO v_limite;
     
     SELECT saldo 
-        FROM transacoes
+        FROM transactions
         WHERE id = p_cliente_id
         ORDER BY realizada_em DESC
         LIMIT 1
@@ -71,7 +71,7 @@ BEGIN
     END IF;
 
     
-    INSERT INTO transacoes 
+    INSERT INTO transactions 
                      (cliente_id,   valor,   tipo,   descricao,      realizada_em, saldo)
             VALUES (p_cliente_id, p_valor, p_tipo, p_descricao, clock_timestamp(), v_saldo + diff);
 
@@ -98,11 +98,11 @@ BEGIN
     -- PERFORM pg_try_advisory_lock(p_cliente_id);
     -- PERFORM pg_advisory_xact_lock(p_cliente_id);
     -- lock table members in ACCESS EXCLUSIVE mode;
-    -- lock table transacoes in ACCESS EXCLUSIVE mode;
+    -- lock table transactions in ACCESS EXCLUSIVE mode;
 
     SELECT saldo 
         INTO v_saldo
-        FROM transacoes
+        FROM transactions
         WHERE id = p_cliente_id
         ORDER BY realizada_em DESC
         LIMIT 1;
@@ -118,10 +118,10 @@ BEGIN
             'data_extrato', TO_CHAR(clock_timestamp(), 'YYYY-MM-DD HH:MI:SS.US'),
             'limite', v_limite
         ),
-        'ultimas_transacoes', COALESCE((
+        'ultimas_transactions', COALESCE((
             SELECT json_agg(row_to_json(t)) FROM (
                 SELECT valor, tipo, descricao, TO_CHAR(realizada_em, 'YYYY-MM-DD HH:MI:SS.US') as realizada_em
-                FROM transacoes
+                FROM transactions
                 WHERE cliente_id = p_cliente_id
                 ORDER BY realizada_em DESC
                 -- ORDER BY id DESC

@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS members (
     saldo INT NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS transacoes (
+CREATE TABLE IF NOT EXISTS transactions (
     id SERIAL PRIMARY KEY,
     cliente_id INT NOT NULL,
     valor INT NOT NULL,

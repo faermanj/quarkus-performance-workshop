@@ -10,7 +10,7 @@ CREATE TABLE saldos (
     saldo INT NOT NULL
 );
 
-CREATE TABLE transacoes (
+CREATE TABLE transactions (
     id SERIAL PRIMARY KEY,
     cliente_id INT NOT NULL,
     descricao VARCHAR(10) NOT NULL,
@@ -21,7 +21,7 @@ CREATE TABLE transacoes (
 
 -- indexes
 
-CREATE INDEX idx_transacaos_cliente_id ON transacoes (cliente_id, id DESC);
+CREATE INDEX idx_transacaos_cliente_id ON transactions (cliente_id, id DESC);
 
 -- functions
 
@@ -33,7 +33,7 @@ BEGIN
     PERFORM pg_advisory_xact_lock(fn_cliente_id);
 	
     IF fn_tipo = 'c' THEN 
-        INSERT INTO transacoes (cliente_id, descricao, tipo, valor) 
+        INSERT INTO transactions (cliente_id, descricao, tipo, valor) 
             VALUES(fn_cliente_id, fn_descricao, 'c', fn_valor);
 
         RETURN QUERY
@@ -49,7 +49,7 @@ BEGIN
         END IF;
 
         IF v_saldo - fn_valor >= v_limite * -1 THEN 
-            INSERT INTO transacoes (cliente_id, descricao, tipo, valor) 
+            INSERT INTO transactions (cliente_id, descricao, tipo, valor) 
             VALUES(fn_cliente_id, fn_descricao, fn_tipo, fn_valor);
             
             RETURN QUERY

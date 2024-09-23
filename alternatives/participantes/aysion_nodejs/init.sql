@@ -7,7 +7,7 @@ CREATE TABLE clientes (
 	saldo INT DEFAULT 0
 );
 
-CREATE TABLE transacoes (
+CREATE TABLE transactions (
 	id INT AUTO_INCREMENT PRIMARY KEY,
 	cliente_id INT,
 	valor INT,

@@ -4,14 +4,14 @@ CREATE TABLE members (
 	limite INTEGER NOT NULL
 );
 
-CREATE TABLE transacoes (
+CREATE TABLE transactions (
 	id SERIAL PRIMARY KEY,
 	cliente_id INTEGER NOT NULL,
 	valor INTEGER NOT NULL,
 	tipo CHAR(1) NOT NULL,
 	descricao VARCHAR(10) NOT NULL,
 	realizada_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-	CONSTRAINT fk_members_transacoes_id
+	CONSTRAINT fk_members_transactions_id
 		FOREIGN KEY (cliente_id) REFERENCES members(id)
 );
 
@@ -57,7 +57,7 @@ BEGIN
 
 	IF result.efetuado = false THEN
 		UPDATE saldos SET valor = novo_saldo WHERE cliente_id = uclient_id;
-		INSERT INTO transacoes (cliente_id, valor, tipo, descricao) VALUES (uclient_id, uvalor, utipo, udescricao);
+		INSERT INTO transactions (cliente_id, valor, tipo, descricao) VALUES (uclient_id, uvalor, utipo, udescricao);
 	END IF;
 
 	result.limite := climite;

@@ -9,7 +9,7 @@ CREATE TABLE clientes (
 
 
 -- Criação da tabela de histórico de transações
-CREATE TABLE historico_transacoes (
+CREATE TABLE historico_transactions (
     id SERIAL,
     id_cliente INT,
     valor INT,
@@ -19,15 +19,15 @@ CREATE TABLE historico_transacoes (
     PRIMARY KEY (id, id_cliente) -- Inclua a coluna id_cliente na chave primária
 ) PARTITION BY LIST (id_cliente);
 
-CREATE TABLE historico_transacoes_cliente_1 PARTITION OF historico_transacoes
+CREATE TABLE historico_transactions_cliente_1 PARTITION OF historico_transactions
     FOR VALUES IN (1);
-CREATE TABLE historico_transacoes_cliente_2 PARTITION OF historico_transacoes
+CREATE TABLE historico_transactions_cliente_2 PARTITION OF historico_transactions
     FOR VALUES IN (2);
-CREATE TABLE historico_transacoes_cliente_3 PARTITION OF historico_transacoes
+CREATE TABLE historico_transactions_cliente_3 PARTITION OF historico_transactions
     FOR VALUES IN (3);
-CREATE TABLE historico_transacoes_cliente_4 PARTITION OF historico_transacoes
+CREATE TABLE historico_transactions_cliente_4 PARTITION OF historico_transactions
     FOR VALUES IN (4);     
-CREATE TABLE historico_transacoes_cliente_5 PARTITION OF historico_transacoes
+CREATE TABLE historico_transactions_cliente_5 PARTITION OF historico_transactions
     FOR VALUES IN (5);     
 
 -- Inserção de dados iniciais na tabela de clientes

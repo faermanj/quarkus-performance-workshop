@@ -4,7 +4,7 @@ CREATE UNLOGGED TABLE members (
        valor INTEGER
 );
 
-CREATE UNLOGGED TABLE transacoes (
+CREATE UNLOGGED TABLE transactions (
 --          id SERIAL PRIMARY KEY,
 --          cliente_id INTEGER NOT NULL,
 --          valor INTEGER NOT NULL,
@@ -18,11 +18,11 @@ CREATE UNLOGGED TABLE transacoes (
          tipo CHAR(1),
          descricao VARCHAR(10),
          realizada_em TIMESTAMP
---          CONSTRAINT fk_members_transacoes_id
+--          CONSTRAINT fk_members_transactions_id
 --              FOREIGN KEY (cliente_id) REFERENCES members(id)
 );
 
-CREATE INDEX idx_transacoes_cliente_id ON transacoes(cliente_id, realizada_em);
+CREATE INDEX idx_transactions_cliente_id ON transactions(cliente_id, realizada_em);
 
 INSERT INTO members (id, limite, valor)
     VALUES
@@ -58,8 +58,8 @@ SELECT pg_prewarm('members');
 --     -- Update members
 --     UPDATE members SET valor = client.valor WHERE id = transaction_client_id;
 --
---     -- Insert into transacoes
---     INSERT INTO transacoes(valor, cliente_id, tipo, descricao, realizada_em)
+--     -- Insert into transactions
+--     INSERT INTO transactions(valor, cliente_id, tipo, descricao, realizada_em)
 --     VALUES (transaction_value, transaction_client_id, transaction_type, transaction_description, NOW());
 --
 --     -- Return the updated client values

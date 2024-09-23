@@ -84,7 +84,7 @@ BEGIN
             'total', c.balance,
             'data_extrato', CURRENT_TIMESTAMP
         ),
-        'ultimas_transacoes', (
+        'ultimas_transactions', (
             SELECT jsonb_agg(to_jsonb(transaction_by_client))
             FROM (
                 SELECT

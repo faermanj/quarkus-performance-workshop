@@ -33,6 +33,6 @@ create table if not exists transacao
     cliente_id SERIAL references cliente (id) not null
 );
 
-CREATE INDEX idx_transacoes_cliente_id ON transacao (cliente_id);
+CREATE INDEX idx_transactions_cliente_id ON transacao (cliente_id);
 
 commit;

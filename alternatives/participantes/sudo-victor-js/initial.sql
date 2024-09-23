@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS members (
   versao integer not null default 0
 );
 
-CREATE TABLE IF NOT EXISTS transacoes (
+CREATE TABLE IF NOT EXISTS transactions (
   id serial primary key,
   cliente_id integer not null,
   valor bigint not null,

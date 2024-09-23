@@ -10,7 +10,7 @@ CREATE TABLE members (
   saldo INT NOT NULL DEFAULT 0 CHECK (saldo >= limite * -1)
 );
 
-CREATE TABLE transacoes (
+CREATE TABLE transactions (
   cliente_id INT REFERENCES members (id),
   valor INT NOT NULL,
   descricao VARCHAR(10) NOT NULL CHECK (LENGTH(descricao) >= 1),
@@ -18,7 +18,7 @@ CREATE TABLE transacoes (
   realizada_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX transacao_realizada_em_idx ON transacoes (realizada_em);
+CREATE INDEX transacao_realizada_em_idx ON transactions (realizada_em);
 
 CREATE OR REPLACE FUNCTION create_transacao (cliente_id int, valor int, tipo tipo_transacao, descricao varchar(10))
     RETURNS TABLE (cliente_saldo int, cliente_limite int)
@@ -31,7 +31,7 @@ BEGIN
   ELSE
     ajuste_valor := valor;
   END IF;
-  INSERT INTO transacoes (cliente_id, valor, tipo, descricao)
+  INSERT INTO transactions (cliente_id, valor, tipo, descricao)
     VALUES(cliente_id, valor, tipo::tipo_transacao, descricao);
   RETURN QUERY
   UPDATE

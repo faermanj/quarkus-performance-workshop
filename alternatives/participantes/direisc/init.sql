@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS "saldos" (
 	"valor" integer NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "transacoes" (
+CREATE TABLE IF NOT EXISTS "transactions" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"client_id" integer,
 	"valor" integer NOT NULL,
@@ -33,7 +33,7 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "transacoes" ADD CONSTRAINT "transacoes_client_id_clientes_id_fk" FOREIGN KEY ("client_id") REFERENCES "clientes"("id") ON DELETE no action ON UPDATE no action;
+ ALTER TABLE "transactions" ADD CONSTRAINT "transactions_client_id_clientes_id_fk" FOREIGN KEY ("client_id") REFERENCES "clientes"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;

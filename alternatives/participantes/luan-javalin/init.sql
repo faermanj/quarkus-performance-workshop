@@ -1,5 +1,5 @@
 DROP TABLE IF EXISTS saldos;
-DROP TABLE IF EXISTS transacoes;
+DROP TABLE IF EXISTS transactions;
 DROP TABLE IF EXISTS clientes;
 
 CREATE UNLOGGED TABLE IF NOT EXISTS clientes (
@@ -8,14 +8,14 @@ CREATE UNLOGGED TABLE IF NOT EXISTS clientes (
 	limite INTEGER NOT NULL
 );
 
-CREATE UNLOGGED TABLE IF NOT EXISTS transacoes (
+CREATE UNLOGGED TABLE IF NOT EXISTS transactions (
 	id SERIAL PRIMARY KEY,
 	cliente_id INTEGER NOT NULL,
 	valor INTEGER NOT NULL,
 	tipo CHAR(1) NOT NULL,
 	descricao VARCHAR(10) NOT NULL,
 	realizada_em TIMESTAMP NOT NULL DEFAULT NOW(),
-	CONSTRAINT fk_clientes_transacoes_id
+	CONSTRAINT fk_clientes_transactions_id
 		FOREIGN KEY (cliente_id) REFERENCES clientes(id)
 );
 
@@ -27,8 +27,8 @@ CREATE UNLOGGED TABLE IF NOT EXISTS saldos (
 		FOREIGN KEY (cliente_id) REFERENCES clientes(id)
 );
 
-CREATE INDEX idx_transacoes_cliente_id ON transacoes (cliente_id);
-CREATE INDEX idx_transacoes_criado_em ON transacoes (realizada_em);
+CREATE INDEX idx_transactions_cliente_id ON transactions (cliente_id);
+CREATE INDEX idx_transactions_criado_em ON transactions (realizada_em);
 
 DO $$
 BEGIN
@@ -60,7 +60,7 @@ AS $$
 BEGIN
 	--PERFORM pg_advisory_xact_lock(cliente_id_tx);
 
-	INSERT INTO transacoes
+	INSERT INTO transactions
 		VALUES(DEFAULT, cliente_id_tx, valor_tx, tipo_tx, descricao_tx, NOW());
 
 	RETURN QUERY

@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS clientes (
     limite INTEGER NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS transacoes (
+CREATE TABLE IF NOT EXISTS transactions (
     id INTEGER PRIMARY KEY,
     cliente_id INTEGER NOT NULL,
     valor INTEGER NOT NULL,
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS saldos (
 );
 
 CREATE INDEX id_index ON clientes (id);
-CREATE INDEX id_cliente_transacoes_index ON transacoes (cliente_id);
+CREATE INDEX id_cliente_transactions_index ON transactions (cliente_id);
 CREATE INDEX id_cliente_saldos_index ON saldos (cliente_id);
 
 INSERT INTO clientes (nome, limite)

@@ -130,7 +130,7 @@ BEGIN
 
     combined_result := jsonb_build_object(
 		'saldo', client_json,
-		'ultimas_transacoes', transactions_json
+		'ultimas_transactions', transactions_json
 	);
 
     RETURN combined_result;

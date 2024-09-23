@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS clientes (
     saldo INTEGER NOT NULL DEFAULT 0
 );
 CREATE TYPE tipoTransacao as ENUM ('c', 'd');
-CREATE TABLE IF NOT EXISTS transacoes (
+CREATE TABLE IF NOT EXISTS transactions (
     id SERIAL PRIMARY KEY,
     cliente_id INTEGER NOT NULL REFERENCES clientes(id),
     tipo tipoTransacao NOT NULL,
@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS transacoes (
     descricao VARCHAR(1024),
     realizada_em TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
-CREATE INDEX CONCURRENTLY transacoes_realizada_em_idx ON transacoes(cliente_id, realizada_em DESC);
+CREATE INDEX CONCURRENTLY transactions_realizada_em_idx ON transactions(cliente_id, realizada_em DESC);
 CREATE FUNCTION updateClienteSaldoOnTransactionInsert() RETURNS trigger AS $updateClienteSaldoOnTransactionInsert$
     BEGIN 
         LOCK TABLE clientes IN ROW EXCLUSIVE MODE;
@@ -36,7 +36,7 @@ CREATE FUNCTION updateClienteSaldoOnTransactionInsert() RETURNS trigger AS $upda
 END;
 $updateClienteSaldoOnTransactionInsert$ LANGUAGE plpgsql;
 CREATE TRIGGER updateClienteSaldoOnTransactionInsert BEFORE
-INSERT ON transacoes FOR EACH ROW EXECUTE FUNCTION updateClienteSaldoOnTransactionInsert();
+INSERT ON transactions FOR EACH ROW EXECUTE FUNCTION updateClienteSaldoOnTransactionInsert();
 
 -- Initial Data
 INSERT INTO clientes (nome, limite)

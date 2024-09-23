@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS members (
   limite INT
 );
 
-CREATE TABLE IF NOT EXISTS transacoes (
+CREATE TABLE IF NOT EXISTS transactions (
   id SERIAL PRIMARY KEY,
   cliente_id INT,
   valor INT,
@@ -34,7 +34,7 @@ END;
 $$LANGUAGE plpgsql;
 
 CREATE TRIGGER before_transaction_insert
-BEFORE INSERT ON transacoes
+BEFORE INSERT ON transactions
 FOR EACH ROW
 EXECUTE FUNCTION checar_limite_saldo();
 

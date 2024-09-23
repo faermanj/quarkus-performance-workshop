@@ -136,7 +136,7 @@ FROM (
 
 SELECT json_build_object (
     'saldo', _client_info,
-    'ultimas_transacoes', _last_transactions
+    'ultimas_transactions', _last_transactions
 )
 INTO _res;
 

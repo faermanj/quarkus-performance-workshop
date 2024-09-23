@@ -5,14 +5,14 @@ CREATE UNLOGGED TABLE clientes (
 	saldo INTEGER NOT NULL DEFAULT 0
 );
 
-CREATE UNLOGGED TABLE transacoes (
+CREATE UNLOGGED TABLE transactions (
 	id SERIAL PRIMARY KEY,
 	cliente_id INTEGER NOT NULL,
 	valor INTEGER NOT NULL,
 	tipo CHAR(1) NOT NULL,
 	descricao VARCHAR(255) NOT NULL,
 	realizada_em TIMESTAMP NOT NULL DEFAULT NOW(),
-	CONSTRAINT fk_clientes_transacoes_id
+	CONSTRAINT fk_clientes_transactions_id
 		FOREIGN KEY (cliente_id) REFERENCES clientes(id)
 );
 
@@ -50,7 +50,7 @@ BEGIN
         RAISE 'LIMITE_INDISPONIVEL [%, %, %]', v_saldo, diff, v_limite;
     ELSE
         result := (v_saldo, v_limite)::transacao_result;
-        INSERT INTO transacoes (cliente_id, valor, tipo, descricao)
+        INSERT INTO transactions (cliente_id, valor, tipo, descricao)
             VALUES (p_cliente_id, p_valor, p_tipo, p_descricao);
         RETURN result;
     END IF;
@@ -84,10 +84,10 @@ BEGIN
             'data_extrato', TO_CHAR(NOW(), 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
             'limite', v_limite
         ),
-        'ultimas_transacoes', COALESCE((
+        'ultimas_transactions', COALESCE((
             SELECT json_agg(row_to_json(t)) FROM (
                 SELECT valor, tipo, descricao, TO_CHAR(realizada_em, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as realizada_em
-                FROM transacoes
+                FROM transactions
                 WHERE cliente_id = p_id
                 ORDER BY realizada_em DESC
                 LIMIT 10

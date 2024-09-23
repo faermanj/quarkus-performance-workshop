@@ -1,4 +1,4 @@
-              DROP TABLE IF EXISTS "transacoes";
+              DROP TABLE IF EXISTS "transactions";
               DROP TABLE IF EXISTS "members";
             
             
@@ -11,7 +11,7 @@
                   CONSTRAINT "members_pkey" PRIMARY KEY ("id")
               );
               
-              CREATE UNLOGGED TABLE "transacoes" (
+              CREATE UNLOGGED TABLE "transactions" (
                   id SERIAL NOT NULL,
                   valor INTEGER NOT NULL,
                   tipo CHAR(1) NOT NULL,
@@ -19,16 +19,16 @@
                   realizada_em TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
                   client_id INTEGER NOT NULL,
               
-                  CONSTRAINT "transacoes_pkey" PRIMARY KEY ("id")
+                  CONSTRAINT "transactions_pkey" PRIMARY KEY ("id")
               );
               
-              CREATE INDEX idx_extrato ON transacoes (id DESC);
+              CREATE INDEX idx_extrato ON transactions (id DESC);
         
               CREATE UNIQUE INDEX "members_id_key" ON "members"("id");
               
-              CREATE UNIQUE INDEX "transacoes_id_key" ON "transacoes"("id");
+              CREATE UNIQUE INDEX "transactions_id_key" ON "transactions"("id");
               
-              ALTER TABLE "transacoes" ADD CONSTRAINT "transacoes_membersId_fkey" FOREIGN KEY ("client_id") REFERENCES "members"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+              ALTER TABLE "transactions" ADD CONSTRAINT "transactions_membersId_fkey" FOREIGN KEY ("client_id") REFERENCES "members"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
             
               DO $$
               BEGIN

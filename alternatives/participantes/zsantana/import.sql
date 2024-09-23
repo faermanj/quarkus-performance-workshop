@@ -39,14 +39,14 @@ CREATE TABLE public.transacao (
     tipo CHAR(1) NOT NULL,
     descricao VARCHAR(10) NOT NULL,
     realizada_em TIMESTAMP NOT NULL,
-    CONSTRAINT fk_members_transacoes_id FOREIGN KEY (cliente_id) REFERENCES public.cliente(id)
+    CONSTRAINT fk_members_transactions_id FOREIGN KEY (cliente_id) REFERENCES public.cliente(id)
 );
 
 ALTER TABLE public.transacao ALTER COLUMN id SET DEFAULT nextval('transacao_id_seq');
 
 
 -- Criação de índice
-CREATE INDEX transacoes_index ON public.transacao (id desc NULLS FIRST) INCLUDE (valor, tipo, descricao, realizada_em);
+CREATE INDEX transactions_index ON public.transacao (id desc NULLS FIRST) INCLUDE (valor, tipo, descricao, realizada_em);
 
 
 -- Inserção de dados nas tabelas

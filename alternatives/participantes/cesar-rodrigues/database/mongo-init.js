@@ -1,7 +1,7 @@
 db = db.getSiblingDB('admin');
 
 db.createCollection('clientes');
-db.createCollection('transacoes');
+db.createCollection('transactions');
 
 db.clientes.insertMany([
  {

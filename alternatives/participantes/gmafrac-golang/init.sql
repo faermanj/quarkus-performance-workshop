@@ -5,7 +5,7 @@ CREATE UNLOGGED TABLE clientes (
     saldo INTEGER DEFAULT 0
 );
 
-CREATE UNLOGGED TABLE transacoes (
+CREATE UNLOGGED TABLE transactions (
     id SERIAL PRIMARY KEY NOT NULL,
     cliente_id INT NOT NULL,
     valor INTEGER NOT NULL,

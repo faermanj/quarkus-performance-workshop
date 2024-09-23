@@ -27,7 +27,7 @@ VALUES (1, 1000 * 100),
        (5, 5000 * 100)
 ON CONFLICT DO NOTHING;
 
-CREATE UNLOGGED TABLE IF NOT EXISTS transacoes (
+CREATE UNLOGGED TABLE IF NOT EXISTS transactions (
   id SERIAL PRIMARY KEY,
   cliente_id SMALLINT NOT NULL,
   valor INT NOT NULL,
@@ -37,7 +37,7 @@ CREATE UNLOGGED TABLE IF NOT EXISTS transacoes (
   FOREIGN KEY (cliente_id) REFERENCES members (id)
 );
 
-CREATE INDEX idx_transacoes_cliente_id ON transacoes (cliente_id, id DESC);
+CREATE INDEX idx_transactions_cliente_id ON transactions (cliente_id, id DESC);
 
 CREATE OR REPLACE PROCEDURE adiciona_transacao(
   id_cliente SMALLINT,
@@ -51,7 +51,7 @@ CREATE OR REPLACE PROCEDURE adiciona_transacao(
 LANGUAGE plpgsql AS
 $$
 BEGIN
-  INSERT INTO transacoes (cliente_id, valor, tipo, descricao) VALUES (id_cliente, valor, tipo, descricao);
+  INSERT INTO transactions (cliente_id, valor, tipo, descricao) VALUES (id_cliente, valor, tipo, descricao);
 
   UPDATE members
      SET saldo = saldo + valor_extrato

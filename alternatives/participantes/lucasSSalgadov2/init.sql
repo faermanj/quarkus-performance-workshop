@@ -4,19 +4,19 @@ CREATE UNLOGGED TABLE cliente (
     saldo INTEGER NOT NULL
 );
 
-CREATE UNLOGGED TABLE transacoes (
+CREATE UNLOGGED TABLE transactions (
 	id SERIAL PRIMARY KEY,
 	user_id INTEGER NOT NULL,
 	valor INTEGER NOT NULL,
 	tipo CHAR(1) NOT NULL,
 	descricao VARCHAR(10) NOT NULL,
 	realizada_em TIMESTAMP NOT NULL DEFAULT NOW(),
-	CONSTRAINT fk_clientes_transacoes_id
+	CONSTRAINT fk_clientes_transactions_id
 		FOREIGN KEY (user_id) REFERENCES cliente(user_id)
 );
 
 CREATE INDEX idx_cliente_user_id ON cliente (user_id);
-CREATE INDEX idx_transacoes_user_id ON transacoes (user_id);
+CREATE INDEX idx_transactions_user_id ON transactions (user_id);
 
 DO $$
 BEGIN

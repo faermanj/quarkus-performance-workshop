@@ -17,7 +17,7 @@ VALUES
 (10000000, 0),
 (500000, 0);
 
-CREATE UNLOGGED TABLE Transacoes (
+CREATE UNLOGGED TABLE transactions (
     Id SERIAL PRIMARY KEY,
     Cliente_Id INTEGER NOT NULL,
     Valor INTEGER NOT NULL,
@@ -25,7 +25,7 @@ CREATE UNLOGGED TABLE Transacoes (
     Descricao VARCHAR(10) NOT NULL,
     Realizada_Em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
-CREATE INDEX idx_transacoes_cliente_id ON Transacoes (Cliente_Id);
+CREATE INDEX idx_transactions_cliente_id ON transactions (Cliente_Id);
 
 
 CREATE OR REPLACE FUNCTION InserirTransacao(cliente_id INTEGER, valor INTEGER, tipo CHAR, descricao TEXT)
@@ -45,7 +45,7 @@ BEGIN
     IF current_saldo < 0 AND ABS(current_saldo) > current_limite THEN
         RETURN;
     ELSE    
-        INSERT INTO Transacoes (Cliente_Id, Valor, Tipo, Descricao, Realizada_Em)
+        INSERT INTO transactions (Cliente_Id, Valor, Tipo, Descricao, Realizada_Em)
         VALUES (cliente_id, valor, tipo, descricao, CURRENT_TIMESTAMP);
 
         UPDATE Clientes SET Saldo = current_saldo WHERE Id = cliente_id;

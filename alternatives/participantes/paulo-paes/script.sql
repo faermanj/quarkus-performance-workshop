@@ -4,7 +4,7 @@ CREATE TABLE members(
   saldo DECIMAL(10,0)
 );
 
-CREATE TABLE transacoes (
+CREATE TABLE transactions (
   id SERIAL PRIMARY KEY,
   cliente_id INT,
   valor DECIMAL(10,0),
@@ -14,8 +14,8 @@ CREATE TABLE transacoes (
   FOREIGN KEY (cliente_id) REFERENCES members(id)
 );
 
-CREATE INDEX idx_transacoes_members_id ON transacoes (cliente_id);
-CREATE INDEX idx_transacoes_realizada_em ON transacoes (realizada_em);
+CREATE INDEX idx_transactions_members_id ON transactions (cliente_id);
+CREATE INDEX idx_transactions_realizada_em ON transactions (realizada_em);
 
 
 INSERT INTO members VALUES (1, 100000, 0),

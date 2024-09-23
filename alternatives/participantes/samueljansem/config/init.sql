@@ -12,23 +12,23 @@ CREATE INDEX idx_pk_members ON members (id) INCLUDE (saldo);
 CLUSTER members USING idx_pk_members;
 
 CREATE UNLOGGED TABLE
-    "transacoes" (
+    "transactions" (
         "id" SERIAL PRIMARY KEY,
         "valor" INTEGER NOT NULL,
         "id_cliente" INTEGER NOT NULL,
         "tipo" VARCHAR(1) NOT NULL,
         "descricao" VARCHAR(10) NOT NULL,
         "realizada_em" TIMESTAMP WITH TIME ZONE NOT NULL,
-        CONSTRAINT "fk_transacoes_id_cliente" FOREIGN KEY ("id_cliente") REFERENCES "members" ("id")
+        CONSTRAINT "fk_transactions_id_cliente" FOREIGN KEY ("id_cliente") REFERENCES "members" ("id")
     );
 
-CREATE INDEX idx_transacoes_id_cliente ON transacoes (id_cliente);
-CREATE INDEX idx_transacoes_realizada_em ON transacoes (realizada_em DESC);
-CLUSTER transacoes USING idx_transacoes_id_cliente;
+CREATE INDEX idx_transactions_id_cliente ON transactions (id_cliente);
+CREATE INDEX idx_transactions_realizada_em ON transactions (realizada_em DESC);
+CLUSTER transactions USING idx_transactions_id_cliente;
 
 
 ALTER TABLE "members" SET (autovacuum_enabled = false);
-ALTER TABLE "transacoes" SET (autovacuum_enabled = false);
+ALTER TABLE "transactions" SET (autovacuum_enabled = false);
 
 INSERT INTO
     members (id, saldo, limite)
@@ -64,7 +64,7 @@ BEGIN
     WHERE id = id_cliente AND (saldo + valor) >= -limite
     RETURNING saldo, limite INTO saldo_atual, limite_atual;
 
-    INSERT INTO transacoes (valor, id_cliente, tipo, descricao, realizada_em)
+    INSERT INTO transactions (valor, id_cliente, tipo, descricao, realizada_em)
     VALUES (valor_absoluto, id_cliente, tipo, descricao, realizada_em);
 END;
 $$;

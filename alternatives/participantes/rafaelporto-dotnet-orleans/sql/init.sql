@@ -131,13 +131,13 @@ INSERT INTO `contas` VALUES (1,'{\"id\":1,\"limite\":100000,\"saldo\":0,\"extrat
 UNLOCK TABLES;
 
 --
--- Table structure for table `transacoes`
+-- Table structure for table `transactions`
 --
 
-DROP TABLE IF EXISTS `transacoes`;
+DROP TABLE IF EXISTS `transactions`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `transacoes` (
+CREATE TABLE `transactions` (
   `id` int NOT NULL AUTO_INCREMENT,
   `conta_id` int DEFAULT NULL,
   `content` varchar(1024) DEFAULT NULL,
@@ -149,12 +149,12 @@ CREATE TABLE `transacoes` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `transacoes`
+-- Dumping data for table `transactions`
 --
 
-LOCK TABLES `transacoes` WRITE;
-/*!40000 ALTER TABLE `transacoes` DISABLE KEYS */;
-/*!40000 ALTER TABLE `transacoes` ENABLE KEYS */;
+LOCK TABLES `transactions` WRITE;
+/*!40000 ALTER TABLE `transactions` DISABLE KEYS */;
+/*!40000 ALTER TABLE `transactions` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --

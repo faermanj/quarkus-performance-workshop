@@ -1,4 +1,4 @@
-CREATE UNLOGGED TABLE transacoes (
+CREATE UNLOGGED TABLE transactions (
     id SERIAL PRIMARY KEY,
     saldo INTEGER NOT NULL,
     limite INTEGER NOT NULL,
@@ -9,7 +9,7 @@ CREATE UNLOGGED TABLE transacoes (
     id_cliente INTEGER NOT NULL
 );
 
-CREATE INDEX idx_transacoes_id_cliente ON transacoes (id_cliente);
+CREATE INDEX idx_transactions_id_cliente ON transactions (id_cliente);
 
 CREATE TYPE criar_transacao_result AS (
   code integer,
@@ -25,7 +25,7 @@ DECLARE
   copy_valor INTEGER;
 BEGIN
   PERFORM pg_advisory_xact_lock(a_id_cliente);
-  SELECT * INTO current_data FROM transacoes WHERE id_cliente = a_id_cliente order by id desc limit 1;
+  SELECT * INTO current_data FROM transactions WHERE id_cliente = a_id_cliente order by id desc limit 1;
 	
   IF current_data IS NULL THEN
     SELECT -1, -1, -1 INTO result;
@@ -41,7 +41,7 @@ BEGIN
   IF copy_valor < 0 AND current_data.saldo + copy_valor < current_data.limite * -1 THEN
     SELECT -2, -2, -2 INTO result;
   ELSE
-      INSERT INTO transacoes (saldo, limite, valor, descricao, tipo, realizada_em, id_cliente)
+      INSERT INTO transactions (saldo, limite, valor, descricao, tipo, realizada_em, id_cliente)
         VALUES (current_data.saldo + copy_valor, current_data.limite, valor, descricao, tipo, NOW(), a_id_cliente)
         RETURNING 0, saldo, limite INTO result;
   END IF;
@@ -56,7 +56,7 @@ DECLARE
     result json;
     cliente_data RECORD;
 BEGIN
-    SELECT saldo, limite INTO cliente_data FROM transacoes WHERE id_cliente = a_id_cliente order by id desc limit 1;
+    SELECT saldo, limite INTO cliente_data FROM transactions WHERE id_cliente = a_id_cliente order by id desc limit 1;
 
     IF cliente_data IS NULL THEN
         SELECT NULL INTO result;
@@ -69,9 +69,9 @@ BEGIN
             'data_extrato', NOW(),
             'limite', cliente_data.limite
         ),
-        'ultimas_transacoes', COALESCE((
+        'ultimas_transactions', COALESCE((
             SELECT json_agg(row_to_json(t)) FROM (
-                SELECT valor, tipo, descricao, realizada_em FROM transacoes WHERE id_cliente = a_id_cliente ORDER BY id DESC LIMIT 10
+                SELECT valor, tipo, descricao, realizada_em FROM transactions WHERE id_cliente = a_id_cliente ORDER BY id DESC LIMIT 10
             ) t
         ), '[]')
     ) INTO result;
@@ -82,7 +82,7 @@ $$ LANGUAGE plpgsql;
 
 DO $$
 BEGIN
-  INSERT INTO transacoes (id_cliente, saldo, limite, valor, descricao, tipo, realizada_em)
+  INSERT INTO transactions (id_cliente, saldo, limite, valor, descricao, tipo, realizada_em)
   VALUES
     (1, 0, 1000 * 100, 0, '', 'c', now()),
     (2, 0, 800 * 100, 0, '', 'c', now()),

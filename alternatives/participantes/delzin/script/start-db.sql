@@ -2,12 +2,12 @@ CREATE TABLE clientes (
   id SERIAL PRIMARY KEY,
   limite INT,
   saldo INT,
-  transacoes JSONB
+  transactions JSONB
 );
 
 DO $$
 BEGIN
-  INSERT INTO clientes (limite, saldo, transacoes)
+  INSERT INTO clientes (limite, saldo, transactions)
   VALUES
     (1000 * 100, 0, '[]'),
     (800 * 100, 0, '[]'),

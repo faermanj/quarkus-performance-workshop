@@ -4,17 +4,17 @@ CREATE UNLOGGED TABLE IF NOT EXISTS "clientes" (
 	"saldo" BIGINT NOT NULL DEFAULT 0
 );
 
-CREATE UNLOGGED TABLE IF NOT EXISTS "transacoes" (
+CREATE UNLOGGED TABLE IF NOT EXISTS "transactions" (
 	"id" SERIAL NOT NULL PRIMARY KEY,
 	"cliente_id" INTEGER NOT NULL,
 	"tipo" CHARACTER(1) NOT NULL,
 	"valor" BIGINT NOT NULL,
 	"descricao" VARCHAR(10) NOT NULL,
 	"realizada_em" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	CONSTRAINT "fk_clientes_transacoes_id" FOREIGN KEY ("cliente_id") REFERENCES clientes ("id")
+	CONSTRAINT "fk_clientes_transactions_id" FOREIGN KEY ("cliente_id") REFERENCES clientes ("id")
 );
 
-CREATE INDEX "fk_transacoes_cliente_id" ON "public"."transacoes" ("cliente_id");
+CREATE INDEX "fk_transactions_cliente_id" ON "public"."transactions" ("cliente_id");
 
 
 INSERT INTO
@@ -45,7 +45,7 @@ BEGIN
             SET saldo = saldo + _valor 
             WHERE id = _cliente_id 
             RETURNING limite, saldo INTO out_limite, out_saldo;
-            INSERT INTO transacoes(cliente_id, valor, tipo, descricao)
+            INSERT INTO transactions(cliente_id, valor, tipo, descricao)
             VALUES (_cliente_id, _valor, _tipo, _descricao);
             codigo_erro := 0;
             RETURN;
@@ -56,7 +56,7 @@ BEGIN
             RETURNING limite, saldo INTO out_limite, out_saldo;
             
             IF FOUND THEN 
-              INSERT INTO transacoes(cliente_id, valor, tipo, descricao)
+              INSERT INTO transactions(cliente_id, valor, tipo, descricao)
               VALUES (_cliente_id, _valor, _tipo, _descricao);
               codigo_erro := 0;
             ELSE 
@@ -91,7 +91,7 @@ BEGIN
 		RETURN QUERY
 		SELECT c.limite as "cliente_limite", c.saldo as "cliente_saldo", t.*
 		FROM clientes as c
-		LEFT JOIN transacoes as t ON c.id = t.cliente_id
+		LEFT JOIN transactions as t ON c.id = t.cliente_id
 		WHERE c.id = _cliente_id
 		ORDER BY t.realizada_em DESC
 		LIMIT 10;

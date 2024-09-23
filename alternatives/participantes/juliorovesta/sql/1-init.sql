@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS transacoes;
+DROP TABLE IF EXISTS transactions;
 DROP TABLE IF EXISTS clientes;
 
 CREATE UNLOGGED TABLE clientes (
@@ -9,7 +9,7 @@ CREATE UNLOGGED TABLE clientes (
 	saldo_atualizado_em TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE UNLOGGED TABLE transacoes (
+CREATE UNLOGGED TABLE transactions (
 	transacao_id SERIAL PRIMARY KEY,
 	cliente_id INTEGER NOT NULL,
 	valor INTEGER NOT NULL,
@@ -17,11 +17,11 @@ CREATE UNLOGGED TABLE transacoes (
 	descricao VARCHAR(10) NOT NULL,
 	realizada_em TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	saldo INTEGER NOT NULL,
-	CONSTRAINT fk__clientes__transacoes_id
+	CONSTRAINT fk__clientes__transactions_id
 		FOREIGN KEY (cliente_id) REFERENCES clientes(cliente_id)
 );
 
-CREATE INDEX ix__transacoes__cliente_cliente ON transacoes (cliente_id, realizada_em DESC);
+CREATE INDEX ix__transactions__cliente_cliente ON transactions (cliente_id, realizada_em DESC);
 
 DO $$
 BEGIN

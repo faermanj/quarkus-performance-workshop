@@ -41,13 +41,13 @@ import jakarta.servlet.http.HttpServletResponse;
 
 // curl -v -X POST -H "Content-Type: application/json" -d '{"valor": 100,
 // "tipo": "c", "descricao": "Deposito"}'
-// http:///localhost:9999/clientes/1/transacoes
+// http:///localhost:9999/clientes/1/transactions
 
 //@WebServlet(value = "/cached/*")
 public class RinhaServlet extends HttpServlet {
-    private static final String WARMUP_QUERY = "CREATE EXTENSION IF NOT EXISTS pg_prewarm; SELECT pg_prewarm('transacoes');";
-    private static final String EXTRATO_QUERY = "SELECT json_agg(t) FROM (SELECT * FROM transacoes WHERE id = ?) t";
-    private static final String TRANSACAO_QUERY = "INSERT INTO transacoes (cliente_id, valor, tipo, descricao) VALUES (?, ?, ?, ?)";
+    private static final String WARMUP_QUERY = "CREATE EXTENSION IF NOT EXISTS pg_prewarm; SELECT pg_prewarm('transactions');";
+    private static final String EXTRATO_QUERY = "SELECT json_agg(t) FROM (SELECT * FROM transactions WHERE id = ?) t";
+    private static final String TRANSACAO_QUERY = "INSERT INTO transactions (cliente_id, valor, tipo, descricao) VALUES (?, ?, ?, ?)";
     private static final ObjectMapper objectMapper = new ObjectMapper();
     public static Map<Integer, Cliente> cache;
     public static final int shard = envInt("RINHA_SHARD", 1);
@@ -228,7 +228,7 @@ public class RinhaServlet extends HttpServlet {
             //TODO: Update cache
             if (resp != null) {
                 resp.setStatus(201);
-                resp.setHeader("Location", "/clientes/" + id + "/transacoes");
+                resp.setHeader("Location", "/clientes/" + id + "/transactions");
             }
         } catch (SQLException e) {
             handleSQLException(e, resp);
@@ -241,7 +241,7 @@ public class RinhaServlet extends HttpServlet {
         var msg = e.getMessage();
         if (msg.contains("LIMITE_INDISPONIVEL")) {
             sendError(resp, 422, "Erro: Limite indisponivel");
-        } else if (msg.contains("fk_clientes_transacoes_id")) {
+        } else if (msg.contains("fk_clientes_transactions_id")) {
             sendError(resp, SC_NOT_FOUND, "Erro: Cliente inexistente");
         } else {
             sendError(resp, SC_INTERNAL_SERVER_ERROR, "Erro SQL ao manipular a transacao: " + e.getMessage());

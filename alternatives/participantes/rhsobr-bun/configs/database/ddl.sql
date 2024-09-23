@@ -4,7 +4,7 @@ CREATE UNLOGGED TABLE members (
     saldo INTEGER NOT NULL DEFAULT 0
 );
 
-CREATE UNLOGGED TABLE transacoes (
+CREATE UNLOGGED TABLE transactions (
     cliente_id INTEGER NOT NULL,
     valor INTEGER NOT NULL,
     tipo CHAR(1) NOT NULL,
@@ -13,7 +13,7 @@ CREATE UNLOGGED TABLE transacoes (
 );
 
 ALTER TABLE
-    transacoes
+    transactions
 ADD
     CONSTRAINT fk_cliente_id FOREIGN KEY (cliente_id) REFERENCES members (id),
 SET
@@ -21,4 +21,4 @@ SET
 
 CREATE INDEX IF NOT EXISTS idx_members_id ON members (id);
 
-CREATE INDEX IF NOT EXISTS idx_transacoes_cliente_id_realizada_em_desc ON transacoes (cliente_id, realizada_em DESC);
+CREATE INDEX IF NOT EXISTS idx_transactions_cliente_id_realizada_em_desc ON transactions (cliente_id, realizada_em DESC);

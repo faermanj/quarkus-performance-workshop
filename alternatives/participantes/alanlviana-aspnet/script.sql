@@ -4,7 +4,7 @@ CREATE UNLOGGED TABLE clientes (
     saldo DECIMAL(10) NOT NULL
 );
 
-CREATE UNLOGGED TABLE  transacoes (
+CREATE UNLOGGED TABLE  transactions (
     codigo SERIAL PRIMARY KEY,
     descricao VARCHAR(50) NOT NULL,
     data_transacao TIMESTAMP NOT NULL,
@@ -57,7 +57,7 @@ BEGIN
     END IF;
 
     -- Insere a transação na tabela de transações
-    INSERT INTO transacoes (descricao, data_transacao, tipo, valor, codigo_cliente)
+    INSERT INTO transactions (descricao, data_transacao, tipo, valor, codigo_cliente)
          VALUES (p_descricao, CURRENT_TIMESTAMP, p_tipo, p_valor, p_codigo_cliente);
 
     -- Retorna o novo saldo e limite do cliente
@@ -66,7 +66,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE FUNCTION obter_saldo_e_transacoes(p_codigo_cliente INT)
+CREATE OR REPLACE FUNCTION obter_saldo_e_transactions(p_codigo_cliente INT)
 RETURNS JSON
 AS $$
 DECLARE
@@ -76,10 +76,10 @@ BEGIN
     SELECT json_build_object(
         'saldo', (SELECT * 
                     FROM json_build_object('total',c.saldo, 'data_extrato', current_timestamp, 'limite', c.limite)),
-        'ultimas_transacoes', (SELECT COALESCE(json_agg(ut.*), '[]'::json)
+        'ultimas_transactions', (SELECT COALESCE(json_agg(ut.*), '[]'::json)
                                  FROM (
                                        SELECT t.descricao, t.tipo, t.valor, t.data_transacao AS "realizada_em"
-                                         FROM transacoes t 
+                                         FROM transactions t 
                                         WHERE t.codigo_cliente = c.codigo
                                         ORDER BY t.data_transacao DESC 
                                         LIMIT 10) as ut)

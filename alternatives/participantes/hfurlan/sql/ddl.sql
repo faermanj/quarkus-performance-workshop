@@ -1,4 +1,4 @@
-create table transacoes (
+create table transactions (
     cliente_id int not null,
     valor numeric not null,
     descricao varchar(10) not null,
@@ -7,7 +7,7 @@ create table transacoes (
     data_hora_inclusao timestamp default NOW()
 );
 
-create index transacoes_idx_cliente_id on transacoes (cliente_id);
+create index transactions_idx_cliente_id on transactions (cliente_id);
 
 create table clientes (
     cliente_id int not null,

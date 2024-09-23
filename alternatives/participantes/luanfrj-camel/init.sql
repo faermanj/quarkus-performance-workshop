@@ -1,4 +1,4 @@
-CREATE UNLOGGED TABLE transacoes (
+CREATE UNLOGGED TABLE transactions (
 	id SERIAL PRIMARY KEY,
 	cliente_id INTEGER NOT NULL,
 	valor INTEGER NOT NULL,
@@ -14,7 +14,7 @@ CREATE UNLOGGED TABLE clientes (
 	saldo INTEGER NOT NULL
 );
 
-CREATE INDEX idx_cliente_id_trasacoes ON transacoes (cliente_id);
+CREATE INDEX idx_cliente_id_trasacoes ON transactions (cliente_id);
 CREATE INDEX idx_cliente_id_clientes ON clientes (cliente_id);
 
 DO $$

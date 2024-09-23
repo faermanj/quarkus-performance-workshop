@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS transacoes;
+DROP TABLE IF EXISTS transactions;
 --
 DROP TABLE IF EXISTS clientes;
 
@@ -9,7 +9,7 @@ CREATE UNLOGGED TABLE IF NOT EXISTS clientes (
     PRIMARY KEY (id)
 );
 
-CREATE UNLOGGED TABLE IF NOT EXISTS transacoes (
+CREATE UNLOGGED TABLE IF NOT EXISTS transactions (
     id SERIAL NOT NULL,
     id_clientes BIGINT NOT NULL,
     valor INTEGER NOT NULL,

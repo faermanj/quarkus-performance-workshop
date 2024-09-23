@@ -9,7 +9,7 @@ CREATE TABLE "clientes" (
 );
 
 -- CreateTable
-CREATE TABLE "transacoes" (
+CREATE TABLE "transactions" (
     "id" SERIAL NOT NULL,
     "cliente_id" INTEGER NOT NULL,
     "valor" INTEGER NOT NULL,
@@ -17,8 +17,8 @@ CREATE TABLE "transacoes" (
     "descricao" TEXT NOT NULL,
     "realizada_em" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "transacoes_pkey" PRIMARY KEY ("id"),
-    CONSTRAINT "transacoes_cliente_id_fkey" FOREIGN KEY ("cliente_id") REFERENCES "clientes" ("id")
+    CONSTRAINT "transactions_pkey" PRIMARY KEY ("id"),
+    CONSTRAINT "transactions_cliente_id_fkey" FOREIGN KEY ("cliente_id") REFERENCES "clientes" ("id")
 );
 
 INSERT INTO
@@ -39,7 +39,7 @@ VALUES
 -- );
 
 -- -- CreateTable
--- CREATE TABLE "transacoes" (
+-- CREATE TABLE "transactions" (
 --     "id" SERIAL NOT NULL,
 --     "cliente_id" INTEGER NOT NULL,
 --     "valor" INTEGER NOT NULL,
@@ -47,5 +47,5 @@ VALUES
 --     "descricao" TEXT NOT NULL,
 --     "realizada_em" TIMESTAMP(3) NOT NULL,
 
---     CONSTRAINT "transacoes_pkey" PRIMARY KEY ("id")
+--     CONSTRAINT "transactions_pkey" PRIMARY KEY ("id")
 -- );

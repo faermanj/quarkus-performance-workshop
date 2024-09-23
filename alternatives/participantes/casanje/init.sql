@@ -6,14 +6,14 @@ CREATE TABLE members (
   CONSTRAINT members_pkey PRIMARY KEY (id)
 );
 
-CREATE TABLE transacoes (
+CREATE TABLE transactions (
   id serial4 NOT NULL,
   cliente_id int4 NOT NULL,
   valor int4 NOT NULL DEFAULT 0,
   descricao varchar(10) NOT NULL,
   tipo varchar(1) NOT NULL,
   realizada_em date NOT NULL DEFAULT 'now' :: text :: date,
-  CONSTRAINT transacoes_pkey PRIMARY KEY (id)
+  CONSTRAINT transactions_pkey PRIMARY KEY (id)
 );
 
 INSERT INTO

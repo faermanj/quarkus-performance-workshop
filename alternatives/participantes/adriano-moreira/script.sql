@@ -7,7 +7,7 @@ CREATE TABLE clientes
     version NUMERIC DEFAULT 1
 );
 
-CREATE TABLE transacoes
+CREATE TABLE transactions
 (
     id         SERIAL PRIMARY KEY,
     cliente_id numeric     NOT NULL,

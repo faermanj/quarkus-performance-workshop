@@ -70,8 +70,8 @@ services:
       - nginx
     command: >
       sh -c 'sleep 5 &&
-      curl -X POST -H "Content-Type: application/json" -d "{\"valor\": 1, \"tipo\": \"d\", \"descricao\": \"null\"}" http://nginx:9999/members/1/transacoes &&
-      curl -X POST -H "Content-Type: application/json" -d "{\"valor\": 1, \"tipo\": \"c\", \"descricao\": \"null\"}" http://nginx:9999/members/1/transacoes &&
+      curl -X POST -H "Content-Type: application/json" -d "{\"valor\": 1, \"tipo\": \"d\", \"descricao\": \"null\"}" http://nginx:9999/members/1/transactions &&
+      curl -X POST -H "Content-Type: application/json" -d "{\"valor\": 1, \"tipo\": \"c\", \"descricao\": \"null\"}" http://nginx:9999/members/1/transactions &&
       echo "" && echo "PODE MANDAR BALA!!"'
     deploy:
       resources:

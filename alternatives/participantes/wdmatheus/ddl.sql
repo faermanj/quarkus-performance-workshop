@@ -19,7 +19,7 @@ create unlogged table public.members
     constraint pk_members primary key(id)
 );
 
-create unlogged table public.transacoes
+create unlogged table public.transactions
 (
     id serial not null,
     valor integer not null,
@@ -27,11 +27,11 @@ create unlogged table public.transacoes
     tipo integer not null,
     descricao varchar(10) not null,    
     realizada_em timestamp not null default (now() at time zone 'utc'),
-    constraint pk_transacoes primary key(id)
+    constraint pk_transactions primary key(id)
 );
 
 
-create index ix_transacoes_cliente_id on transacoes(cliente_id asc);
+create index ix_transactions_cliente_id on transactions(cliente_id asc);
 
 -------------------------- proc criar_transacao --------------------------
 create or replace procedure public.criar_transacao
@@ -87,7 +87,7 @@ begin
         return;
     end if;
     
-    insert into public.transacoes
+    insert into public.transactions
         (valor, tipo, descricao, cliente_id)
     values
         (
@@ -122,8 +122,8 @@ select
             to_char(j.data_extrato, 'YYYY-MM-DD"T"HH24:MI:US"Z"')
         ),
 
-        'ultimas_transacoes',
-        coalesce(j.ultimas_transacoes, '{}')
+        'ultimas_transactions',
+        coalesce(j.ultimas_transactions, '{}')
     ) as extrato
 from
     (
@@ -147,7 +147,7 @@ from
                                 else 'd'
                             end as tipo
                         from
-                            public.transacoes t
+                            public.transactions t
                         where
                             t.cliente_id = c.id
                         order by
@@ -155,7 +155,7 @@ from
                             limit 10
 
                     ) as t
-            ) as ultimas_transacoes
+            ) as ultimas_transactions
         from
             public.members c
 

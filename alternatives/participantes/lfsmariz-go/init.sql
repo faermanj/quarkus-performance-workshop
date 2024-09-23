@@ -10,7 +10,7 @@ CREATE UNLOGGED TABLE IF NOT EXISTS clientes(
     CONSTRAINT check_limit CHECK (saldo >= -limite)
 );
 
-CREATE UNLOGGED TABLE IF NOT EXISTS transacoes(
+CREATE UNLOGGED TABLE IF NOT EXISTS transactions(
     id SERIAL PRIMARY KEY,
     cliente_id INTEGER NOT NULL REFERENCES clientes (id),
     valor INTEGER NOT NULL,
@@ -46,7 +46,7 @@ BEGIN
     UPDATE clientes SET saldo = saldo + value_op WHERE id = id_client;
   END IF;
 -- Insert on transaction
-  INSERT INTO transacoes (cliente_id, valor, tipo, descricao)
+  INSERT INTO transactions (cliente_id, valor, tipo, descricao)
   VALUES (id_client, value_op, type_op, desc_op);
 
   RETURN QUERY

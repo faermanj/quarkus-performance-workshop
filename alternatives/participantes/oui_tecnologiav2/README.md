@@ -78,7 +78,7 @@ simultaneos , etc.
 #define NAO_ENCONTRADO 404
 #define MAXIMO_BODY 200
 #define RETORNO_OK 200
-#define MAXIMO_TRANSACOES 10
+#define MAXIMO_transactions 10
 
 #ifdef  DEBUG
 #define IDENTAR true

@@ -4,9 +4,9 @@ services:
   postgres:
     image: postgres:16.1
     environment:
-      POSTGRES_USER: transacoes
-      POSTGRES_PASSWORD: transacoes
-      POSTGRES_DB: transacoes
+      POSTGRES_USER: transactions
+      POSTGRES_PASSWORD: transactions
+      POSTGRES_DB: transactions
     volumes:
       - ./postgresql.conf:/etc/postgresql/postgresql.conf
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
@@ -19,7 +19,7 @@ services:
     image: bbonagura9/rdb-24q1-api:latest
     environment:
       DB_ENGINE: postgres
-      DB_DSN: host=postgres user=transacoes password=transacoes sslmode=disable pool_max_conns=100
+      DB_DSN: host=postgres user=transactions password=transactions sslmode=disable pool_max_conns=100
       GIN_MODE: release
       GOMAXPROCS: 1
     depends_on:

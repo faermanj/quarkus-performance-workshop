@@ -12,7 +12,7 @@ insert into clientes (id, limite, saldo) values(3, 1000000, 0);
 insert into clientes (id, limite, saldo) values(4, 10000000, 0);
 insert into clientes (id, limite, saldo) values(5, 500000, 0);
 
-CREATE UNLOGGED TABLE IF NOT EXISTS transacoes
+CREATE UNLOGGED TABLE IF NOT EXISTS transactions
 (
     id           varchar(100) not null,
     id_cliente   INT NOT NULL,
@@ -23,7 +23,7 @@ CREATE UNLOGGED TABLE IF NOT EXISTS transacoes
     created_at   TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
-ALTER TABLE transacoes SET (autovacuum_enabled = false);
+ALTER TABLE transactions SET (autovacuum_enabled = false);
 
 
 -- 
@@ -42,9 +42,9 @@ AS $$
 DECLARE
     var_saldo INT;
 BEGIN
-    LOCK TABLE clientes, transacoes IN ACCESS EXCLUSIVE MODE;
+    LOCK TABLE clientes, transactions IN ACCESS EXCLUSIVE MODE;
 
-    INSERT INTO transacoes (id, id_cliente, valor, tipo, descricao, ultimo_saldo, created_at)
+    INSERT INTO transactions (id, id_cliente, valor, tipo, descricao, ultimo_saldo, created_at)
     VALUES (pid, pid_cliente, pvalor, 'c', pdescricao, var_saldo, pcreated_at);
 
     RETURN QUERY
@@ -72,7 +72,7 @@ DECLARE
     var_saldo INT;
     var_limite INT;
 BEGIN
-    LOCK TABLE clientes, transacoes IN ACCESS EXCLUSIVE MODE;
+    LOCK TABLE clientes, transactions IN ACCESS EXCLUSIVE MODE;
 
     SELECT c.saldo, c.limite 
     INTO var_saldo, var_limite
@@ -82,7 +82,7 @@ BEGIN
     IF (var_saldo - pvalor >= -var_limite) THEN
 
 
-        INSERT INTO transacoes (id, id_cliente, valor, tipo, descricao, ultimo_saldo, created_at)
+        INSERT INTO transactions (id, id_cliente, valor, tipo, descricao, ultimo_saldo, created_at)
         VALUES (pid, pid_cliente, pvalor, 'd', pdescricao, var_saldo, pcreated_at);
 
         UPDATE clientes SET saldo = var_saldo WHERE id = pid_cliente;

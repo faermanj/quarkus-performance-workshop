@@ -5,19 +5,19 @@ CREATE UNLOGGED TABLE members (
 	saldo INTEGER DEFAULT 0
 );
 
-CREATE UNLOGGED TABLE transacoes (
+CREATE UNLOGGED TABLE transactions (
 	id SERIAL PRIMARY KEY,
 	cliente_id INTEGER NOT NULL,
 	valor INTEGER NOT NULL,
 	tipo CHAR(1) NOT NULL,
 	descricao VARCHAR(10) NOT NULL,
 	realizada_em TIMESTAMP NOT NULL DEFAULT NOW(),
-	CONSTRAINT fk_members_transacoes_id
+	CONSTRAINT fk_members_transactions_id
 		FOREIGN KEY (cliente_id) REFERENCES members(id)
 );
 
-CREATE INDEX CONCURRENTLY idx_transacoes_cliente_id
-	ON transacoes (cliente_id);
+CREATE INDEX CONCURRENTLY idx_transactions_cliente_id
+	ON transactions (cliente_id);
 
 DO $$
 BEGIN
@@ -56,7 +56,7 @@ RETURNING saldo, limite INTO _saldo, _limite;
 	GET DIAGNOSTICS success = ROW_COUNT;
 
 	IF success THEN
-		INSERT INTO transacoes (cliente_id, valor, tipo, descricao)
+		INSERT INTO transactions (cliente_id, valor, tipo, descricao)
 		VALUES (cliente_id_tx, valor_tx, 'd', descricao_tx);
 
 		SELECT success, _saldo, _limite INTO record;
@@ -81,7 +81,7 @@ RETURNS TABLE (
 LANGUAGE plpgsql
 AS $$
 BEGIN
-	INSERT INTO transacoes
+	INSERT INTO transactions
 		VALUES(DEFAULT, cliente_id_tx, valor_tx, 'c', descricao_tx, NOW());
 
 	RETURN QUERY

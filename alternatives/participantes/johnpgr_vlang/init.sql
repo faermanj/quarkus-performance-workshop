@@ -3,7 +3,7 @@ CREATE UNLOGGED TABLE IF NOT EXISTS cliente (
 	nome VARCHAR(50) NOT NULL,
 	limite INTEGER NOT NULL,
 	saldo INTEGER NOT NULL DEFAULT 0,
-	ultimas_transacoes JSONB NOT NULL DEFAULT '[]'::JSONB
+	ultimas_transactions JSONB NOT NULL DEFAULT '[]'::JSONB
 );
 
 DO $$
@@ -33,7 +33,7 @@ BEGIN
    UPDATE cliente
       SET
          saldo = saldo + valor_transacao,
-         ultimas_transacoes = jsonb_path_query_array(jsonb_insert(ultimas_transacoes,'{0}', transacao), '$[0 to 9]')
+         ultimas_transactions = jsonb_path_query_array(jsonb_insert(ultimas_transactions,'{0}', transacao), '$[0 to 9]')
       WHERE id = cliente_id
       AND valor_transacao + saldo + limite >= 0
       RETURNING limite as limite, saldo as saldo INTO cliente;

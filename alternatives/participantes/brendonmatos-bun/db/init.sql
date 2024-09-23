@@ -2,7 +2,7 @@ CREATE UNLOGGED TABLE clientes (
     id SERIAL PRIMARY KEY,
     limite INTEGER NOT NULL,
     saldo INTEGER NOT NULL,
-    transacoes TEXT NOT NULL DEFAULT '[]'
+    transactions TEXT NOT NULL DEFAULT '[]'
 );
 
 CREATE UNIQUE INDEX idx_clientes_id ON clientes USING btree (id);

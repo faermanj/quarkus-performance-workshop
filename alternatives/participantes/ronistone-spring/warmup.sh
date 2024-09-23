@@ -4,7 +4,7 @@ startWarmupMakeTransactions() {
     for i in {1..30}; do
         # 2 requests to wake the 2 api instances up :)
         curl --fail -s --request POST \
-                      --url http://nginx:9999/members/1/transacoes \
+                      --url http://nginx:9999/members/1/transactions \
                       --header 'Content-Type: application/json' \
                       --data '{
                         "valor": 1000,
@@ -12,7 +12,7 @@ startWarmupMakeTransactions() {
                         "descricao" : "descricao"
                     }' > /dev/null && \
         curl --fail -s --request POST \
-                              --url http://nginx:9999/members/1/transacoes \
+                              --url http://nginx:9999/members/1/transactions \
                               --header 'Content-Type: application/json' \
                               --data '{
                                 "valor": 1000,

@@ -25,7 +25,7 @@ CREATE INDEX saldos_cliente_id_idx ON public.saldos USING btree (cliente_id, cri
 INSERT INTO saldos (cliente_id, limite)
 SELECT id, limite FROM members;
 
-CREATE TABLE transacoes
+CREATE TABLE transactions
 (
     cliente_id  INTEGER     NOT NULL,
     valor       INTEGER     NOT NULL,
@@ -33,7 +33,7 @@ CREATE TABLE transacoes
     descricao   VARCHAR(10) NOT NULL,
     criado_em   TIMESTAMP   NOT NULL DEFAULT NOW()
 );
-CREATE INDEX transacoes_cliente_id_idx ON public.transacoes (cliente_id,criado_em DESC);
+CREATE INDEX transactions_cliente_id_idx ON public.transactions (cliente_id,criado_em DESC);
 
 CREATE USER api01 WITH PASSWORD 'api01_pass';
 CREATE USER api02 WITH PASSWORD 'api02_pass';

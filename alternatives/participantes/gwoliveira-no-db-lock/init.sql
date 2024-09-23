@@ -12,7 +12,7 @@ CREATE UNLOGGED TABLE "transactions" (
     "description" VARCHAR(10)  NOT NULL,
     "created_at"  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "balance"     BIGINT      NULL,
-    CONSTRAINT "fk_clientes_transacoes_id"
+    CONSTRAINT "fk_clientes_transactions_id"
             FOREIGN KEY ("customer_id") REFERENCES customers ("id")
 );
 

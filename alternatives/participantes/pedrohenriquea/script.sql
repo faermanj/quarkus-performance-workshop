@@ -3,12 +3,12 @@ CREATE TABLE cliente (
 	nome VARCHAR(50) NOT NULL,
 	limite INTEGER NOT NULL,
 	saldo INTEGER NOT NULL,
-	ultimas_transacoes json
+	ultimas_transactions json
 );
 
 DO $$
 BEGIN
-        INSERT INTO cliente (nome, limite, saldo, ultimas_transacoes)
+        INSERT INTO cliente (nome, limite, saldo, ultimas_transactions)
 		VALUES
 			('o barato sai caro', 1000 * 100, 0, '[]'),
 			('zan corp ltda', 800 * 100, 0, '[]'),

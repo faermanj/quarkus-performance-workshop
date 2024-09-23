@@ -6,14 +6,14 @@ CREATE TABLE clientes (
 );
 
 
-CREATE TABLE transacoes (
+CREATE TABLE transactions (
     id SERIAL PRIMARY KEY,
     cliente_id INT NOT NULL,
     valor INT NOT NULL,
     tipo VARCHAR(1) NOT NULL,
     descricao VARCHAR(10) NOT NULL,
     realizada_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_clientes_transacoes_id FOREIGN KEY(cliente_id) REFERENCES clientes(id)
+    CONSTRAINT fk_clientes_transactions_id FOREIGN KEY(cliente_id) REFERENCES clientes(id)
 );
 
 
@@ -42,7 +42,7 @@ BEGIN
     RAISE EXCEPTION 'Transacao Invalida!';
   END IF;
 
-  INSERT INTO transacoes (cliente_id, valor, tipo, descricao)
+  INSERT INTO transactions (cliente_id, valor, tipo, descricao)
   VALUES (p_cliente_id, p_valor, p_tipo, p_descricao);
 END;
 $$;

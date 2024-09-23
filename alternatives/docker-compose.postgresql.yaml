@@ -127,7 +127,7 @@ services:
         for i in $(seq 1 50);
         do echo -n '.' ;
         curl -s -X GET http://localhost:9999/members/5/extrato > /dev/null  &
-        curl -s -X POST -H 'Content-Type: application/json' -d '{\"valor\": 0, \"tipo\": \"d\", \"descricao\": \"warmupsh\"}' http:///localhost:9000/members/5/transacoes > /dev/null &
+        curl -s -X POST -H 'Content-Type: application/json' -d '{\"valor\": 0, \"tipo\": \"d\", \"descricao\": \"warmupsh\"}' http:///localhost:9000/members/5/transactions > /dev/null &
       done; echo 'warmup done';"
     deploy:
       resources: 

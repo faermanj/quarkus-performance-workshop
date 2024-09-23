@@ -1,4 +1,4 @@
-delete from transacoes;
+delete from transactions;
 delete from clientes;
 
 INSERT INTO clientes (id, saldo, limite)
@@ -31,7 +31,7 @@ BEGIN
         RETURN;
     END IF;
     raise notice'Criando transacao para cliente %.', idcliente;
-    INSERT INTO transacoes (tipo, valor, descricao, realizada_em, idcliente)
+    INSERT INTO transactions (tipo, valor, descricao, realizada_em, idcliente)
     VALUES (tipo, valor, descricao, CURRENT_TIMESTAMP, idcliente);
 
     select valor * (case when tipo = 'd' then -1 else 1 end) into valor_com_sinal;    

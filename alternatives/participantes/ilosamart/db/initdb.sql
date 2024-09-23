@@ -7,7 +7,7 @@ CREATE TABLE clientes (
     PRIMARY KEY(id)
 );
 
-CREATE TABLE transacoes (
+CREATE TABLE transactions (
     id INT GENERATED ALWAYS AS IDENTITY,
     valor integer NOT NULL,
     tipo character(1) NOT NULL,

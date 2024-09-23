@@ -4,8 +4,8 @@ TABLE members (
 );
 
 CREATE UNLOGGED
-TABLE transacoes (
-    id SERIAL PRIMARY KEY, cliente_id INTEGER NOT NULL, valor INTEGER NOT NULL, tipo CHAR(1) NOT NULL, descricao VARCHAR(10) NOT NULL, realizada_em TIMESTAMP NOT NULL DEFAULT NOW(), CONSTRAINT fk_members_transacoes_id FOREIGN KEY (cliente_id) REFERENCES members (id)
+TABLE transactions (
+    id SERIAL PRIMARY KEY, cliente_id INTEGER NOT NULL, valor INTEGER NOT NULL, tipo CHAR(1) NOT NULL, descricao VARCHAR(10) NOT NULL, realizada_em TIMESTAMP NOT NULL DEFAULT NOW(), CONSTRAINT fk_members_transactions_id FOREIGN KEY (cliente_id) REFERENCES members (id)
 );
 
 DO $$ 
@@ -20,6 +20,6 @@ BEGIN
 END;
 $$; 
 
-CREATE INDEX idx_compound_cliente_id_realizado_em ON transacoes (cliente_id, realizada_em);
-CREATE INDEX idx_transacoes_cliente_id ON transacoes (cliente_id);
+CREATE INDEX idx_compound_cliente_id_realizado_em ON transactions (cliente_id, realizada_em);
+CREATE INDEX idx_transactions_cliente_id ON transactions (cliente_id);
 CREATE INDEX idx_members_id ON members (id);

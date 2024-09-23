@@ -21,8 +21,8 @@ CREATE TABLE public.clientes (
     montante INTEGER  -- Coluna para o montante do cliente
 );
 
--- Cria a tabela 'transacoes' no esquema 'public'
-CREATE TABLE public.transacoes (
+-- Cria a tabela 'transactions' no esquema 'public'
+CREATE TABLE public.transactions (
     id SERIAL PRIMARY KEY,  -- Coluna para o ID da transação, usando SERIAL para autoincremento
     cliente_id INTEGER REFERENCES public.clientes(id),  -- Coluna para o ID do cliente, com restrição de chave estrangeira referenciando 'clientes'
     valor INTEGER,  -- Coluna para o valor da transação
@@ -47,7 +47,7 @@ BEGIN
     PERFORM pg_advisory_xact_lock(cliente_id);
 
     -- Insere a transação de crédito
-    INSERT INTO public.transacoes (cliente_id, valor, descricao, tipo)
+    INSERT INTO public.transactions (cliente_id, valor, descricao, tipo)
     VALUES (cliente_id, valor, descricao, 'c');
 
     -- Atualiza o saldo do cliente e retorna montante e limite
@@ -85,7 +85,7 @@ BEGIN
     END IF;
 
     -- Insere a transação de débito
-    INSERT INTO public.transacoes (cliente_id, valor, descricao, tipo)
+    INSERT INTO public.transactions (cliente_id, valor, descricao, tipo)
     VALUES (cliente_id, valor, descricao, 'd'); -- Note o valor negativo
 
     -- Atualiza o saldo do cliente e retorna montante e limite
@@ -99,8 +99,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Cria a função 'obter_ultimas_transacoes' para obter as últimas transações de um cliente
-CREATE OR REPLACE FUNCTION obter_ultimas_transacoes(var_cliente_id INT)
+-- Cria a função 'obter_ultimas_transactions' para obter as últimas transações de um cliente
+CREATE OR REPLACE FUNCTION obter_ultimas_transactions(var_cliente_id INT)
 RETURNS TABLE(valor INT, tipo CHAR, descricao VARCHAR, realizada_em TIMESTAMP, montante INT, limite INT) AS $$
 BEGIN
     -- Verifica se o cliente existe
@@ -114,7 +114,7 @@ BEGIN
     -- Retorna as últimas transações do cliente
     RETURN QUERY 
     SELECT t.valor, t.tipo, t.descricao, t.realizada_em, c.montante, c.limite
-    FROM public.transacoes t
+    FROM public.transactions t
     JOIN public.clientes c ON t.cliente_id = c.id
     WHERE t.cliente_id = var_cliente_id
     ORDER BY t.id DESC
@@ -122,9 +122,9 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Cria índices para otimizar consultas na tabela 'transacoes'
-CREATE INDEX idx_transacoes_cliente_id ON public.transacoes(cliente_id);
-CREATE INDEX idx_transacoes_realizada_em ON public.transacoes(realizada_em);
+-- Cria índices para otimizar consultas na tabela 'transactions'
+CREATE INDEX idx_transactions_cliente_id ON public.transactions(cliente_id);
+CREATE INDEX idx_transactions_realizada_em ON public.transactions(realizada_em);
 
 -- Insere dados iniciais na tabela 'clientes'
 DO $$

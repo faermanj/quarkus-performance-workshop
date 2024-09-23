@@ -5,7 +5,7 @@ CREATE UNLOGGED TABLE IF NOT EXISTS members
     limite INTEGER     NOT NULL
 );
 
-CREATE UNLOGGED TABLE IF NOT EXISTS transacoes
+CREATE UNLOGGED TABLE IF NOT EXISTS transactions
 (
     id           SERIAL8 PRIMARY KEY,
     cliente_id   INTEGER     NOT NULL,
@@ -18,7 +18,7 @@ CREATE UNLOGGED TABLE IF NOT EXISTS transacoes
     FOREIGN KEY (cliente_id) REFERENCES members (id)
 );
 
-CREATE INDEX IF NOT EXISTS idx_transacoes_cliente_id ON transacoes (cliente_id);
+CREATE INDEX IF NOT EXISTS idx_transactions_cliente_id ON transactions (cliente_id);
 
 DO
 $$

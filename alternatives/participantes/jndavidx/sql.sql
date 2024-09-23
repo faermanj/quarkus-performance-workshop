@@ -83,7 +83,7 @@ BEGIN
     );
 
     RETURN json_build_object(
-        'saldo', _balance, 'ultimas_transacoes', last_transactions
+        'saldo', _balance, 'ultimas_transactions', last_transactions
     );
 END;
 $$ LANGUAGE plpgsql;

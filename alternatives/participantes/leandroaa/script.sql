@@ -4,18 +4,18 @@ CREATE UNLOGGED TABLE clientes (
 	limite INTEGER NOT NULL
 );
 
-CREATE UNLOGGED TABLE transacoes (
+CREATE UNLOGGED TABLE transactions (
 	id SERIAL PRIMARY KEY,
 	cliente_id INTEGER NOT NULL,
 	valor INTEGER NOT NULL,
 	tipo CHAR(1) NOT NULL,
 	descricao VARCHAR(10) NOT NULL,
 	realizada_em TIMESTAMP NOT NULL DEFAULT NOW(),
-	CONSTRAINT fk_clientes_transacoes_id
+	CONSTRAINT fk_clientes_transactions_id
 		FOREIGN KEY (cliente_id) REFERENCES clientes(id)
 );
 
-CREATE TABLE transacoes1 (
+CREATE TABLE transactions1 (
 id SERIAL PRIMARY KEY,
     saldo INTEGER NOT NULL,
 	valor INTEGER NOT NULL,
@@ -23,7 +23,7 @@ id SERIAL PRIMARY KEY,
 	descricao VARCHAR(10) NOT NULL,
 	realizada_em TIMESTAMP NOT NULL DEFAULT NOW()
 );
-CREATE TABLE transacoes2 (
+CREATE TABLE transactions2 (
 id SERIAL PRIMARY KEY,
     saldo INTEGER NOT NULL,
 	valor INTEGER NOT NULL,
@@ -31,7 +31,7 @@ id SERIAL PRIMARY KEY,
 	descricao VARCHAR(10) NOT NULL,
 	realizada_em TIMESTAMP NOT NULL DEFAULT NOW()
 );
-CREATE TABLE transacoes3 (
+CREATE TABLE transactions3 (
 id SERIAL PRIMARY KEY,
     saldo INTEGER NOT NULL,
 	valor INTEGER NOT NULL,
@@ -39,7 +39,7 @@ id SERIAL PRIMARY KEY,
 	descricao VARCHAR(10) NOT NULL,
 	realizada_em TIMESTAMP NOT NULL DEFAULT NOW()
 );
-CREATE TABLE transacoes4 (
+CREATE TABLE transactions4 (
 id SERIAL PRIMARY KEY,
     saldo INTEGER NOT NULL,
 	valor INTEGER NOT NULL,
@@ -47,7 +47,7 @@ id SERIAL PRIMARY KEY,
 	descricao VARCHAR(10) NOT NULL,
 	realizada_em TIMESTAMP NOT NULL DEFAULT NOW()
 );
-CREATE TABLE transacoes5 (
+CREATE TABLE transactions5 (
 id SERIAL PRIMARY KEY,
     saldo INTEGER NOT NULL,
 	valor INTEGER NOT NULL,
@@ -65,7 +65,7 @@ RETURNS TABLE (a INTEGER, b INTEGER, c character(1), d VARCHAR, e TIMESTAMP)
 LANGUAGE plpgsql
 AS $$
 BEGIN
-    RETURN QUERY SELECT saldo a, valor b, tipo c, descricao d, realizada_em e FROM transacoes1 order by id desc limit 10;
+    RETURN QUERY SELECT saldo a, valor b, tipo c, descricao d, realizada_em e FROM transactions1 order by id desc limit 10;
 END;
 $$;
 
@@ -74,7 +74,7 @@ RETURNS TABLE (a INTEGER, b INTEGER, c character(1), d VARCHAR, e TIMESTAMP)
 LANGUAGE plpgsql
 AS $$
 BEGIN
-    RETURN QUERY SELECT saldo a, valor b, tipo c, descricao d, realizada_em e FROM transacoes2 order by id desc limit 10;
+    RETURN QUERY SELECT saldo a, valor b, tipo c, descricao d, realizada_em e FROM transactions2 order by id desc limit 10;
 END;
 $$;
 
@@ -83,7 +83,7 @@ RETURNS TABLE (a INTEGER, b INTEGER, c character(1), d VARCHAR, e TIMESTAMP)
 LANGUAGE plpgsql
 AS $$
 BEGIN
-    RETURN QUERY SELECT saldo a, valor b, tipo c, descricao d, realizada_em e FROM transacoes3 order by id desc limit 10;
+    RETURN QUERY SELECT saldo a, valor b, tipo c, descricao d, realizada_em e FROM transactions3 order by id desc limit 10;
 END;
 $$;
 
@@ -92,7 +92,7 @@ RETURNS TABLE (a INTEGER, b INTEGER, c character(1), d VARCHAR, e TIMESTAMP)
 LANGUAGE plpgsql
 AS $$
 BEGIN
-    RETURN QUERY SELECT saldo a, valor b, tipo c, descricao d, realizada_em e FROM transacoes4 order by id desc limit 10;
+    RETURN QUERY SELECT saldo a, valor b, tipo c, descricao d, realizada_em e FROM transactions4 order by id desc limit 10;
 END;
 $$;
 
@@ -101,7 +101,7 @@ RETURNS TABLE (a INTEGER, b INTEGER, c character(1), d VARCHAR, e TIMESTAMP)
 LANGUAGE plpgsql
 AS $$
 BEGIN
-    RETURN QUERY SELECT saldo a, valor b, tipo c, descricao d, realizada_em e FROM transacoes5 order by id desc limit 10;
+    RETURN QUERY SELECT saldo a, valor b, tipo c, descricao d, realizada_em e FROM transactions5 order by id desc limit 10;
 END;
 $$;
 
@@ -113,7 +113,7 @@ BEGIN
 	PERFORM pg_advisory_xact_lock(1);
 
 	UPDATE saldos SET valor = valor + aa WHERE id = 1 RETURNING valor into cc;
-	INSERT INTO transacoes1(saldo, valor, tipo, descricao, realizada_em) VALUES (cc, aa, 'c', b, now());
+	INSERT INTO transactions1(saldo, valor, tipo, descricao, realizada_em) VALUES (cc, aa, 'c', b, now());
 
 	RETURN QUERY SELECT cc;
 END;
@@ -127,7 +127,7 @@ BEGIN
 	PERFORM pg_advisory_xact_lock(2);
 
 	UPDATE saldos SET valor = valor + aa WHERE id = 2 RETURNING valor into cc;
-	INSERT INTO transacoes2(saldo, valor, tipo, descricao, realizada_em) VALUES (cc, aa, 'c', b, now());
+	INSERT INTO transactions2(saldo, valor, tipo, descricao, realizada_em) VALUES (cc, aa, 'c', b, now());
 
 	RETURN QUERY SELECT cc;
 END;
@@ -141,7 +141,7 @@ BEGIN
 	PERFORM pg_advisory_xact_lock(3);
 
 	UPDATE saldos SET valor = valor + aa WHERE id = 3 RETURNING valor into cc;
-	INSERT INTO transacoes3(saldo, valor, tipo, descricao, realizada_em) VALUES (cc, aa, 'c', b, now());
+	INSERT INTO transactions3(saldo, valor, tipo, descricao, realizada_em) VALUES (cc, aa, 'c', b, now());
 
 	RETURN QUERY SELECT cc;
 END;
@@ -155,7 +155,7 @@ BEGIN
 	PERFORM pg_advisory_xact_lock(4);
 
 	UPDATE saldos SET valor = valor + aa WHERE id = 4 RETURNING valor into cc;
-	INSERT INTO transacoes4(saldo, valor, tipo, descricao, realizada_em) VALUES (cc, aa, 'c', b, now());
+	INSERT INTO transactions4(saldo, valor, tipo, descricao, realizada_em) VALUES (cc, aa, 'c', b, now());
 
 	RETURN QUERY SELECT cc;
 END;
@@ -169,7 +169,7 @@ BEGIN
 	PERFORM pg_advisory_xact_lock(5);
 
 	UPDATE saldos SET valor = valor + aa WHERE id = 5 RETURNING valor into cc;
-	INSERT INTO transacoes5(saldo, valor, tipo, descricao, realizada_em) VALUES (cc, aa, 'c', b, now());
+	INSERT INTO transactions5(saldo, valor, tipo, descricao, realizada_em) VALUES (cc, aa, 'c', b, now());
 
 	RETURN QUERY SELECT cc;
 END;
@@ -184,7 +184,7 @@ BEGIN
 
 	UPDATE saldos SET valor = valor - aa WHERE id = 1 AND (valor - aa) >= (c * -1) RETURNING valor into dd;
 	IF FOUND THEN
-		INSERT INTO transacoes1(saldo, valor, tipo, descricao, realizada_em) VALUES (dd, aa, 'd', b, now());
+		INSERT INTO transactions1(saldo, valor, tipo, descricao, realizada_em) VALUES (dd, aa, 'd', b, now());
 	ELSE
 		dd := NULL;
 	END IF;
@@ -202,7 +202,7 @@ BEGIN
 
 	UPDATE saldos SET valor = valor - aa WHERE id = 2 AND (valor - aa) >= (c * -1) RETURNING valor into dd;
 	IF FOUND THEN
-		INSERT INTO transacoes2(saldo, valor, tipo, descricao, realizada_em) VALUES (dd, aa, 'd', b, now());
+		INSERT INTO transactions2(saldo, valor, tipo, descricao, realizada_em) VALUES (dd, aa, 'd', b, now());
 	ELSE
 		dd := NULL;
 	END IF;
@@ -220,7 +220,7 @@ BEGIN
 
 	UPDATE saldos SET valor = valor - aa WHERE id = 3 AND (valor - aa) >= (c * -1) RETURNING valor into dd;
 	IF FOUND THEN
-		INSERT INTO transacoes3(saldo, valor, tipo, descricao, realizada_em) VALUES (dd, aa, 'd', b, now());
+		INSERT INTO transactions3(saldo, valor, tipo, descricao, realizada_em) VALUES (dd, aa, 'd', b, now());
 	ELSE
 		dd := NULL;
 	END IF;
@@ -238,7 +238,7 @@ BEGIN
 
 	UPDATE saldos SET valor = valor - aa WHERE id = 4 AND (valor - aa) >= (c * -1) RETURNING valor into dd;
 	IF FOUND THEN
-		INSERT INTO transacoes4(saldo, valor, tipo, descricao, realizada_em) VALUES (dd, aa, 'd', b, now());
+		INSERT INTO transactions4(saldo, valor, tipo, descricao, realizada_em) VALUES (dd, aa, 'd', b, now());
 	ELSE
 		dd := NULL;
 	END IF;
@@ -256,7 +256,7 @@ BEGIN
 
 	UPDATE saldos SET valor = valor - aa WHERE id = 5 AND (valor - aa) >= (c * -1) RETURNING valor into dd;
 	IF FOUND THEN
-		INSERT INTO transacoes5(saldo, valor, tipo, descricao, realizada_em) VALUES (dd, aa, 'd', b, now());
+		INSERT INTO transactions5(saldo, valor, tipo, descricao, realizada_em) VALUES (dd, aa, 'd', b, now());
 	ELSE
 		dd := NULL;
 	END IF;
@@ -278,11 +278,11 @@ BEGIN
 	INSERT INTO saldos (id, valor)
 		SELECT id, 0 FROM clientes;
 
---insert into public.transacoes1(saldo, valor, tipo, descricao, realizada_em) values (0, 0, 'i', 'inicio', now());
---insert into public.transacoes2(saldo, valor, tipo, descricao, realizada_em) values (0, 0, 'i', 'inicio', now());
---insert into public.transacoes3(saldo, valor, tipo, descricao, realizada_em) values (0, 0, 'i', 'inicio', now());
---insert into public.transacoes4(saldo, valor, tipo, descricao, realizada_em) values (0, 0, 'i', 'inicio', now());
---insert into public.transacoes5(saldo, valor, tipo, descricao, realizada_em) values (0, 0, 'i', 'inicio', now());
+--insert into public.transactions1(saldo, valor, tipo, descricao, realizada_em) values (0, 0, 'i', 'inicio', now());
+--insert into public.transactions2(saldo, valor, tipo, descricao, realizada_em) values (0, 0, 'i', 'inicio', now());
+--insert into public.transactions3(saldo, valor, tipo, descricao, realizada_em) values (0, 0, 'i', 'inicio', now());
+--insert into public.transactions4(saldo, valor, tipo, descricao, realizada_em) values (0, 0, 'i', 'inicio', now());
+--insert into public.transactions5(saldo, valor, tipo, descricao, realizada_em) values (0, 0, 'i', 'inicio', now());
 
 END;
 $$;

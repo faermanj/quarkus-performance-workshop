@@ -3,7 +3,7 @@ SET check_function_bodies = false;
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 
-DROP TABLE IF EXISTS transacoes;
+DROP TABLE IF EXISTS transactions;
 DROP TABLE IF EXISTS members;
 DROP FUNCTION IF EXISTS CREATE_TRANSACATION;
 
@@ -13,15 +13,15 @@ CREATE UNLOGGED TABLE members (
     saldo INTEGER CHECK((limite * -1) <= saldo) NOT NULL
 );
 
-CREATE UNLOGGED TABLE transacoes (
+CREATE UNLOGGED TABLE transactions (
     cliente_id INTEGER NOT NULL,
     valor INTEGER NOT NULL,
     descricao VARCHAR(10) NOT NULL,
     data TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_cliente_transacao ON transacoes(cliente_id);
-CREATE INDEX idx_transacao_data ON transacoes(DATA DESC);
+CREATE INDEX idx_cliente_transacao ON transactions(cliente_id);
+CREATE INDEX idx_transacao_data ON transactions(DATA DESC);
 
 CREATE OR REPLACE FUNCTION CREATE_TRANSACATION(customer_id INTEGER, amount INTEGER, description VARCHAR(10)) RETURNS RECORD AS $$
 DECLARE 
@@ -40,7 +40,7 @@ BEGIN
 	END IF;
 
 	INSERT 
-		INTO transacoes (cliente_id, valor, descricao)
+		INTO transactions (cliente_id, valor, descricao)
 	VALUES
 		(customer_id, amount, description);
 

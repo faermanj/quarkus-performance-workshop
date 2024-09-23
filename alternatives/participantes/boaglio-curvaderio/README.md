@@ -17,7 +17,7 @@ Já dizia o velho sábio:  _app Java com pouca memória é uma curva de rio_
 ### v1
 
 * removido Spring Validator e Actuator
-* usando Capped Collections (MongoDB) para gravar transacoes
+* usando Capped Collections (MongoDB) para gravar transactions
 * pouca memória para usar Virtual Threads =( 
 * GraalVM com Spring Boot 3.2 tem bug e não funciona =( 
   (erro Could not find class [org.springframework.data.domain.Unpaged)

@@ -4,7 +4,7 @@ CREATE UNLOGGED TABLE clientes (
     saldo INT
 );
 
-CREATE UNLOGGED TABLE transacoes (
+CREATE UNLOGGED TABLE transactions (
     id SERIAL PRIMARY KEY,
     valor INT,
     tipo CHAR(1),
@@ -13,7 +13,7 @@ CREATE UNLOGGED TABLE transacoes (
     realizada_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_cliente_e_suas_transacoes ON transacoes (cliente_id, realizada_em DESC);
+CREATE INDEX idx_cliente_e_suas_transactions ON transactions (cliente_id, realizada_em DESC);
 
 INSERT INTO clientes (limite, saldo) VALUES
 (100000, 0),
@@ -50,7 +50,7 @@ BEGIN
             WHERE id = p_cliente_id 
             RETURNING saldo, limite INTO ret;
 
-            INSERT INTO transacoes (valor, tipo, cliente_id, descricao)
+            INSERT INTO transactions (valor, tipo, cliente_id, descricao)
             VALUES (p_valor, 'd', p_cliente_id, p_descricao);
         END IF;
     ELSIF p_tipo = 'c' THEN
@@ -59,7 +59,7 @@ BEGIN
         WHERE id = p_cliente_id
         RETURNING saldo, limite INTO ret;
 
-        INSERT INTO transacoes (valor, tipo, cliente_id, descricao)
+        INSERT INTO transactions (valor, tipo, cliente_id, descricao)
         VALUES (p_valor, 'c', p_cliente_id, p_descricao);
     ELSE
         RAISE EXCEPTION 'Transação inválida!';

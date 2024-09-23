@@ -5,14 +5,14 @@ CREATE TABLE IF NOT EXISTS clientes (
     saldo INT DEFAULT 0 NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS transacoes (
+CREATE TABLE IF NOT EXISTS transactions (
 	id SERIAL PRIMARY KEY,
     id_cliente INT,
     valor INT DEFAULT 0 NOT NULL,
 	tipo int NOT NULL,
 	descricao VARCHAR(10) NOT NULL,
 	realizada_em TIMESTAMP NOT NULL,
-	CONSTRAINT fk_clientes_transacoes_id
+	CONSTRAINT fk_clientes_transactions_id
 		FOREIGN KEY (id_cliente) REFERENCES clientes(id)
 );
 

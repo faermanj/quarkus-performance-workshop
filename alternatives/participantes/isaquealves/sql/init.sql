@@ -31,7 +31,7 @@ CREATE OR REPLACE VIEW account_statement AS
                     'limite', c."limit",
                     'data_extrato', now()
                     ),
-                'ultimas_transacoes', COALESCE(
+                'ultimas_transactions', COALESCE(
                     (SELECT json_agg(row_to_json(t)) FROM (
                         SELECT amount as "valor", nature as "tipo", op_description as "descricao", TO_CHAR(created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as realizada_em
                         FROM operation op

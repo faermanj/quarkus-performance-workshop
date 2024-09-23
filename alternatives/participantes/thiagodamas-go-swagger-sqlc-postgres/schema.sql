@@ -62,10 +62,10 @@ CREATE TABLE public.saldos (
 ALTER TABLE public.saldos OWNER TO postgres;
 
 --
--- Name: transacoes; Type: TABLE; Schema: public; Owner: postgres
+-- Name: transactions; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.transacoes (
+CREATE TABLE public.transactions (
     id bigint NOT NULL,
     id_conta integer NOT NULL,
     tipo_operacao "char" NOT NULL,
@@ -75,13 +75,13 @@ CREATE TABLE public.transacoes (
 );
 
 
-ALTER TABLE public.transacoes OWNER TO postgres;
+ALTER TABLE public.transactions OWNER TO postgres;
 
 --
--- Name: transacoes_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: transactions_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
-CREATE SEQUENCE public.transacoes_id_seq
+CREATE SEQUENCE public.transactions_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -89,20 +89,20 @@ CREATE SEQUENCE public.transacoes_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.transacoes_id_seq OWNER TO postgres;
+ALTER TABLE public.transactions_id_seq OWNER TO postgres;
 
 --
--- Name: transacoes_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: transactions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
-ALTER SEQUENCE public.transacoes_id_seq OWNED BY public.transacoes.id;
+ALTER SEQUENCE public.transactions_id_seq OWNED BY public.transactions.id;
 
 
 --
--- Name: transacoes id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: transactions id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.transacoes ALTER COLUMN id SET DEFAULT nextval('public.transacoes_id_seq'::regclass);
+ALTER TABLE ONLY public.transactions ALTER COLUMN id SET DEFAULT nextval('public.transactions_id_seq'::regclass);
 
 
 --
@@ -137,10 +137,10 @@ ALTER TABLE ONLY public.dados_bancarios
 
 
 --
--- Name: transacoes operacao; Type: CHECK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: transactions operacao; Type: CHECK CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE public.transacoes
+ALTER TABLE public.transactions
     ADD CONSTRAINT operacao CHECK (((tipo_operacao = 'c'::"char") OR (tipo_operacao = 'd'::"char"))) NOT VALID;
 
 
@@ -153,18 +153,18 @@ ALTER TABLE ONLY public.saldos
 
 
 --
--- Name: transacoes transacoes_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: transactions transactions_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.transacoes
-    ADD CONSTRAINT transacoes_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.transactions
+    ADD CONSTRAINT transactions_pkey PRIMARY KEY (id);
 
 
 --
--- Name: transacoes id_conta; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: transactions id_conta; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.transacoes
+ALTER TABLE ONLY public.transactions
     ADD CONSTRAINT id_conta FOREIGN KEY (id_conta) REFERENCES public.dados_bancarios(id_conta) ON UPDATE RESTRICT ON DELETE RESTRICT NOT VALID;
 
 

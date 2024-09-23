@@ -4,7 +4,7 @@ CREATE TABLE members (
   id SERIAL PRIMARY KEY,
   limite INT NOT NULL,
   saldo INT DEFAULT 0 NOT NULL,
-  transacoes TEXT NOT NULL DEFAULT '[]'
+  transactions TEXT NOT NULL DEFAULT '[]'
 );
 
 CREATE UNIQUE INDEX idx_members_id ON members USING btree (id);

@@ -4,7 +4,7 @@ CREATE UNLOGGED TABLE clientes (
     saldo DECIMAL(10) NOT NULL
 );
 
-CREATE UNLOGGED TABLE transacoes (
+CREATE UNLOGGED TABLE transactions (
     id SERIAL PRIMARY KEY,
     cliente_id INTEGER REFERENCES clientes(id) ON DELETE CASCADE,
     valor DECIMAL(10) NOT NULL,
@@ -60,7 +60,7 @@ BEGIN
 
 
     IF falha_result = false THEN
-        INSERT INTO transacoes (cliente_id,valor,tipo,descricao,realizada_em) VALUES (input_cliente_id,input_valor,input_tipo,input_descricao,NOW());
+        INSERT INTO transactions (cliente_id,valor,tipo,descricao,realizada_em) VALUES (input_cliente_id,input_valor,input_tipo,input_descricao,NOW());
         RETURN QUERY SELECT valor_transacao_final, limite_search, falha_result, mensagem_result;
     ELSE
         RETURN QUERY SELECT 0, 0, falha_result, mensagem_result;
@@ -87,7 +87,7 @@ BEGIN
             FROM clientes
             WHERE id = p_id
         ),
-        'ultimas_transacoes', (
+        'ultimas_transactions', (
             SELECT COALESCE(
                 JSON_AGG(
                     JSON_BUILD_OBJECT(
@@ -101,11 +101,11 @@ BEGIN
             )
             FROM (
                 SELECT valor, tipo, descricao, realizada_em
-                FROM transacoes
+                FROM transactions
                 WHERE cliente_id = p_id
                 ORDER BY realizada_em DESC
                 LIMIT 10
-            ) AS ultimas_transacoes
+            ) AS ultimas_transactions
         )
     ) INTO saldo_info;
 

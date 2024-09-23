@@ -8,7 +8,7 @@ $url = explode("/", $_SERVER["REQUEST_URI"]);
 $id = $url[1] === "clientes" && is_numeric($url[2]) ? (int) $url[2] : exit404();
 
 switch (true) {
-    case $_SERVER['REQUEST_METHOD'] === "POST" && $url[3] === "transacoes":
+    case $_SERVER['REQUEST_METHOD'] === "POST" && $url[3] === "transactions":
         $requestJson = file_get_contents('php://input');
         $request = json_decode($requestJson, false);
 
@@ -93,7 +93,7 @@ switch (true) {
                 "data_extrato" => $date->format(TIME_STAMP),
                 "limite" => (int) $client->limite
             ],
-            "ultimas_transacoes" => $transactions
+            "ultimas_transactions" => $transactions
         ]);
         break;
     default:

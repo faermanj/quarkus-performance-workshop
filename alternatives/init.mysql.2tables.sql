@@ -3,7 +3,7 @@ CREATE TABLE clientes (
     saldo INT NOT NULL DEFAULT 0
 );
 
-CREATE TABLE transacoes (
+CREATE TABLE transactions (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     cliente_id INT NOT NULL,
     valor INT NOT NULL,
@@ -13,7 +13,7 @@ CREATE TABLE transacoes (
     realizada_em_char VARCHAR(32) NOT NULL
 );
 
-CREATE INDEX idx_cliente_id ON transacoes (cliente_id);
+CREATE INDEX idx_cliente_id ON transactions (cliente_id);
 
 INSERT INTO clientes(id) VALUES (NULL), (NULL), (NULL), (NULL), (NULL);
 
@@ -28,8 +28,8 @@ BEGIN
         UPDATE clientes SET saldo = saldo - p_valor WHERE id = p_cliente_id;
     END IF;
 
-    -- Insert into transacoes table
-    INSERT INTO transacoes (cliente_id, valor, tipo, descricao, realizada_em, realizada_em_char)
+    -- Insert into transactions table
+    INSERT INTO transactions (cliente_id, valor, tipo, descricao, realizada_em, realizada_em_char)
     VALUES (p_cliente_id, p_valor, p_tipo, p_descricao, NOW(), DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i:%s.%f'));
 END$$
 
@@ -43,7 +43,7 @@ BEGIN
     DECLARE v_saldo INT;
     DECLARE v_limite INT;
     DECLARE extrato_json JSON;
-    DECLARE transacoes_json JSON;
+    DECLARE transactions_json JSON;
     
     -- Determine v_limite based on cliente_id (similar logic to your CASE statement)
     SET v_limite = CASE p_cliente_id
@@ -58,7 +58,7 @@ BEGIN
     -- Get saldo for the cliente_id
     SELECT saldo INTO v_saldo FROM clientes WHERE id = p_cliente_id;
 
-    -- Construct the JSON object for ultimas_transacoes
+    -- Construct the JSON object for ultimas_transactions
     SELECT JSON_ARRAYAGG(
         JSON_OBJECT(
             'valor', valor,
@@ -66,10 +66,10 @@ BEGIN
             'descricao', descricao,
             'realizada_em_char', realizada_em_char
         )
-    ) INTO transacoes_json
+    ) INTO transactions_json
     FROM (
         SELECT valor, tipo, descricao, realizada_em_char
-        FROM transacoes
+        FROM transactions
         WHERE cliente_id = p_cliente_id
         ORDER BY realizada_em DESC
         LIMIT 10
@@ -82,7 +82,7 @@ BEGIN
             'data_extrato', DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i:%s.%f'),
             'limite', v_limite
         ),
-        'ultimas_transacoes', IFNULL(transacoes_json, JSON_ARRAY())
+        'ultimas_transactions', IFNULL(transactions_json, JSON_ARRAY())
     );
     
     -- Output the extrato_json (in real-world usage, you might need to select or do something with this JSON)

@@ -6,7 +6,7 @@ CREATE UNLOGGED TABLE "clientes" (
     CONSTRAINT "clientes_pkey" PRIMARY KEY ("id")
 );
 
-CREATE UNLOGGED TABLE "transacoes" (
+CREATE UNLOGGED TABLE "transactions" (
     "id" SERIAL NOT NULL,
     "valor" INTEGER NOT NULL,
     "id_cliente" INTEGER NOT NULL,
@@ -14,13 +14,13 @@ CREATE UNLOGGED TABLE "transacoes" (
     "descricao" VARCHAR(10) NOT NULL,
     "realizada_em" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "transacoes_pkey" PRIMARY KEY ("id"),
-    CONSTRAINT "transacoes_id_cliente_fkey" FOREIGN KEY ("id_cliente") REFERENCES "clientes"("id") ON DELETE RESTRICT ON UPDATE CASCADE
+    CONSTRAINT "transactions_pkey" PRIMARY KEY ("id"),
+    CONSTRAINT "transactions_id_cliente_fkey" FOREIGN KEY ("id_cliente") REFERENCES "clientes"("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 
 CREATE INDEX idx_saldo_limite ON clientes (saldo, limite);
-CREATE INDEX idx_id_cliente ON transacoes (id_cliente);
+CREATE INDEX idx_id_cliente ON transactions (id_cliente);
 
 CREATE OR REPLACE FUNCTION debitar(
   IN id_cliente integer,
@@ -31,7 +31,7 @@ CREATE OR REPLACE FUNCTION debitar(
 DECLARE
   ret RECORD;
 BEGIN
-  INSERT INTO transacoes (valor, descricao, realizada_em, id_cliente, tipo)
+  INSERT INTO transactions (valor, descricao, realizada_em, id_cliente, tipo)
     VALUES (valor, descricao, now() at time zone 'utc', id_cliente, 'd');
   UPDATE clientes
     SET saldo = saldo - valor
@@ -53,7 +53,7 @@ CREATE OR REPLACE FUNCTION creditar(
 DECLARE
   ret RECORD;
 BEGIN
-  INSERT INTO transacoes (valor, descricao, realizada_em, id_cliente, tipo)
+  INSERT INTO transactions (valor, descricao, realizada_em, id_cliente, tipo)
     VALUES (valor, descricao, now() at time zone 'utc', id_cliente, 'c');
   UPDATE clientes
     SET saldo = saldo + valor

@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS transacoes;
+DROP TABLE IF EXISTS transactions;
 DROP TABLE IF EXISTS clientes;
 
 CREATE UNLOGGED TABLE clientes (
@@ -7,7 +7,7 @@ CREATE UNLOGGED TABLE clientes (
     saldo  BIGINT NOT NULL DEFAULT 0
 );
 
-CREATE UNLOGGED TABLE transacoes (
+CREATE UNLOGGED TABLE transactions (
    id           SERIAL PRIMARY KEY,
    cliente_id   SMALLINT NOT NULL,
    valor        BIGINT NOT NULL,
@@ -17,7 +17,7 @@ CREATE UNLOGGED TABLE transacoes (
    CONSTRAINT fk_transacao_cliente FOREIGN KEY (cliente_id) REFERENCES clientes (id)
 );
 
-CREATE INDEX ON transacoes (cliente_id, data_hora DESC);
+CREATE INDEX ON transactions (cliente_id, data_hora DESC);
 CREATE UNIQUE INDEX ON clientes (id);
 
 
@@ -58,7 +58,7 @@ BEGIN
    
     IF novoSaldo >= -l THEN
         UPDATE clientes SET saldo = novoSaldo WHERE id = id_cliente;
-        INSERT INTO transacoes(cliente_id, valor, tipo, descricao) VALUES (id_cliente, valor, tipo, descricao);
+        INSERT INTO transactions(cliente_id, valor, tipo, descricao) VALUES (id_cliente, valor, tipo, descricao);
         RETURN json_build_object('id', id_cliente, 'limite', l, 'saldo', novoSaldo);
     ELSE
         RAISE EXCEPTION 'O cliente não tem limite para executar essa transação.'; 
@@ -67,28 +67,28 @@ END;
 $$ LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE FUNCTION public.get_transacoes(
+CREATE OR REPLACE FUNCTION public.get_transactions(
     id_cliente INT
 ) RETURNS JSON AS
 $$
 DECLARE
 	cliente JSON;
-	transacoes JSON;
+	transactions JSON;
 BEGIN	
 	SELECT to_jsonb(c) INTO cliente FROM clientes as c WHERE c.id = id_cliente FOR UPDATE;
    
     IF cliente ISNULL THEN
 	  RAISE EXCEPTION 'Não existe um cliente com o id informado'; 
     ELSE
-		SELECT jsonb_agg(to_jsonb(transacoes_by_user)) INTO transacoes
+		SELECT jsonb_agg(to_jsonb(transactions_by_user)) INTO transactions
 		FROM (
-				SELECT * FROM transacoes AS t
+				SELECT * FROM transactions AS t
 			  	WHERE t.cliente_id = id_cliente
 			  	ORDER BY t.data_hora DESC
 			    LIMIT 10 FOR UPDATE
-			 ) AS transacoes_by_user;
+			 ) AS transactions_by_user;
 		
-		RETURN json_build_object('saldo', cliente, 'transacoes', transacoes);
+		RETURN json_build_object('saldo', cliente, 'transactions', transactions);
     END IF;
 END;
 $$ LANGUAGE plpgsql;

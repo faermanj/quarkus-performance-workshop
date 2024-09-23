@@ -26,7 +26,7 @@ import jakarta.ws.rs.core.Response;
 @ApplicationScoped
 @Path("/members")
 public class PostgreSQLRoute {
-    private static final String VERSION_ID = "Devoxx";
+    private static final String VERSION_ID = "Devoxx 2024";
     private static final String EXTRATO_QUERY = "select status_code, body from proc_extrato($1)";
     private static final String TRANSACAO_QUERY = "select status_code, body from proc_transacao($1, $2, $3, $4)";
     private static final String WARMUP_QUERY = "select 1+1;";
@@ -103,7 +103,7 @@ public class PostgreSQLRoute {
                 .onFailure().recoverWithItem(e -> errorOf(e,"err_extrato")); 
     }
 
-    @Path("/{id}/transacoes")
+    @Path("/{id}/transactions")
     @Consumes("application/json")
     @Produces("application/json")  
     @POST

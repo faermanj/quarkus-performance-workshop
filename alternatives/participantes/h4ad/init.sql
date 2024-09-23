@@ -20,7 +20,7 @@ CREATE UNLOGGED TABLE pessoas (
     CHECK (saldo > -limite)
 );
 
-CREATE UNLOGGED TABLE transacoes (
+CREATE UNLOGGED TABLE transactions (
     pessoa_id int NOT NULL,
     valor int NOT NULL,
     tipo varchar(1) NOT NULL,
@@ -28,7 +28,7 @@ CREATE UNLOGGED TABLE transacoes (
     realizada_em timestamp NOT NULL
 );
 
-CREATE INDEX idx_transacoes_pessoa_id ON transacoes (pessoa_id, realizada_em DESC);
+CREATE INDEX idx_transactions_pessoa_id ON transactions (pessoa_id, realizada_em DESC);
 
 INSERT INTO pessoas (id, limite, saldo) VALUES (1, 100000, 0);
 INSERT INTO pessoas (id, limite, saldo) VALUES (2, 80000, 0);
@@ -71,7 +71,7 @@ BEGIN
         resultado = '-1';
         RETURN;
     ELSE
-        INSERT INTO transacoes (pessoa_id, valor, tipo, descricao, realizada_em)
+        INSERT INTO transactions (pessoa_id, valor, tipo, descricao, realizada_em)
             VALUES (id_pessoa, valor, tipo, descricao, CURRENT_TIMESTAMP);
 
         COMMIT;

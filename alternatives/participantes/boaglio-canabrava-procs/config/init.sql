@@ -113,7 +113,7 @@ BEGIN
         'total', balances.amount,
         'data_extrato', NOW()::date,
         'limite', accounts.limit_amount,
-        'ultimas_transacoes',
+        'ultimas_transactions',
             CASE
                 WHEN COUNT(transactions) = 0 THEN '[]'
                 ELSE

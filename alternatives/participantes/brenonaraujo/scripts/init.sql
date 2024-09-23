@@ -4,18 +4,18 @@ CREATE UNLOGGED TABLE clientes (
 	limite INTEGER NOT NULL
 );
 
-CREATE UNLOGGED TABLE transacoes (
+CREATE UNLOGGED TABLE transactions (
 	id SERIAL PRIMARY KEY,
 	cliente_id INTEGER NOT NULL,
 	valor INTEGER NOT NULL,
 	tipo CHAR(1) NOT NULL,
 	descricao VARCHAR(10) NOT NULL,
 	realizada_em TIMESTAMP NOT NULL DEFAULT NOW(),
-	CONSTRAINT fk_clientes_transacoes_id
+	CONSTRAINT fk_clientes_transactions_id
 		FOREIGN KEY (cliente_id) REFERENCES clientes(id)
 );
 
-CREATE INDEX ON transacoes (cliente_id, realizada_em DESC);
+CREATE INDEX ON transactions (cliente_id, realizada_em DESC);
 
 CREATE UNLOGGED TABLE saldos (
 	id SERIAL PRIMARY KEY,

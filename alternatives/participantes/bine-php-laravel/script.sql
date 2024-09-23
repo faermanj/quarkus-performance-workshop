@@ -18,7 +18,7 @@ CREATE UNLOGGED TABLE IF NOT EXISTS clientes(
     CONSTRAINT check_limit CHECK (saldo >= -limite)
 );
 
-CREATE UNLOGGED TABLE IF NOT EXISTS transacoes(
+CREATE UNLOGGED TABLE IF NOT EXISTS transactions(
     id SERIAL PRIMARY KEY,
     cliente_id INTEGER NOT NULL REFERENCES clientes (id),
     valor INTEGER NOT NULL,
@@ -27,7 +27,7 @@ CREATE UNLOGGED TABLE IF NOT EXISTS transacoes(
     realizada_em TIMESTAMP DEFAULT current_timestamp
 );
 
-CREATE INDEX idx_cliente_id ON transacoes(cliente_id);
+CREATE INDEX idx_cliente_id ON transactions(cliente_id);
 
 CREATE OR REPLACE FUNCTION create_transaction_trigger_function()
 RETURNS TRIGGER
@@ -61,7 +61,7 @@ $$;
 
 CREATE TRIGGER create_transaction_trigger
 BEFORE INSERT
-ON transacoes
+ON transactions
 FOR EACH ROW
 EXECUTE FUNCTION create_transaction_trigger_function();
 

@@ -5,8 +5,8 @@ CREATE UNLOGGED TABLE clientes (
 	saldo INTEGER NOT NULL
 );
 
-CREATE UNLOGGED TABLE transacoes (
-	id SERIAL CONSTRAINT pk_transacoes PRIMARY KEY,
+CREATE UNLOGGED TABLE transactions (
+	id SERIAL CONSTRAINT pk_transactions PRIMARY KEY,
 	cliente_id INTEGER NOT NULL,
 	valor INTEGER NOT NULL,
 	tipo CHAR(1) NOT NULL,
@@ -14,7 +14,7 @@ CREATE UNLOGGED TABLE transacoes (
 	realizada_em TIMESTAMP NOT NULL DEFAULT (NOW() AT TIME ZONE 'UTC')
 );
 
-CREATE INDEX ix_transacoes_realizada_em ON transacoes (realizada_em DESC) INCLUDE (valor, tipo, descricao);
+CREATE INDEX ix_transactions_realizada_em ON transactions (realizada_em DESC) INCLUDE (valor, tipo, descricao);
 CREATE INDEX ix_clientes_extrato ON clientes (id) INCLUDE (limite, saldo);
 
 DO $$
@@ -70,7 +70,7 @@ BEGIN
 		SET saldo = novo_saldo
 		WHERE clientes.id = cliente_id_tx;
 		
-		INSERT INTO transacoes VALUES(DEFAULT, cliente_id_tx, valor_tx, 'd', descricao_tx, DEFAULT);
+		INSERT INTO transactions VALUES(DEFAULT, cliente_id_tx, valor_tx, 'd', descricao_tx, DEFAULT);
 
 		RETURN QUERY
 			SELECT 0, limite_atual, novo_saldo;
@@ -94,7 +94,7 @@ BEGIN
 	RETURNING clientes.limite, clientes.saldo
 	INTO rec;
 
-	INSERT INTO transacoes VALUES(DEFAULT, cliente_id_tx, valor_tx, 'c', descricao_tx, DEFAULT);
+	INSERT INTO transactions VALUES(DEFAULT, cliente_id_tx, valor_tx, 'c', descricao_tx, DEFAULT);
 
 	RETURN QUERY 
 		SELECT 0, rec.limite, rec.saldo;

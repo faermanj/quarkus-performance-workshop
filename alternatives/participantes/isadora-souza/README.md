@@ -6,7 +6,7 @@ Esta é uma aplicação em Golang desenvolvida com o framework Gin, utiliza o ba
 
 A aplicação possui dois endpoints:
 
-1.  **POST /clientes/[id]/transacoes**: Este endpoint permite registrar transações para um cliente específico. Requer um corpo JSON com os seguintes campos:
+1.  **POST /clientes/[id]/transactions**: Este endpoint permite registrar transações para um cliente específico. Requer um corpo JSON com os seguintes campos:
 
 ```json
 {

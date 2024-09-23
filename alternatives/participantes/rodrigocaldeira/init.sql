@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS members
     nome varchar(50) NOT NULL,
     limite integer NOT NULL,
     saldo integer NOT NULL DEFAULT 0,
-    ultimas_transacoes jsonb[] DEFAULT ARRAY[]::jsonb[],
+    ultimas_transactions jsonb[] DEFAULT ARRAY[]::jsonb[],
     inserted_at timestamp(0) without time zone NOT NULL,
     updated_at timestamp(0) without time zone NOT NULL,
     CONSTRAINT members_pkey PRIMARY KEY (id),

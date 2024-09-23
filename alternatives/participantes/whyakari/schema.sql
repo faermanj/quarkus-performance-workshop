@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS members (
     limite INT NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS transacoes (
+CREATE TABLE IF NOT EXISTS transactions (
     id INT AUTO_INCREMENT PRIMARY KEY,
     valor INT NOT NULL,
     id_cliente INT NOT NULL,

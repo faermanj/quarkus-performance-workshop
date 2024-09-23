@@ -13,8 +13,8 @@ CREATE TABLE IF NOT EXISTS members (
     saldo INTEGER NOT NULL
 );
 
--- Cria a tabela transacoes
-CREATE TABLE IF NOT EXISTS transacoes (
+-- Cria a tabela transactions
+CREATE TABLE IF NOT EXISTS transactions (
     id SERIAL PRIMARY KEY,
     valor INTEGER NOT NULL,
     tipo CHAR(1) CHECK(tipo IN ('c', 'd')) NOT NULL,

@@ -9,7 +9,7 @@ CREATE UNLOGGED TABLE members (
   limite INTEGER NOT NULL
 );
 
-CREATE UNLOGGED TABLE transacoes (
+CREATE UNLOGGED TABLE transactions (
   id  SERIAL PRIMARY KEY,
   id_cliente INTEGER NOT NULL REFERENCES members(id),
   tipo tipo_movimentacao NOT NULL,
@@ -18,7 +18,7 @@ CREATE UNLOGGED TABLE transacoes (
   realizada_em TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_ultima_transacoes_por_cliente ON transacoes (id_cliente, realizada_em DESC);
+CREATE INDEX idx_ultima_transactions_por_cliente ON transactions (id_cliente, realizada_em DESC);
 
 DO $$
 BEGIN

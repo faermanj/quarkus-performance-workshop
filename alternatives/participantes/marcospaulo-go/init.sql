@@ -5,7 +5,7 @@ CREATE UNLOGGED TABLE clientes
     saldo  INTEGER NOT NULL DEFAULT 0
 );
 
-CREATE UNLOGGED TABLE transacoes
+CREATE UNLOGGED TABLE transactions
 (
     id           SERIAL PRIMARY KEY,
     cliente_id   INTEGER     NOT NULL,
@@ -13,15 +13,15 @@ CREATE UNLOGGED TABLE transacoes
     tipo         CHAR(1)     NOT NULL,
     descricao    VARCHAR(10) NOT NULL,
     realizada_em TIMESTAMP   NOT NULL DEFAULT NOW(),
-    CONSTRAINT fk_transacoes_clientes_id
+    CONSTRAINT fk_transactions_clientes_id
         FOREIGN KEY (cliente_id) REFERENCES clientes (id)
 );
 
-CREATE INDEX idx_transacoes_cliente_id ON transacoes (cliente_id);
+CREATE INDEX idx_transactions_cliente_id ON transactions (cliente_id);
 
-CREATE INDEX idx_transacoes_cliente_id_realizada_em ON transacoes (cliente_id, realizada_em desc);
+CREATE INDEX idx_transactions_cliente_id_realizada_em ON transactions (cliente_id, realizada_em desc);
 
-CREATE INDEX idx_transacoes_realizada_em ON transacoes (realizada_em desc);
+CREATE INDEX idx_transactions_realizada_em ON transactions (realizada_em desc);
 
 
 CREATE OR REPLACE FUNCTION creditar(cliente_id_p int, valor_p integer, descricao_p varchar(10))
@@ -42,7 +42,7 @@ BEGIN
 
     SELECT saldo, limite INTO saldo_atual, limite_atual FROM clientes WHERE id = cliente_id_p;
 
-    INSERT INTO transacoes (cliente_id, valor, tipo, descricao, realizada_em)
+    INSERT INTO transactions (cliente_id, valor, tipo, descricao, realizada_em)
     VALUES (cliente_id_p, valor_p, 'c', descricao_p, now());
 
     novo_saldo := saldo_atual + valor_p;
@@ -80,7 +80,7 @@ BEGIN
         --RAISE EXCEPTION 'Valor ultrapassa o limite+saldo';
     ELSE
 
-        INSERT INTO transacoes (cliente_id, valor, tipo, descricao, realizada_em)
+        INSERT INTO transactions (cliente_id, valor, tipo, descricao, realizada_em)
         VALUES (cliente_id_p, valor_p, 'd', descricao_p, now());
 
         novo_saldo := saldo_atual - valor_p;
@@ -96,7 +96,7 @@ $$ LANGUAGE plpgsql;
 
 
 
-CREATE OR REPLACE FUNCTION limpar_transacoes()
+CREATE OR REPLACE FUNCTION limpar_transactions()
     RETURNS trigger AS
 $$
 DECLARE
@@ -104,13 +104,13 @@ DECLARE
 BEGIN
 
     DELETE
-    FROM transacoes
+    FROM transactions
     WHERE cliente_id = NEW.cliente_id
-      AND id NOT IN (SELECT id FROM transacoes WHERE cliente_id = NEW.cliente_id ORDER BY realizada_em DESC LIMIT 10);
+      AND id NOT IN (SELECT id FROM transactions WHERE cliente_id = NEW.cliente_id ORDER BY realizada_em DESC LIMIT 10);
 
     IF found THEN
         GET DIAGNOSTICS row_count = ROW_COUNT;
-        RAISE NOTICE 'DELETED % row(s) FROM transacoes', row_count;
+        RAISE NOTICE 'DELETED % row(s) FROM transactions', row_count;
     END IF;
 
     RETURN NULL;
@@ -119,11 +119,11 @@ $$ LANGUAGE plpgsql;
 
 
 
-CREATE OR REPLACE TRIGGER trigger_delete_transacoes
+CREATE OR REPLACE TRIGGER trigger_delete_transactions
     AFTER INSERT
-    ON transacoes
+    ON transactions
     FOR EACH ROW
-EXECUTE FUNCTION limpar_transacoes();
+EXECUTE FUNCTION limpar_transactions();
 
 
 DO

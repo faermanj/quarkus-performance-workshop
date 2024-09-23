@@ -41,7 +41,7 @@ BEGIN
                                 to_char (t.realizada_em, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')
                             ) AS line
                         FROM
-                            transacoes AS t
+                            transactions AS t
                         WHERE
                             t.cliente_id = cliente_id_p
                         ORDER BY
@@ -71,7 +71,7 @@ DECLARE
 BEGIN
     WITH insertions AS (
         INSERT INTO
-            transacoes (cliente_id, valor, tipo, descricao)
+            transactions (cliente_id, valor, tipo, descricao)
         SELECT
             id,
             valor_p,

@@ -21,7 +21,7 @@ public class Warmup {
 
         // HTTP POST request
         HttpRequest postRequest = HttpRequest.newBuilder()
-                .uri(URI.create("http://127.0.0.1:9999/members/333/transacoes"))
+                .uri(URI.create("http://127.0.0.1:9999/members/333/transactions"))
                 .header("Content-Type", "application/json")
                 .POST(BodyPublishers.ofString("{\"valor\": 0, \"tipo\": \"d\", \"descricao\": \"warmup\"}"))
                 .build();

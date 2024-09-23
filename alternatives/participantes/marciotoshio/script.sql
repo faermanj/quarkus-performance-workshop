@@ -7,16 +7,16 @@ CREATE TABLE clientes (
 );
 CREATE INDEX idx_clientes_id ON clientes (id);
 
-CREATE TABLE transacoes (
+CREATE TABLE transactions (
     id           SERIAL PRIMARY KEY,
     valor        INTEGER,
     tipo         CHAR(1),
     descricao    VARCHAR(10),
     realizada_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     cliente_id   SMALLINT REFERENCES clientes (id),
-    CONSTRAINT fk_transacoes_clientes FOREIGN KEY (cliente_id) REFERENCES clientes (id)
+    CONSTRAINT fk_transactions_clientes FOREIGN KEY (cliente_id) REFERENCES clientes (id)
 );
-CREATE INDEX idx_transacoes_cliente_id_realizada_em ON transacoes (cliente_id, realizada_em);
+CREATE INDEX idx_transactions_cliente_id_realizada_em ON transactions (cliente_id, realizada_em);
 
 INSERT INTO clientes (limite, saldo)
 VALUES

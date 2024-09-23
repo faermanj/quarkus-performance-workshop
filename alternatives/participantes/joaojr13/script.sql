@@ -4,7 +4,7 @@ CREATE UNLOGGED TABLE clientes (
     saldo INTEGER
 );
 
-CREATE UNLOGGED TABLE transacoes (
+CREATE UNLOGGED TABLE transactions (
     id SERIAL PRIMARY KEY,
     cliente_id INTEGER NOT NULL,
     valor INTEGER NOT NULL,
@@ -14,7 +14,7 @@ CREATE UNLOGGED TABLE transacoes (
 );
 
 CREATE INDEX IDX_clientes_id ON clientes (id);
-CREATE INDEX IDX_transacoes_cliente_id ON transacoes (cliente_id);
+CREATE INDEX IDX_transactions_cliente_id ON transactions (cliente_id);
 
 INSERT INTO clientes (id, limite, saldo) VALUES (1,100000, 0);
 INSERT INTO clientes (id, limite, saldo) VALUES (2,80000, 0);

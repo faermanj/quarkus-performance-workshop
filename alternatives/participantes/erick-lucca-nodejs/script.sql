@@ -5,7 +5,7 @@ CREATE TABLE clientes (
     saldo INT DEFAULT 0
 );
 
-CREATE TABLE transacoes (
+CREATE TABLE transactions (
     id SERIAL PRIMARY KEY,
     id_cliente INT REFERENCES clientes(id),
     tipo VARCHAR(1),

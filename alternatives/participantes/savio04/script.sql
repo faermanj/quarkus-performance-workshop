@@ -12,7 +12,7 @@ CREATE UNLOGGED TABLE transactions (
   type CHAR(1) NOT NULL,
   description VARCHAR(10) NOT NULL,
   transaction_at TIMESTAMP   NOT NULL DEFAULT (NOW() AT TIME ZONE 'UTC'),
-    CONSTRAINT fk_transacoes_client_id
+    CONSTRAINT fk_transactions_client_id
     FOREIGN KEY (client_id) REFERENCES clients(id)
 );
 

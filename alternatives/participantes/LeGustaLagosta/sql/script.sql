@@ -4,7 +4,7 @@ create table clientes (
     saldo integer
 );
 
-create table transacoes (
+create table transactions (
     id serial primary key,
     valor integer,
     tipo varchar(1),
@@ -13,7 +13,7 @@ create table transacoes (
     id_cliente integer references clientes(id)
 );
 
-create index on transacoes (id_cliente);
+create index on transactions (id_cliente);
 
 insert into clientes (limite, saldo) values (100000, 0);
 insert into clientes (limite, saldo) values (80000, 0);

@@ -18,7 +18,7 @@ Para participar você precisa desenvolver uma API HTTP com os seguintes endpoint
 ### Transações
 **Requisição**
 
-`POST /members/[id]/transacoes`
+`POST /members/[id]/transactions`
 ```json
 {
     "valor": 1000,
@@ -74,7 +74,7 @@ Onde
     "data_extrato": "2024-01-17T02:34:41.217753Z",
     "limite": 100000
   },
-  "ultimas_transacoes": [
+  "ultimas_transactions": [
     {
       "valor": 10,
       "tipo": "c",
@@ -95,7 +95,7 @@ Onde
     - `total` deve ser o saldo total atual do cliente (não apenas das últimas transações seguintes exibidas).
     - `data_extrato` deve ser a data/hora da consulta do extrato.
     - `limite` deve ser o limite cadastrado do cliente.
-- `ultimas_transacoes` é uma lista ordenada por data/hora das transações de forma decrescente contendo até as 10 últimas transações com o seguinte:
+- `ultimas_transactions` é uma lista ordenada por data/hora das transações de forma decrescente contendo até as 10 últimas transações com o seguinte:
     - `valor` deve ser o valor da transação.
     - `tipo` deve ser `c` para crédito e `d` para débito.
     - `descricao` deve ser a descrição informada durante a transação.

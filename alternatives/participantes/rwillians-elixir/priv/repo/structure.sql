@@ -61,10 +61,10 @@ CREATE TABLE public.schema_migrations (
 
 
 --
--- Name: transacoes; Type: TABLE; Schema: public; Owner: -
+-- Name: transactions; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.transacoes (
+CREATE TABLE public.transactions (
     id uuid NOT NULL,
     cliente_id integer NOT NULL,
     tipo character varying(1) NOT NULL,
@@ -98,18 +98,18 @@ ALTER TABLE ONLY public.schema_migrations
 
 
 --
--- Name: transacoes transacoes_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: transactions transactions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.transacoes
-    ADD CONSTRAINT transacoes_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.transactions
+    ADD CONSTRAINT transactions_pkey PRIMARY KEY (id);
 
 
 --
--- Name: transacoes_cliente_id_realizada_em_DESC_index; Type: INDEX; Schema: public; Owner: -
+-- Name: transactions_cliente_id_realizada_em_DESC_index; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX "transacoes_cliente_id_realizada_em_DESC_index" ON public.transacoes USING btree (cliente_id, realizada_em DESC);
+CREATE INDEX "transactions_cliente_id_realizada_em_DESC_index" ON public.transactions USING btree (cliente_id, realizada_em DESC);
 
 
 --

@@ -4,14 +4,14 @@ CREATE UNLOGGED TABLE clientes (
     limite INTEGER NOT NULL
 );
 
-CREATE UNLOGGED TABLE transacoes (
+CREATE UNLOGGED TABLE transactions (
     id SERIAL PRIMARY KEY,
     id_cliente INTEGER NOT NULL,
     valor INTEGER NOT NULL,
     tipo CHAR(1) NOT NULL,
     descricao VARCHAR(10) NOT NULL,
     data_transacao TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    CONSTRAINT fk_clientes_transacoes_id
+    CONSTRAINT fk_clientes_transactions_id
         FOREIGN KEY (id_cliente) REFERENCES clientes(id)
 );
 
@@ -71,7 +71,7 @@ BEGIN
         c.id = id_cliente_tx;
 
     IF saldo_atual - valor_tx >= limite_atual * -1 THEN
-        INSERT INTO transacoes
+        INSERT INTO transactions
         VALUES
             (DEFAULT, id_cliente_tx, valor_tx, 'd', descricao_tx, NOW());
 
@@ -130,7 +130,7 @@ BEGIN
     WHERE
         c.id = id_cliente_tx;
         
-    INSERT INTO transacoes
+    INSERT INTO transactions
     VALUES
         (DEFAULT, id_cliente_tx, valor_tx, 'c', descricao_tx, NOW());
 
@@ -154,7 +154,7 @@ BEGIN
     SET
         valor = 0;
 
-    TRUNCATE TABLE transacoes;
+    TRUNCATE TABLE transactions;
 END;
 $$;
 
@@ -174,7 +174,7 @@ SELECT
 		'realizada_em', tx.data_transacao
 	)
 FROM
-	transacoes tx
+	transactions tx
 WHERE
 	tx.id_cliente = id_cliente_tx
 ORDER BY tx.id DESC

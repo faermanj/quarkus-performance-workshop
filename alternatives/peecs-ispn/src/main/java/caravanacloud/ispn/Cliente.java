@@ -18,7 +18,7 @@ public class Cliente implements Serializable {
     public int saldo;
     public int limite;
     public int status;
-    public PriorityQueue<Transacao> transacoes;
+    public PriorityQueue<Transacao> transactions;
     private String nome;
 
     public static Cliente of(Integer shard, Integer id, String nome, int saldo, int limite, int status, PriorityQueue<Transacao> txxs) {
@@ -28,7 +28,7 @@ public class Cliente implements Serializable {
         c.limite = limite;
         c.status = status;
         c.nome = "Cliente "+id;
-        c.transacoes = txxs;
+        c.transactions = txxs;
         return c;
     }
 
@@ -44,12 +44,12 @@ public class Cliente implements Serializable {
     }
 
     public String toExtrato(){
-        var txxs = getTransacoes();
-        StringBuilder transacoesJson = new StringBuilder("[");
+        var txxs = gettransactions();
+        StringBuilder transactionsJson = new StringBuilder("[");
         Iterator itx = txxs.iterator();
         for (int i = 0; itx.hasNext(); i++) {
             Transacao t = (Transacao) itx.next();
-            transacoesJson.append(String.format("""
+            transactionsJson.append(String.format("""
                 {
                     "valor": %d,
                     "tipo": "%s",
@@ -57,10 +57,10 @@ public class Cliente implements Serializable {
                     "realizada_em": "%s"
                 }""", t.valor, t.tipo, t.descricao, t.realizadaEm));
             if (i < txxs.size() - 1) {
-                transacoesJson.append(",");
+                transactionsJson.append(",");
             }
         }
-        transacoesJson.append("]");
+        transactionsJson.append("]");
 
         String dataExtrato = ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
 
@@ -71,9 +71,9 @@ public class Cliente implements Serializable {
                    "data_extrato": "%s",
                    "limite": %d
                  },
-                 "ultimas_transacoes": %s
+                 "ultimas_transactions": %s
                }
-               """, saldo, dataExtrato, limite, transacoesJson);
+               """, saldo, dataExtrato, limite, transactionsJson);
     }
 
     public synchronized Cliente transacao(Integer valor, String tipo, String descricao) {
@@ -88,7 +88,7 @@ public class Cliente implements Serializable {
         }
         var txx = Transacao.of(valor, tipo, descricao, LocalDateTime.now());
         //needed?
-        var txxs = new PriorityQueue<>(getTransacoes());
+        var txxs = new PriorityQueue<>(gettransactions());
         txxs.add(txx);
         if (txxs.size() > 10){
             txxs.poll();
@@ -104,12 +104,12 @@ public class Cliente implements Serializable {
         return cliente;
     }
 
-    private synchronized  PriorityQueue<Transacao> getTransacoes() {
-        if (transacoes == null){
+    private synchronized  PriorityQueue<Transacao> gettransactions() {
+        if (transactions == null){
             
-            transacoes = new PriorityQueue<>(Transacao.comparator);
+            transactions = new PriorityQueue<>(Transacao.comparator);
         }
-        return transacoes;
+        return transactions;
     }
 
     public String toTransacao() {

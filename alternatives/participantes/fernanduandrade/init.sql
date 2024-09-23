@@ -18,7 +18,7 @@ CREATE UNLOGGED TABLE transactions (
 		foreign key (cliente_id) references clients(id)
 );
 
-CREATE INDEX ids_transacoes_ids_cliente_id ON transactions (cliente_id);
+CREATE INDEX ids_transactions_ids_cliente_id ON transactions (cliente_id);
 
 
 DO $$

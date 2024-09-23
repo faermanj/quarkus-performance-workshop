@@ -6,7 +6,7 @@ CREATE TABLE members (
 );
 
 
-CREATE TABLE transacoes (
+CREATE TABLE transactions (
     id SERIAL PRIMARY KEY,
     id_cliente INT NOT NULL,
     valor INT NOT NULL,
@@ -41,7 +41,7 @@ BEGIN
     END IF;
 
     novo_saldo := saldo;
-    INSERT INTO transacoes (id_cliente, valor, tipo, descricao) VALUES (id_cliente, valor, tipo, descricao);
+    INSERT INTO transactions (id_cliente, valor, tipo, descricao) VALUES (id_cliente, valor, tipo, descricao);
     UPDATE members SET saldo = novo_saldo WHERE id = id_cliente;
 
     RETURN NEXT;

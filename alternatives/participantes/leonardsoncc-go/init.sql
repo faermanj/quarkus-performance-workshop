@@ -9,7 +9,7 @@ CREATE UNLOGGED TABLE IF NOT EXISTS members(
     saldo INTEGER DEFAULT 0 NOT NULL
 );
 
-CREATE UNLOGGED TABLE IF NOT EXISTS transacoes(
+CREATE UNLOGGED TABLE IF NOT EXISTS transactions(
     id SERIAL PRIMARY KEY,
     cliente_id INTEGER NOT NULL REFERENCES members (id),
     valor INTEGER NOT NULL,
@@ -18,7 +18,7 @@ CREATE UNLOGGED TABLE IF NOT EXISTS transacoes(
     realizada_em TIMESTAMP DEFAULT current_timestamp
 );
 
-CREATE INDEX transacoes_cliente_id_idx ON transacoes (cliente_id, realizada_em DESC);
+CREATE INDEX transactions_cliente_id_idx ON transactions (cliente_id, realizada_em DESC);
 
 DO $$
 BEGIN

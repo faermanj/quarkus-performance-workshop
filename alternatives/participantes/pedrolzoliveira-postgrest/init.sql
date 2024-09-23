@@ -8,7 +8,7 @@ CREATE UNLOGGED TABLE api.members (
   saldo INT NOT NULL DEFAULT 0 CHECK (saldo >= -limite)
 );
 
-CREATE UNLOGGED TABLE api.transacoes (
+CREATE UNLOGGED TABLE api.transactions (
   cliente_id INT REFERENCES api.members (id),
   valor INT NOT NULL,
   descricao VARCHAR(10) NOT NULL,
@@ -16,7 +16,7 @@ CREATE UNLOGGED TABLE api.transacoes (
   realizada_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX transacao_realizada_em_idx ON api.transacoes (realizada_em);
+CREATE INDEX transacao_realizada_em_idx ON api.transactions (realizada_em);
 
 CREATE OR REPLACE FUNCTION api.create_transacao (cliente_id int, valor int, tipo char(1), descricao varchar(10))
 RETURNS JSON
@@ -33,7 +33,7 @@ BEGIN
     ajuste_valor := valor;
   END IF;
 
-  INSERT INTO api.transacoes (cliente_id, valor, tipo, descricao)
+  INSERT INTO api.transactions (cliente_id, valor, tipo, descricao)
     VALUES (cliente_id, valor, tipo, descricao);
 
   UPDATE api.members
@@ -65,9 +65,9 @@ AS $$
 DECLARE
   result JSON;
 BEGIN
-  WITH ultimas_transacoes AS (
+  WITH ultimas_transactions AS (
     SELECT valor, tipo, descricao, realizada_em
-    FROM api.transacoes t
+    FROM api.transactions t
     WHERE cliente_id = p_cliente_id
     ORDER BY realizada_em DESC
     LIMIT 10
@@ -79,7 +79,7 @@ BEGIN
   )
   SELECT json_build_object(
     'saldo', (SELECT row_to_json(s) FROM saldo s),
-    'ultimas_transacoes', (SELECT COALESCE(json_agg(u), '[]') FROM ultimas_transacoes u)
+    'ultimas_transactions', (SELECT COALESCE(json_agg(u), '[]') FROM ultimas_transactions u)
   ) INTO result;
   
   RETURN result;
@@ -88,7 +88,7 @@ $$
 LANGUAGE PLPGSQL;
 
 GRANT SELECT, UPDATE ON api.members TO anon;
-GRANT SELECT, INSERT ON api.transacoes TO anon;
+GRANT SELECT, INSERT ON api.transactions TO anon;
 
 DO $$
 BEGIN

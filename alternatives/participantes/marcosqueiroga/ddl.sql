@@ -5,7 +5,7 @@ CREATE UNLOGGED TABLE public.clientes (
 	saldo INT NOT NULL
 );
 
-CREATE UNLOGGED TABLE public.transacoes (
+CREATE UNLOGGED TABLE public.transactions (
 	id SERIAL PRIMARY KEY NOT NULL,
 	valor INT NOT NULL,
 	descricao VARCHAR(10) NOT NULL,
@@ -13,7 +13,7 @@ CREATE UNLOGGED TABLE public.transacoes (
 	id_cliente INT NOT NULL
 );
 
-CREATE INDEX ix_transacoes_id_cliente ON public.transacoes
+CREATE INDEX ix_transactions_id_cliente ON public.transactions
 (
     id_cliente ASC
 );
@@ -40,7 +40,7 @@ BEGIN
 	RETURN rec_cliente;
   END IF;
 
-  INSERT INTO public.transacoes (valor, descricao, realizada_em, id_cliente)
+  INSERT INTO public.transactions (valor, descricao, realizada_em, id_cliente)
                          VALUES (valor, descricao, now(), id_cliente);
 
   UPDATE public.clientes

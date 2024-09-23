@@ -5,7 +5,7 @@ CREATE UNLOGGED  TABLE members (
 	saldo INTEGER  NOT NULL
 );
 
-CREATE UNLOGGED  TABLE transacoes (
+CREATE UNLOGGED  TABLE transactions (
 	id SERIAL PRIMARY KEY,
 	cliente_id INTEGER NOT NULL,
 	valor INTEGER NOT NULL,
@@ -14,7 +14,7 @@ CREATE UNLOGGED  TABLE transacoes (
 	realizada_em TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX transacoes_cliente_id_idx ON transacoes (cliente_id);
+CREATE INDEX transactions_cliente_id_idx ON transactions (cliente_id);
 -- CREATE INDEX cliente_id_idx ON members (id) include (limite, saldo);
 
 
@@ -52,7 +52,7 @@ BEGIN
 
   UPDATE members c SET saldo = new_saldo WHERE c.id = p_cliente_id;
 
-  INSERT INTO transacoes (cliente_id, tipo, valor, descricao, realizada_em)
+  INSERT INTO transactions (cliente_id, tipo, valor, descricao, realizada_em)
   VALUES (
     p_cliente_id,
     p_tipo,
@@ -85,5 +85,5 @@ $$;
 
 CREATE EXTENSION IF NOT EXISTS pg_prewarm;
 SELECT pg_prewarm('members');
-SELECT pg_prewarm('transacoes');
+SELECT pg_prewarm('transactions');
 

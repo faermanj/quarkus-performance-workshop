@@ -33,7 +33,7 @@ BEGIN
       'data_extrato', TO_CHAR(now(), 'YYYY-MM-DD HH:MI:SS.US'),
       'limite', v_account_limit
     ),
-    'ultimas_transacoes', COALESCE((
+    'ultimas_transactions', COALESCE((
       SELECT json_agg(row_to_json(t)) FROM (
         SELECT amount as valor, operation as tipo, description as descricao, created_at as realizada_em
         FROM transactions

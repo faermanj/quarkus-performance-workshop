@@ -14,7 +14,7 @@ CREATE UNLOGGED TABLE customers (
 	limite INTEGER NOT NULL
 );
 
-CREATE UNLOGGED TABLE transacoes (
+CREATE UNLOGGED TABLE transactions (
 	id SERIAL PRIMARY KEY,
 	customerId INTEGER NOT NULL,
 	valor INTEGER NOT NULL,
@@ -25,7 +25,7 @@ CREATE UNLOGGED TABLE transacoes (
 		FOREIGN KEY (customerId) REFERENCES customers(id)
 );
 
-CREATE INDEX ix_transacao_idcliente ON transacoes
+CREATE INDEX ix_transacao_idcliente ON transactions
 (
     customerId ASC
 );
@@ -71,7 +71,7 @@ BEGIN
 			FROM customers
 			WHERE id = customerId;
 	ELSE
-		INSERT INTO transacoes
+		INSERT INTO transactions
 			VALUES(DEFAULT, customerId, valor, 'd', descricao, DEFAULT);
 		
 		RETURN QUERY
@@ -93,7 +93,7 @@ AS $$
 BEGIN
 	PERFORM pg_advisory_xact_lock(customerId);
 
-	INSERT INTO transacoes
+	INSERT INTO transactions
 		VALUES(DEFAULT, customerId, valor, 'c', descricao, DEFAULT);
 
 	RETURN QUERY

@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS public.members
 );
 
 
-CREATE TABLE IF NOT EXISTS public.transacoes
+CREATE TABLE IF NOT EXISTS public.transactions
 (
     id SERIAL NOT NULL,
     valor integer NOT NULL DEFAULT 0,
@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS public.transacoes
     descricao character varying(100) NOT NULL DEFAULT '',
     realizada_em TIMESTAMP WITH TIME ZONE NOT NULL,
     cliente_id integer NOT NULL,
-    CONSTRAINT transacoes_pkey PRIMARY KEY (id),
-    CONSTRAINT transacoes_cliente_id_fkey FOREIGN KEY (cliente_id)
+    CONSTRAINT transactions_pkey PRIMARY KEY (id),
+    CONSTRAINT transactions_cliente_id_fkey FOREIGN KEY (cliente_id)
         REFERENCES public.members (id)
 );

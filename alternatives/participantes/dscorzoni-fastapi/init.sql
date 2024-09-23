@@ -11,7 +11,7 @@ CREATE UNLOGGED TABLE "transactions" (
     "valor"       BIGINT       NOT NULL,
     "descricao" VARCHAR(10)  NOT NULL,
     "realizada_em"  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT "fk_clientes_transacoes_id"
+    CONSTRAINT "fk_clientes_transactions_id"
         FOREIGN KEY ("customer_id") REFERENCES customers ("id")
 );
 

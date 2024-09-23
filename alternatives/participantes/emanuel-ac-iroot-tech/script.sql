@@ -13,10 +13,10 @@ CREATE TABLE public.clientes (
 ALTER TABLE public.clientes OWNER TO rinha;
 
 --
--- Name: transacoes; Type: TABLE; Schema: public; Owner: rinha
+-- Name: transactions; Type: TABLE; Schema: public; Owner: rinha
 --
 
-CREATE TABLE public.transacoes (
+CREATE TABLE public.transactions (
     clientes_id integer NOT NULL,
     data timestamp with time zone NOT NULL,
     tipo character varying(1),
@@ -29,7 +29,7 @@ CREATE TABLE public.transacoes (
 );
 
 
-ALTER TABLE public.transacoes OWNER TO rinha;
+ALTER TABLE public.transactions OWNER TO rinha;
 
 --
 -- Data for Name: clientes; Type: TABLE DATA; Schema: public; Owner: rinha
@@ -43,7 +43,7 @@ INSERT INTO public.clientes VALUES (5, 500000, 0);
 
 
 --
--- Data for Name: transacoes; Type: TABLE DATA; Schema: public; Owner: rinha
+-- Data for Name: transactions; Type: TABLE DATA; Schema: public; Owner: rinha
 --
 
 
@@ -57,19 +57,19 @@ ALTER TABLE ONLY public.clientes
 
 
 --
--- Name: transacoes transacoes_pkey; Type: CONSTRAINT; Schema: public; Owner: rinha
+-- Name: transactions transactions_pkey; Type: CONSTRAINT; Schema: public; Owner: rinha
 --
 
-ALTER TABLE ONLY public.transacoes
-    ADD CONSTRAINT transacoes_pkey PRIMARY KEY (clientes_id, data, tipo);
+ALTER TABLE ONLY public.transactions
+    ADD CONSTRAINT transactions_pkey PRIMARY KEY (clientes_id, data, tipo);
 
 
 --
--- Name: transacoes transacoes_fkey_clientes_id; Type: FK CONSTRAINT; Schema: public; Owner: rinha
+-- Name: transactions transactions_fkey_clientes_id; Type: FK CONSTRAINT; Schema: public; Owner: rinha
 --
 
-ALTER TABLE ONLY public.transacoes
-    ADD CONSTRAINT transacoes_fkey_clientes_id FOREIGN KEY (clientes_id) REFERENCES public.clientes(id);
+ALTER TABLE ONLY public.transactions
+    ADD CONSTRAINT transactions_fkey_clientes_id FOREIGN KEY (clientes_id) REFERENCES public.clientes(id);
 
 
 --

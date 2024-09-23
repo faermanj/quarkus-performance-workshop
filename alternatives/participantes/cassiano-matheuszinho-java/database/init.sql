@@ -5,14 +5,14 @@ CREATE TABLE clientes (
     saldo INTEGER NOT NULL DEFAULT 0
 );
 
-CREATE TABLE transacoes (
+CREATE TABLE transactions (
     id SERIAL PRIMARY KEY,
     ClienteId INTEGER NOT NULL,
     valor INTEGER NOT NULL,
     tipo VARCHAR(1) NOT NULL,
     descricao VARCHAR(10) NOT NULL,
     realizada_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    CONSTRAINT fk_clientes_transacoes_id
+    CONSTRAINT fk_clientes_transactions_id
         FOREIGN KEY (ClienteId) REFERENCES clientes(id)
 );
 

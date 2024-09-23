@@ -5,17 +5,17 @@ CREATE TABLE public."members" (
 	CONSTRAINT "PK_members" PRIMARY KEY ("Id")
 );
 
-CREATE TABLE public."Transacoes" (
+CREATE TABLE public."transactions" (
 	"Id" SERIAL,
 	"ClienteId" int4 NOT NULL,
 	"Valor" int4 NOT NULL,
 	"Tipo" bpchar(1) NOT NULL,
 	"Descricao" varchar(10) NOT NULL,
 	"Data" timestamptz NOT NULL,
-	CONSTRAINT "PK_Transacoes" PRIMARY KEY ("Id")
+	CONSTRAINT "PK_transactions" PRIMARY KEY ("Id")
 );
-CREATE INDEX "IX_Transacoes_ClienteId" ON public."Transacoes" USING btree ("ClienteId");
-ALTER TABLE public."Transacoes" ADD CONSTRAINT "FK_Transacoes_members_ClienteId" FOREIGN KEY ("ClienteId") REFERENCES public."members"("Id") ON DELETE CASCADE;
+CREATE INDEX "IX_transactions_ClienteId" ON public."transactions" USING btree ("ClienteId");
+ALTER TABLE public."transactions" ADD CONSTRAINT "FK_transactions_members_ClienteId" FOREIGN KEY ("ClienteId") REFERENCES public."members"("Id") ON DELETE CASCADE;
 
 INSERT INTO public."members" ("Id", "Limite", "Saldo")
 VALUES
@@ -49,7 +49,7 @@ BEGIN
 	GET DIAGNOSTICS rows_affected = ROW_COUNT;
 
 	IF rows_affected > 0 THEN
-		INSERT INTO public."Transacoes"
+		INSERT INTO public."transactions"
 		("Id", "ClienteId", "Valor", "Tipo", "Descricao", "Data")
 		VALUES(DEFAULT, p_id, p_valor, p_tipo, p_descricao, NOW());
 

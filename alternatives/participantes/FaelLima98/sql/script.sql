@@ -6,7 +6,7 @@ CREATE TABLE
     );
 
 CREATE TABLE
-    "Transacoes" (
+    "transactions" (
         "Id" SERIAL NOT NULL PRIMARY KEY,
         "Valor" INTEGER NOT NULL,
         "ClienteId" INTEGER NOT NULL,
@@ -15,7 +15,7 @@ CREATE TABLE
         "Data" TIMESTAMP NOT NULL DEFAULT NOW()
     );
 
-ALTER TABLE "Transacoes" ADD CONSTRAINT "transacoes_clienteid_fkey" FOREIGN KEY ("ClienteId") REFERENCES "Clientes" ("Id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "transactions" ADD CONSTRAINT "transactions_clienteid_fkey" FOREIGN KEY ("ClienteId") REFERENCES "Clientes" ("Id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 CREATE INDEX "idx_id_cliente"
 ON "Clientes" ("Id");

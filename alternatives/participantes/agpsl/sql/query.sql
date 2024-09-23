@@ -9,12 +9,12 @@ WHERE id = $1
 RETURNING *;
 
 -- name: InsertTransaction :exec
-INSERT INTO transacoes (
+INSERT INTO transactions (
   cliente_id, valor, tipo, descricao
 ) VALUES (
   $1, $2, $3, $4
 );
 
 -- name: GetLastTransactions :many
-SELECT valor, tipo, descricao, realizada_em FROM transacoes
+SELECT valor, tipo, descricao, realizada_em FROM transactions
 WHERE cliente_id = $1 ORDER BY id DESC LIMIT 10;

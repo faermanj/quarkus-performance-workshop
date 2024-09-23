@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS clientes (
 
 CREATE TYPE tipo_transacao AS ENUM ('c', 'd');
 
-CREATE TABLE IF NOT EXISTS transacoes (
+CREATE TABLE IF NOT EXISTS transactions (
   id SERIAL PRIMARY KEY,
   valor INT NOT NULL CHECK (valor > 0),
   tipo tipo_transacao NOT NULL,

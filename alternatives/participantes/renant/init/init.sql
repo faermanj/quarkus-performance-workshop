@@ -18,20 +18,20 @@ CREATE UNLOGGED TABLE members (
 	saldo INTEGER NOT NULL DEFAULT 0
 );
 
-CREATE UNLOGGED TABLE transacoes (
+CREATE UNLOGGED TABLE transactions (
 	id SERIAL PRIMARY KEY,
 	cliente_id INTEGER NOT NULL,
 	valor INTEGER NOT NULL,
 	tipo CHAR(1) NOT NULL,
 	descricao VARCHAR(255) NOT NULL,
 	realizada_em TIMESTAMP NOT NULL DEFAULT NOW(),
-	CONSTRAINT fk_members_transacoes_id
+	CONSTRAINT fk_members_transactions_id
 		FOREIGN KEY (cliente_id) REFERENCES members(id)
 );
 
 
 CREATE INDEX IF NOT EXISTS idx_cliente_id ON members(id);
-CREATE INDEX IF NOT EXISTS idx_transacao_id_cliente_realizada_em_desc ON transacoes(cliente_id, realizada_em DESC);
+CREATE INDEX IF NOT EXISTS idx_transacao_id_cliente_realizada_em_desc ON transactions(cliente_id, realizada_em DESC);
 
 INSERT INTO members (limite) VALUES
 	(100000),
@@ -70,7 +70,7 @@ BEGIN
 			SET saldo = saldo + diff 
 			WHERE id = id_cliente;
 
-			INSERT INTO transacoes (cliente_id, valor, tipo, descricao) VALUES (id_cliente, valor, tipo, descricao);
+			INSERT INTO transactions (cliente_id, valor, tipo, descricao) VALUES (id_cliente, valor, tipo, descricao);
 
 			RETURN QUERY SELECT (saldo_cliente + diff) as novo_saldo, limite_cliente as novo_limite, false as validation_error;
 		END IF;
@@ -97,10 +97,10 @@ BEGIN
             'data_extrato', NOW(),
             'limite', v_limite
         ),
-        'ultimas_transacoes', COALESCE((
+        'ultimas_transactions', COALESCE((
             SELECT json_agg(row_to_json(t)) FROM (
                 SELECT valor, tipo, descricao, realizada_em
-                FROM transacoes
+                FROM transactions
                 WHERE cliente_id = p_id
                 ORDER BY realizada_em DESC
                 LIMIT 10

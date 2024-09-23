@@ -49,7 +49,7 @@ public class HttpNettyHandler extends SimpleChannelInboundHandler<HttpObject> {
 
             if (HttpMethod.GET.equals(request.method())) {
                 processExtrato(ctx, id);
-            } else if (HttpMethod.POST.equals(request.method()) && path.endsWith("/transacoes")) {
+            } else if (HttpMethod.POST.equals(request.method()) && path.endsWith("/transactions")) {
                 // For POST, we need to aggregate the content in a subsequent message.
                 if (msg instanceof HttpContent) {
                     HttpContent content = (HttpContent) msg;

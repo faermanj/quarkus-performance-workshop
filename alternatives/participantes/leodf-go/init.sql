@@ -5,7 +5,7 @@ CREATE UNLOGGED TABLE clientes (
 	saldo INTEGER 
 );
 
-CREATE UNLOGGED TABLE transacoes (
+CREATE UNLOGGED TABLE transactions (
 	id SERIAL PRIMARY KEY,
 	cliente_id INTEGER NOT NULL,
 	valor INTEGER NOT NULL,
@@ -15,13 +15,13 @@ CREATE UNLOGGED TABLE transacoes (
 );
 
 ALTER TABLE
-    transacoes
+    transactions
 ADD
     CONSTRAINT fk_cliente_id FOREIGN KEY (cliente_id) REFERENCES clientes (id),
 SET
     (autovacuum_enabled = off);
 
-CREATE INDEX ON transacoes (cliente_id, realizada_em DESC);
+CREATE INDEX ON transactions (cliente_id, realizada_em DESC);
 
 INSERT INTO clientes (nome, limite, saldo)
 VALUES
@@ -65,7 +65,7 @@ BEGIN
 		c.id = cliente_id_tx;
 
 	INSERT INTO 
-		transacoes (cliente_id, valor, tipo, descricao)
+		transactions (cliente_id, valor, tipo, descricao)
 	VALUES (cliente_id_tx, valor_tx, tipo_tx, descricao_tx);
 
 	RETURN (saldo_atual, limite);

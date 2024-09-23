@@ -9,19 +9,19 @@ CREATE TABLE
     );
 
 CREATE TABLE
-    "transacoes" (
+    "transactions" (
         "id" SERIAL NOT NULL,
         "valor" INTEGER NOT NULL,
         "id_cliente" INTEGER NOT NULL,
         "tipo" "tipo_transacao" NOT NULL,
         "descricao" VARCHAR(10) NOT NULL,
         "realizada_em" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        CONSTRAINT "transacoes_pkey" PRIMARY KEY ("id")
+        CONSTRAINT "transactions_pkey" PRIMARY KEY ("id")
     );
 
-ALTER TABLE "transacoes" ADD CONSTRAINT "transacoes_id_cliente_fkey" FOREIGN KEY ("id_cliente") REFERENCES "members" ("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "transactions" ADD CONSTRAINT "transactions_id_cliente_fkey" FOREIGN KEY ("id_cliente") REFERENCES "members" ("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
-CREATE INDEX transacoes_ordering ON transacoes (realizada_em DESC, id_cliente);
+CREATE INDEX transactions_ordering ON transactions (realizada_em DESC, id_cliente);
 
 INSERT INTO
     members (saldo, limite)

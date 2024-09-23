@@ -4,7 +4,7 @@ CREATE UNLOGGED TABLE clientes (
     saldo_inicial BIGINT
 );
 
-CREATE UNLOGGED TABLE transacoes (
+CREATE UNLOGGED TABLE transactions (
     id SERIAL PRIMARY KEY,
     cliente_id INT,
     valor BIGINT,

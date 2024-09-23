@@ -97,7 +97,7 @@ public class MariaRoute {
         return result;
     }
 
-    @Path("/{id}/transacoes")
+    @Path("/{id}/transactions")
     @Consumes("application/json")
     @POST
     public Uni<Response> doPost(@PathParam("id") int id,  Map<String, String> txx) {

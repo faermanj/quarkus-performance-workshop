@@ -8,7 +8,7 @@ CREATE table
 -- ALTER TABLE members ADD CONSTRAINT check_limite CHECK (saldo >= (limite * -1));
 
 CREATE table
-  transacoes (
+  transactions (
     id int auto_increment primary key,
     cliente_id int not null,
     valor int not null,
@@ -29,7 +29,7 @@ values
   (4, 100000 * 100, 0),
   (5, 5000 * 100, 0);
 
--- insert into transacoes (cliente_id, valor, tipo, descricao, realizada_em)
+-- insert into transactions (cliente_id, valor, tipo, descricao, realizada_em)
 -- values
 --  (1, 0, 'c', 'init', now(6)),
 --  (2, 0, 'c', 'init', now(6)),
@@ -73,7 +73,7 @@ IF tipo = 'c' THEN
   UPDATE members
     SET saldo = v_saldo + valor
     WHERE id = p_cliente_id;
-  INSERT INTO transacoes (cliente_id, valor, tipo, descricao, realizada_em)
+  INSERT INTO transactions (cliente_id, valor, tipo, descricao, realizada_em)
   VALUES (p_cliente_id, valor, tipo, descricao, now(6));
     SET json_body = JSON_OBJECT ('saldo', CAST(v_saldo + valor as INT), 'limite', CAST(v_limite as INT));
     SET status_code = 200;
@@ -86,7 +86,7 @@ ELSE
     UPDATE members
       SET saldo = v_saldo - valor
       WHERE id = p_cliente_id;
-    INSERT INTO transacoes (cliente_id, valor, tipo, descricao, realizada_em)
+    INSERT INTO transactions (cliente_id, valor, tipo, descricao, realizada_em)
       VALUES (p_cliente_id, valor, tipo, descricao, now(6));
     SET json_body = JSON_OBJECT ('saldo', CAST(v_saldo - valor as INT), 'limite', CAST(v_limite as INT));
     SET status_code = 200;
@@ -118,7 +118,7 @@ SET json_body = JSON_OBJECT(
         'limite', CAST(v_limit as INT),
         'data_extrato', DATE_FORMAT(NOW(6), '%Y-%m-%d %H:%i:%s.%f')
     ),
-    'ultimas_transacoes', (
+    'ultimas_transactions', (
         SELECT IFNULL(
             JSON_ARRAYAGG(
                 JSON_OBJECT(
@@ -132,11 +132,11 @@ SET json_body = JSON_OBJECT(
         )
         FROM (
             SELECT valor, tipo, descricao, realizada_em
-            FROM transacoes
+            FROM transactions
             WHERE cliente_id = p_cliente_id
             ORDER BY realizada_em DESC
             LIMIT 10
-        ) AS limited_transacoes
+        ) AS limited_transactions
     )
 );
 

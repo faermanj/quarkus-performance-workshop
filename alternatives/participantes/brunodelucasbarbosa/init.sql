@@ -5,7 +5,7 @@ CREATE TABLE clientes (
   limite INTEGER NOT NULL
 );
 
-CREATE TABLE transacoes (
+CREATE TABLE transactions (
   cliente_id INT NOT NULL,
 	valor INTEGER NOT NULL,
   tipo CHAR(1) NOT NULL,

@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS members (
 
 CREATE INDEX idx_members_id ON members (id);
 
-CREATE TABLE IF NOT EXISTS transacoes
+CREATE TABLE IF NOT EXISTS transactions
 (
     id SERIAL PRIMARY KEY,
     cliente_id integer,
@@ -16,8 +16,8 @@ CREATE TABLE IF NOT EXISTS transacoes
     realizada_em timestamp without time zone
 );
 
-CREATE INDEX IF NOT EXISTS idx_transacoes_cliente_id
-    ON public.transacoes USING btree
+CREATE INDEX IF NOT EXISTS idx_transactions_cliente_id
+    ON public.transactions USING btree
     (cliente_id ASC NULLS LAST)
     TABLESPACE pg_default;
 

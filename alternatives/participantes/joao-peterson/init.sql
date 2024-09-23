@@ -13,29 +13,29 @@ insert into clientes (id, limite) values
 	(5, 500000);
 
 -- partioned
-create unlogged table transacoes(
+create unlogged table transactions(
 	id bigserial not null,
 	cliente int not null,
 	tipo boolean not null,
 	valor int not null,
 	descricao varchar(10) not null,
 	realizada_em timestamp not null,
-	constraint fk_transacoes_clientes foreign key (cliente) references clientes (id) 
+	constraint fk_transactions_clientes foreign key (cliente) references clientes (id) 
 )
 partition by list (cliente);
 
 -- partition per client
-create table transacoes_1 partition of transacoes for values in (1);
-create table transacoes_2 partition of transacoes for values in (2);
-create table transacoes_3 partition of transacoes for values in (3);
-create table transacoes_4 partition of transacoes for values in (4);
-create table transacoes_5 partition of transacoes for values in (5);
-create table transacoes_default partition of transacoes default;
+create table transactions_1 partition of transactions for values in (1);
+create table transactions_2 partition of transactions for values in (2);
+create table transactions_3 partition of transactions for values in (3);
+create table transactions_4 partition of transactions for values in (4);
+create table transactions_5 partition of transactions for values in (5);
+create table transactions_default partition of transactions default;
 
 -- indexes
-create index on transacoes (id);
-create index on transacoes (cliente);
-create index on transacoes (realizada_em desc);
+create index on transactions (id);
+create index on transactions (cliente);
+create index on transactions (realizada_em desc);
 
 -- insert transaction
 create or replace procedure transar(cliente_in int, tipo_in boolean, valor_in int, descricao_in varchar(10))
@@ -43,7 +43,7 @@ language plpgsql as
 $$
 begin
 	-- record transaction
-   	insert into transacoes(cliente, tipo, valor, descricao, realizada_em)
+   	insert into transactions(cliente, tipo, valor, descricao, realizada_em)
     values (cliente_in, tipo_in, valor_in, descricao_in, now());
 end
 $$;
@@ -63,6 +63,6 @@ create or replace function extrato(cliente_in int) returns table(valor int, tipo
 language plpgsql as
 $$
 begin
-	return query select t.valor, t.tipo, t.descricao, t.realizada_em from transacoes as t where t.cliente = cliente_in order by t.realizada_em desc limit 10;
+	return query select t.valor, t.tipo, t.descricao, t.realizada_em from transactions as t where t.cliente = cliente_in order by t.realizada_em desc limit 10;
 end
 $$

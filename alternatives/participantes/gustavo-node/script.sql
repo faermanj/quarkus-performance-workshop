@@ -5,7 +5,7 @@ CREATE TABLE clientes (
   saldo INTEGER NOT NULL DEFAULT 0
 );
 
-CREATE TABLE transacoes(
+CREATE TABLE transactions(
     id SERIAL PRIMARY KEY,
     cliente_id INTEGER NOT NULL,
     valor INTEGER NOT NULL,
@@ -15,7 +15,7 @@ CREATE TABLE transacoes(
     CONSTRAINT fk_cliente_id FOREIGN KEY (cliente_id) REFERENCES clientes(id)
 );
 -- CREATE UNIQUE INDEX idx_clientes_id ON clientes USING btree (id);
-CREATE INDEX idx_transacoes_cliente_id ON transacoes USING btree (cliente_id);
+CREATE INDEX idx_transactions_cliente_id ON transactions USING btree (cliente_id);
 
 INSERT INTO clientes (nome, limite)
 VALUES
@@ -27,15 +27,15 @@ VALUES
 
 -- CREATE OR REPLACE FUNCTION apagar_registro_mais_antigo() RETURNS TRIGGER AS $$
 -- BEGIN
---     IF (SELECT count(*) FROM transacoes) > 10 THEN
---         DELETE FROM transacoes
---         WHERE id = (SELECT id FROM transacoes ORDER BY realizada_em ASC LIMIT 1);
+--     IF (SELECT count(*) FROM transactions) > 10 THEN
+--         DELETE FROM transactions
+--         WHERE id = (SELECT id FROM transactions ORDER BY realizada_em ASC LIMIT 1);
 --     END IF;
 --     RETURN NEW;
 -- END;
 -- $$ LANGUAGE plpgsql;
 --
 -- CREATE TRIGGER trigger_apagar_registro_mais_antigo
--- AFTER INSERT ON transacoes
+-- AFTER INSERT ON transactions
 -- FOR EACH ROW
 -- EXECUTE FUNCTION apagar_registro_mais_antigo();

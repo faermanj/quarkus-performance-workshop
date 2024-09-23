@@ -10,7 +10,7 @@ CREATE UNLOGGED TABLE IF NOT EXISTS clientes
 create index clientes_id_idx
     on clientes (id);
 
-CREATE UNLOGGED TABLE transacoes
+CREATE UNLOGGED TABLE transactions
 (
     id BIGSERIAL NOT NULL,
     valor      BIGINT                      NOT NULL,
@@ -18,13 +18,13 @@ CREATE UNLOGGED TABLE transacoes
     descricao  VARCHAR(10)                 NOT NULL,
     realizacao TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     cliente_id BIGINT                      NOT NULL,
-    CONSTRAINT pk_transacoes PRIMARY KEY (id)
+    CONSTRAINT pk_transactions PRIMARY KEY (id)
 );
-ALTER TABLE transacoes
-    ADD CONSTRAINT FK_TRANSACOES_ON_CLIENTE FOREIGN KEY (cliente_id) REFERENCES clientes (id);
+ALTER TABLE transactions
+    ADD CONSTRAINT FK_transactions_ON_CLIENTE FOREIGN KEY (cliente_id) REFERENCES clientes (id);
 
 
-truncate table transacoes cascade;
+truncate table transactions cascade;
 truncate table clientes cascade;
 
 DO

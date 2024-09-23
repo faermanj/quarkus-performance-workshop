@@ -1,5 +1,5 @@
 
-create table transacoes (
+create table transactions (
     cliente_id int,
     valor numeric not null,
     descricao varchar(10) not null,
@@ -14,8 +14,8 @@ create table clientes (
 
 );
 
-create index transacoes_idx_cliente_id on transacoes (cliente_id);
-create index transacoes_idx_data_hora_inclusao on transacoes (data_hora_inclusao DESC);
+create index transactions_idx_cliente_id on transactions (cliente_id);
+create index transactions_idx_data_hora_inclusao on transactions (data_hora_inclusao DESC);
 
 
 
@@ -67,7 +67,7 @@ begin
 
 
 
-    insert into transacoes(cliente_id, valor, descricao, tipo, data_hora_inclusao)
+    insert into transactions(cliente_id, valor, descricao, tipo, data_hora_inclusao)
     values (p_cliente_id, abs(p_valor), p_descricao, p_tipo,  current_timestamp);
 
     update clientes
@@ -111,7 +111,7 @@ BEGIN
                            TIPO,
                            DATA_HORA_INCLUSAO
                     FROM clientes C
-                             LEFT JOIN transacoes T ON T.CLIENTE_ID = C.CLIENTE_ID
+                             LEFT JOIN transactions T ON T.CLIENTE_ID = C.CLIENTE_ID
                     WHERE C.CLIENTE_ID = p_cliente_id
                     ORDER BY T.DATA_HORA_INCLUSAO DESC
                     LIMIT 10
@@ -122,7 +122,7 @@ BEGIN
                 "total": ' || v_result.SALDO || ',
                 "data_extrato": "' || current_timestamp || '",
                 "limite": ' || v_result.LIMITE || '
-              },"ultimas_transacoes": [';
+              },"ultimas_transactions": [';
             end if;
             if v_result.valor is not null then
                 p_extrato := p_extrato || ' {

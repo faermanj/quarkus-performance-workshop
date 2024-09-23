@@ -5,16 +5,16 @@ CREATE TABLE IF NOT EXISTS members (
 	CONSTRAINT members_pk PRIMARY KEY (id)
 );
 
-CREATE TABLE IF NOT EXISTS transacoes (
+CREATE TABLE IF NOT EXISTS transactions (
 	id serial4 NOT NULL,
 	valor int8 NOT NULL,
 	descricao varchar NOT NULL,
 	tipo bpchar(1) NOT NULL,
 	realizada_em timestamptz DEFAULT now() NOT NULL,
 	cliente_id int2 NOT NULL,
-	CONSTRAINT transacoes_pk PRIMARY KEY (id)
+	CONSTRAINT transactions_pk PRIMARY KEY (id)
 );
-CREATE INDEX transacoes_cliente_id_idx ON transacoes USING btree (cliente_id, realizada_em);
+CREATE INDEX transactions_cliente_id_idx ON transactions USING btree (cliente_id, realizada_em);
 
 INSERT INTO members (id,limite,saldo) VALUES
 	 (1,100000,0),

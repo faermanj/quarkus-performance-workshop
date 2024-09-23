@@ -1,5 +1,5 @@
 
-CREATE UNLOGGED TABLE transacoes (
+CREATE UNLOGGED TABLE transactions (
 	id SERIAL PRIMARY KEY,
 	cliente_id INTEGER NOT NULL,
 	valor INTEGER NOT NULL,
@@ -15,7 +15,7 @@ CREATE UNLOGGED TABLE saldos (
 	valor INTEGER NOT NULL
 );
 
-CREATE INDEX ids_transacoes_ids_cliente_id ON transacoes (cliente_id);
+CREATE INDEX ids_transactions_ids_cliente_id ON transactions (cliente_id);
 CREATE INDEX ids_saldos_ids_cliente_id ON saldos (cliente_id);
 
 DO $$
@@ -54,7 +54,7 @@ BEGIN
 	WHERE s.cliente_id = cliente_id_tx;
 
 	IF saldo_atual - valor_tx >= limite_atual * -1 THEN
-		INSERT INTO transacoes
+		INSERT INTO transactions
 			VALUES(DEFAULT, cliente_id_tx, valor_tx, 'd', descricao_tx, NOW());
 		
 		UPDATE saldos
@@ -93,7 +93,7 @@ AS $$
 BEGIN
 	PERFORM pg_advisory_xact_lock(cliente_id_tx);
 
-	INSERT INTO transacoes
+	INSERT INTO transactions
 		VALUES(DEFAULT, cliente_id_tx, valor_tx, 'c', descricao_tx, NOW());
 
 	RETURN QUERY

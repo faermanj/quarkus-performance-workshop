@@ -5,7 +5,7 @@ create unlogged table if not exists members (
 	saldo integer
 );
 
-create unlogged table if not exists Transacoes (
+create unlogged table if not exists transactions (
 	id serial primary key,
 	clienteId integer not null references members(id),
 	valor integer,
@@ -14,7 +14,7 @@ create unlogged table if not exists Transacoes (
 	realizadaEm timestamp
 );
 
-create index if not exists idx_transacoes_clienteId on Transacoes(clienteId);
+create index if not exists idx_transactions_clienteId on transactions(clienteId);
 
 insert into members (limite, saldo) 
 values
@@ -60,7 +60,7 @@ create or replace function criarTransacao(
 			return mt;
 		end if;
 
-		insert into transacoes 
+		insert into transactions 
 		(valor, tipo, descricao, clienteId, realizadaEm)
 		values
 		(valor, tipo, descricao, clienteId, now()::timestamp);
@@ -90,7 +90,7 @@ create or replace function obterextrato(
 	declare
 		cliente members%rowtype;
 		saldo saldotype;
-		ultimasTransacoes json[];
+		ultimastransactions json[];
 	begin
 
 		select * 
@@ -116,10 +116,10 @@ create or replace function obterextrato(
 			'realizadaEm', t.realizadaEm
 		) order by t.realizadaEm desc
 		)
-		into ultimasTransacoes
+		into ultimastransactions
 		from (
 			select *
-			from transacoes tr	
+			from transactions tr	
 			where tr.clienteId = idCliente
 			order by tr.realizadaEm desc
 			limit 10 offset 0
@@ -132,7 +132,7 @@ create or replace function obterextrato(
             'dataExtrato', saldo.dataExtrato,
             'limite', saldo.limite
         ),
-        'ultimasTransacoes', ultimasTransacoes
+        'ultimastransactions', ultimastransactions
     );
 	end;
 $$ language plpgsql;

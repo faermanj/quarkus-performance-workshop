@@ -5,7 +5,7 @@ CREATE TABLE usuarios (
   saldo int NOT NULL
 );
 
-CREATE TABLE transacoes (
+CREATE TABLE transactions (
   id SERIAL PRIMARY KEY,
   usuario_id INT NOT NULL REFERENCES usuarios(id),
   valor int NOT NULL,

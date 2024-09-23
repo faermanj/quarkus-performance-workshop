@@ -1,5 +1,5 @@
 DROP TABLE IF EXISTS clientes;
-DROP TABLE IF EXISTS transacoes;
+DROP TABLE IF EXISTS transactions;
 
 CREATE TABLE IF NOT EXISTS clientes (
                                         id INTEGER PRIMARY KEY,
@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS clientes (
                                         saldo INTEGER NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS transacoes (
+CREATE TABLE IF NOT EXISTS transactions (
                                           id SERIAL PRIMARY KEY,
                                           cliente_id INTEGER NOT NULL,
                                           tipo CHAR(1) NOT NULL,
@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS transacoes (
                                           realizada_em TIMESTAMPTZ NOT NULL
 );
 
-CREATE INDEX ON transacoes (cliente_id, realizada_em DESC);
+CREATE INDEX ON transactions (cliente_id, realizada_em DESC);
 
 INSERT INTO clientes
 (id, limite, saldo)
@@ -49,7 +49,7 @@ END IF;
 
 UPDATE clientes c SET saldo = new_saldo WHERE c.id = update_saldo_cliente.id;
 
-INSERT INTO transacoes (cliente_id, tipo, valor, descricao, realizada_em)
+INSERT INTO transactions (cliente_id, tipo, valor, descricao, realizada_em)
 VALUES (
            update_saldo_cliente.id,
            update_saldo_cliente.tipo,

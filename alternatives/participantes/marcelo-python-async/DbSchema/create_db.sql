@@ -124,7 +124,7 @@ BEGIN
                 FILTER (WHERE trans.valor IS NOT NULL
             ),
             '[]'
-        )::jsonb -- ultimas_transacoes
+        )::jsonb -- ultimas_transactions
         FROM cliente
         LEFT OUTER JOIN (
             SELECT *

@@ -15,7 +15,7 @@ services:
       - DB_NAME=rinha
       - DB_MAX_CONNECTIONS=10
       - HTTP_PORT=8081
-      # - PING_TRANSACOES_INSERT_ONLY_ON=true
+      # - PING_transactions_INSERT_ONLY_ON=true
     ports:
       - "8081:8081"
     depends_on:
@@ -40,7 +40,7 @@ services:
       - DB_NAME=rinha
       - DB_MAX_CONNECTIONS=10
       - HTTP_PORT=8082
-      # - PING_TRANSACOES_INSERT_ONLY_ON=true
+      # - PING_transactions_INSERT_ONLY_ON=true
     ports:
       - "8082:8082"
     depends_on:

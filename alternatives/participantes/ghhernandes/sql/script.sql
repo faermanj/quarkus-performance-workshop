@@ -12,7 +12,7 @@ VALUES
   (4, 0, 100000 * 100),
   (5, 0, 5000 * 100);
 
-CREATE UNLOGGED TABLE transacoes (
+CREATE UNLOGGED TABLE transactions (
     id SERIAL PRIMARY KEY,
     cliente_id int NOT NULL,
     valor integer NOT NULL,
@@ -20,5 +20,5 @@ CREATE UNLOGGED TABLE transacoes (
     data timestamp without time zone default (now() at time zone 'utc')
 );
 
-CREATE INDEX idx_transacoes_cliente_id ON transacoes (cliente_id ASC);
-CREATE INDEX idx_transacoes_data ON transacoes (data DESC);
+CREATE INDEX idx_transactions_cliente_id ON transactions (cliente_id ASC);
+CREATE INDEX idx_transactions_data ON transactions (data DESC);

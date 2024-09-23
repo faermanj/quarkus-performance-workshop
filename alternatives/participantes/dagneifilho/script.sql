@@ -19,17 +19,17 @@ CREATE TABLE "Clientes" (
     "Saldo" int NOT NULL,
     "Nome" VARCHAR(50)
 );
-CREATE TABLE "Transacoes" (
+CREATE TABLE "transactions" (
     "Id" SERIAL PRIMARY KEY,
     "Valor" int NOT NULL,
     "Tipo" char NOT NULL,
     "Descricao" VARCHAR(10) NOT NULL,
     "RealizadaEm" timestamp NOT NULL,
     "ClienteId" int NOT NULL,
-    CONSTRAINT "FK_Transacoes_Clientes_ClienteId" FOREIGN KEY ("ClienteId") REFERENCES "Clientes" ("Id")
+    CONSTRAINT "FK_transactions_Clientes_ClienteId" FOREIGN KEY ("ClienteId") REFERENCES "Clientes" ("Id")
 );
 
-CREATE INDEX index_idCliente_transacoes ON "Transacoes"("ClienteId" ASC);
+CREATE INDEX index_idCliente_transactions ON "transactions"("ClienteId" ASC);
 DO $$
 BEGIN
   INSERT INTO "Clientes" ("Nome", "Limite", "Saldo")

@@ -4,7 +4,7 @@ CREATE UNLOGGED TABLE clientes (
 	limite INTEGER NOT NULL
 );
 
-CREATE UNLOGGED TABLE transacoes (
+CREATE UNLOGGED TABLE transactions (
   id SERIAL PRIMARY KEY,
   cliente_id SMALLINT NOT NULL,
   valor SMALLINT NOT NULL,
@@ -14,7 +14,7 @@ CREATE UNLOGGED TABLE transacoes (
   CONSTRAINT chave_cliente_id FOREIGN KEY (cliente_id) REFERENCES clientes(id)
 );
 
-CREATE INDEX idx_transacoes_cliente_id ON transacoes (cliente_id);
+CREATE INDEX idx_transactions_cliente_id ON transactions (cliente_id);
 
 CREATE OR REPLACE FUNCTION debitar(
   param_cliente_id SMALLINT,
@@ -48,7 +48,7 @@ BEGIN
   IF NOT FOUND THEN
     resultado_codigo := 2; -- Update failed due to balance constraints.
   ELSE
-    INSERT INTO transacoes (
+    INSERT INTO transactions (
       cliente_id,
       valor,
       tipo,
@@ -94,7 +94,7 @@ BEGIN
   WHERE id = param_cliente_id
   RETURNING saldo INTO resultado_saldo;
 
-  INSERT INTO transacoes (
+  INSERT INTO transactions (
     cliente_id,
     valor,
     tipo,

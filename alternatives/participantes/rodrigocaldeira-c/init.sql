@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS members
     nome varchar(50) NOT NULL,
     limite integer NOT NULL,
     saldo integer NOT NULL DEFAULT 0,
-    ultimas_transacoes jsonb[] DEFAULT ARRAY[]::jsonb[],
+    ultimas_transactions jsonb[] DEFAULT ARRAY[]::jsonb[],
     CONSTRAINT members_pkey PRIMARY KEY (id),
     CONSTRAINT saldo_maior_que_o_limite CHECK (saldo >= (limite * '-1'::integer))
 );

@@ -5,7 +5,7 @@ CREATE TABLE clientes (
   saldo bigint not null default 0
 );
 
-CREATE TABLE transacoes (
+CREATE TABLE transactions (
   id serial not null primary key,
   valor bigint not null,
   tipo char(1) not null,
@@ -14,7 +14,7 @@ CREATE TABLE transacoes (
   cliente_id integer not null references clientes (id)
 );
 
-CREATE INDEX idx_transacoes_cliente_id ON transacoes (cliente_id);
+CREATE INDEX idx_transactions_cliente_id ON transactions (cliente_id);
 
 DO $$
 BEGIN

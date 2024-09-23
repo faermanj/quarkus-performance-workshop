@@ -11,7 +11,7 @@ CREATE TABLE "members" (
 );
 
 -- CreateTable
-CREATE TABLE "transacoes" (
+CREATE TABLE "transactions" (
     "id" SERIAL NOT NULL,
     "id_cliente" INTEGER NOT NULL,
     "valor" INTEGER NOT NULL,
@@ -19,7 +19,7 @@ CREATE TABLE "transacoes" (
     "descricao" VARCHAR(10) NOT NULL,
     "realizada_em" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "transacoes_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "transactions_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -34,7 +34,7 @@ CREATE TABLE "saldos" (
 CREATE UNIQUE INDEX "saldos_id_cliente_key" ON "saldos"("id_cliente");
 
 -- AddForeignKey
-ALTER TABLE "transacoes" ADD CONSTRAINT "transacoes_id_cliente_fkey" FOREIGN KEY ("id_cliente") REFERENCES "members"("id_cliente") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "transactions" ADD CONSTRAINT "transactions_id_cliente_fkey" FOREIGN KEY ("id_cliente") REFERENCES "members"("id_cliente") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "saldos" ADD CONSTRAINT "saldos_id_cliente_fkey" FOREIGN KEY ("id_cliente") REFERENCES "members"("id_cliente") ON DELETE RESTRICT ON UPDATE CASCADE;

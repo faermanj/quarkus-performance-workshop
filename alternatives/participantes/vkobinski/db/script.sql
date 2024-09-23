@@ -29,7 +29,7 @@ CREATE TABLE transacao (
             REFERENCES cliente(cliente_id)
 );
 
-CREATE INDEX idx_transacoes ON transacao (cliente_id ASC);
+CREATE INDEX idx_transactions ON transacao (cliente_id ASC);
 CREATE INDEX idx_saldo ON saldo (cliente_id ASC);
 
 CREATE OR REPLACE FUNCTION get_cliente_details(cliente_id_param INT)
@@ -64,7 +64,7 @@ BEGIN
             'limite', saldo_record.limite,
             'data_extrato', now()
         ),
-        'ultimas_transacoes', transactions_array
+        'ultimas_transactions', transactions_array
     );
 
 END;

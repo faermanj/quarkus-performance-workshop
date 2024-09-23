@@ -6,7 +6,7 @@
 );
 CREATE INDEX ON clientes USING HASH(id);
 
-CREATE UNLOGGED TABLE transacoes
+CREATE UNLOGGED TABLE transactions
 (
     id           SERIAL,
     cliente_id   INTEGER     NOT NULL,
@@ -15,8 +15,8 @@ CREATE UNLOGGED TABLE transacoes
     descricao    VARCHAR(10) NOT NULL,
     realizada_em TIMESTAMP   NOT NULL DEFAULT NOW()
 );
-CREATE INDEX ON transacoes (id DESC);
-CREATE INDEX ON transacoes (cliente_id);
+CREATE INDEX ON transactions (id DESC);
+CREATE INDEX ON transactions (cliente_id);
 DO
 $$
     BEGIN
@@ -42,7 +42,7 @@ BEGIN
         RETURN;
     END IF;
     UPDATE clientes SET saldo = newBalance WHERE id = cid;
-    INSERT INTO transacoes (cliente_id, valor, tipo, descricao) VALUES (cid, value, type, description);
+    INSERT INTO transactions (cliente_id, valor, tipo, descricao) VALUES (cid, value, type, description);
 END;
 $$
 LANGUAGE plpgsql;
@@ -57,6 +57,6 @@ BEGIN
     SELECT saldo, limite INTO balance, climit FROM clientes WHERE id = cid FOR UPDATE;
     newBalance = balance + value;
     UPDATE clientes SET saldo = newBalance WHERE id = cid;
-    INSERT INTO transacoes (cliente_id, valor, tipo, descricao) VALUES (cid, value, type, description);
+    INSERT INTO transactions (cliente_id, valor, tipo, descricao) VALUES (cid, value, type, description);
 END;
 $$LANGUAGE plpgsql;

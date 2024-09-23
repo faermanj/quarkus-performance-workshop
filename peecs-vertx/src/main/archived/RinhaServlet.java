@@ -21,7 +21,7 @@ import jakarta.servlet.http.HttpServletResponse;
 @WebServlet("/*")
 public class RinhaServlet extends HttpServlet {
     private static final Pattern EXTRATO_PATTERN = Pattern.compile("^/members/(\\d+)/(extrato)$");
-    private static final Pattern TRANSACAO_PATTERN = Pattern.compile("^/members/(\\d+)/(transacoes)$"); 
+    private static final Pattern TRANSACAO_PATTERN = Pattern.compile("^/members/(\\d+)/(transactions)$"); 
     private static final String EXTRATO_QUERY = "select * from proc_extrato(?)";
     private static final String TRANSACAO_QUERY =  "select * from proc_transacao(?, ?, ?, ?)";
 
@@ -108,7 +108,7 @@ public class RinhaServlet extends HttpServlet {
         }
     }
 
-    // curl -v -X POST -H "Content-Type: application/json" -d '{"valor": 0, "tipo": "c", "descricao": "Deposito"}' http:///localhost:9999/members/1/transacoes
+    // curl -v -X POST -H "Content-Type: application/json" -d '{"valor": 0, "tipo": "c", "descricao": "Deposito"}' http:///localhost:9999/members/1/transactions
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         var pathInfo = req.getPathInfo();
@@ -134,7 +134,7 @@ public class RinhaServlet extends HttpServlet {
             var id = Integer.valueOf(matcher.group(1));
             var action = matcher.group(2);
 
-            if ("transacoes".equals(action)) {
+            if ("transactions".equals(action)) {
                 postTransacao(id, t, resp);
                 return;
             }
@@ -199,7 +199,7 @@ public class RinhaServlet extends HttpServlet {
         var msg = e.getMessage();
         if (msg.contains("LIMITE_INDISPONIVEL")) {
             resp.sendError(422, "Erro: Limite indisponivel");
-        } else if (msg.contains("fk_members_transacoes_id")) {
+        } else if (msg.contains("fk_members_transactions_id")) {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Erro: Cliente inexistente");
         } else {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Erro SQL ao processar a transacao");
