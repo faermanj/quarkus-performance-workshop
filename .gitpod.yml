@@ -9,18 +9,22 @@ tasks:
       cd ./peecs
       quarkus dev
 
-  - name: Start Servers
+  - name: Start services
     init: |
       docker compose pull
     command: |
       docker compose down; docker compose up;
   
-  - name: Gatling Performance Tests
+  - name: Observe containers
+    command: |
+      watch docker ps;
+
+  - name: Run performance test
     command: |
       ./install-gatling.sh
       sleep 60;
-      cd rinha-de-backend-2024-q1/
-      ./executar-teste-local.sh
+      cd perf-test/
+      ./run-local-test.sh
 
 ports:
   - port: 3306
