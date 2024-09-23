@@ -81,6 +81,7 @@ Good luck and may fortune bless us all.
 * Review the application code (```./peecs/src/main/java```).
 * Change the version (```version.txt```), rebuild and push the container image for the application.
 * Change garbage-collection algorithm and parameters
+* Improve application warmup (cold-start)
 * Build a native image
 * Try profile-guided optimization (PGO)
 

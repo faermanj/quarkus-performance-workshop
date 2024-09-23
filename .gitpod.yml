@@ -11,7 +11,7 @@ tasks:
 
   - name: Start Servers
     init: |
-      docker pull caravanacloud/peecs:latest
+      docker compose pull
     command: |
       docker compose down; docker compose up;
   

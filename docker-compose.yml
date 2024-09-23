@@ -121,29 +121,29 @@ services:
           cpus: "0.20"
           memory: "35MB"
 
-  warmup:
-    hostname: warmup
-    container_name: warmup
-    network_mode: host 
-    image: fedora:39
+#  warmup:
+#    hostname: warmup
+#    container_name: warmup
+#    network_mode: host 
+#    image: fedora:39
   #  depends_on:
   #    lb:
   #      condition: service_healthy
-    command: |
-      /bin/bash -c "echo 'warmuping'; sleep 3; \
-              for i in \$(seq 1 150); \
-              do \
-                echo -n \. \$i; \
-                curl -s http://127.0.0.1:9999/clientes/333/extrato > /dev/null  & \
-                curl -s -H 'Content-Type: application/json' -d '{\"valor\": 0, \"tipo\": \"d\", \"descricao\": \"warmup\"}' http://127.0.0.1:9999/clientes/333/transacoes > /dev/null  & \
-              done; 
-              wait; 
-              echo 'warmup done';"
-    deploy:
-      resources: 
-        limits:
-          cpus: "0.05"
-          memory: "35MB"
+#    command: |
+#      /bin/bash -c "echo 'warmuping'; sleep 3; \
+#              for i in \$(seq 1 150); \
+#              do \
+#                echo -n \. \$i; \
+#                curl -s http://127.0.0.1:9999/clientes/333/extrato > /dev/null  & \
+#                curl -s -H 'Content-Type: application/json' -d '{\"valor\": 0, \"tipo\": \"d\", \"descricao\": \"warmup\"}' http://127.0.0.1:9999/clientes/333/transacoes > /dev/null  & \
+#              done; 
+#              wait; 
+#              echo 'warmup done';"
+#    deploy:
+#      resources: 
+#        limits:
+#          cpus: "0.05"
+#          memory: "35MB"
 
   
   db:
