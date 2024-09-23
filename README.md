@@ -74,6 +74,17 @@ Good luck and may fortune bless us all.
 
 *Huge thanks to [Zan Franceschi](https://github.com/zanfranceschi) and everybody that joined [Rinha de Backend](https://github.com/zanfranceschi/rinha-de-backend-2024-q1), from where this content was inspired.*
 
+# A few things to try
+
+* Execute the gatling performance tests (```perf-test/run-local-test.sh```) and evaluate the results report.
+* Change settings for the load balancer (```nginx.conf```), application (```docker-compose.yml```) and database (```postgresql.conf```).
+* Review the application code (```./peecs/src/main/java```).
+* Change the version (```version.txt```), rebuild and push the container image for the application.
+* Change garbage-collection algorithm and parameters
+* Build a native image
+* Try profile-guided optimization (PGO)
+
+
 # References
 
 * [Quarkus Documentation](https://quarkus.io/guides/)
