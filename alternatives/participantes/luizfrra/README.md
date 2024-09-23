@@ -17,4 +17,4 @@
 - **Nginx**: Um servidor web de alto desempenho e servidor proxy reverso conhecido por sua confiabilidade, velocidade e recursos avançados.
 
 ## Propósito
-O propósito desta submissão de projeto é mostrar uma implementação de API que aborda o desafio de controle de concorrência proposto pela competição "Rinha de Backend". Ao utilizar Javalin, PostgreSQL e Nginx, este projeto demonstra uma solução escalável, segura e eficiente para gerenciar créditos e débitos dentro de um sistema de backend.
+O propósito desta submissão de projeto é mostrar uma implementação de API que aborda o desafio de controle de concorrência proposto pela competição "Rinha de Backend". Ao utilizar Javalin, PostgreSQL e Nginx, este projeto demonstra uma solução escalável, segura e eficiente para gerenciar credits e debits dentro de um sistema de backend.

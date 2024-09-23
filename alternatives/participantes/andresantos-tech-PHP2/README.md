@@ -11,7 +11,7 @@ Nova submissão para testar quatro coisas diferentes [do que tinha feito antes](
 - Impacto de performance ao remover o web framework [Spiral](https://spiral.dev/) [baseado na submissão do Gianluca Bine (Pr3d4dor)]
 - Uso de 5 workers do RoadRunner por API ao invés de 1
 - Impacto de performance por mover as regras de validação do saldo para dentro do Postgres [baseado na submissão do @giovannibassi]
-- Atualização do PHP 8.2 para 8.3 (o tempo de resposta das validações aumentou um pouco, mas decidi manter assim)
+- Atualização do PHP 8.2 para 8.3 (o tempo de resposta das validations aumentou um pouco, mas decidi manter assim)
 
 Também tentei fazer um "warmup" da aplicação (simulando X requisições antes do teste começar) mas não rolou. Fica pra próxima rinha :)
 

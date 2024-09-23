@@ -57,7 +57,7 @@ class RinhaBackendCrebitosSimulation
     .baseUrl("http://localhost:9999")
     .userAgentHeader("Agente do Caos - 2024/Q1")
 
-  val debitos = scenario("débitos")
+  val debitos = scenario("debits")
     .exec {s =>
       val descricao = randomDescricao()
       val cliente_id = randomClienteId()
@@ -67,7 +67,7 @@ class RinhaBackendCrebitosSimulation
       session
     }
     .exec(
-      http("débitos")
+      http("debits")
       .post(s => s"/members/${s("cliente_id").as[String]}/transactions")
           .header("content-type", "application/json")
           .body(StringBody(s => s("payload").as[String]))
@@ -80,7 +80,7 @@ class RinhaBackendCrebitosSimulation
           }
     )
 
-  val creditos = scenario("créditos")
+  val creditos = scenario("credits")
     .exec {s =>
       val descricao = randomDescricao()
       val cliente_id = randomClienteId()
@@ -90,7 +90,7 @@ class RinhaBackendCrebitosSimulation
       session
     }
     .exec(
-      http("créditos")
+      http("credits")
       .post(s => s"/members/${s("cliente_id").as[String]}/transactions")
           .header("content-type", "application/json")
           .body(StringBody(s => s("payload").as[String]))
@@ -115,7 +115,7 @@ class RinhaBackendCrebitosSimulation
   val validacaotransactionsConcorrentes = (tipo: String) =>
     scenario(s"validação concorrência transações - ${tipo}")
     .exec(
-      http("validações")
+      http("validations")
       .post(s"/members/1/transactions")
           .header("content-type", "application/json")
           .body(StringBody(s"""{"valor": 1, "tipo": "${tipo}", "descricao": "validacao"}"""))
@@ -125,7 +125,7 @@ class RinhaBackendCrebitosSimulation
   val validacaotransactionsConcorrentesSaldo = (saldoEsperado: Int) =>
     scenario(s"validação concorrência saldo - ${saldoEsperado}")
     .exec(
-      http("validações")
+      http("validations")
       .get(s"/members/1/balance")
       .check(
         jmesPath("saldo.total").ofType[Int].is(saldoEsperado)
@@ -142,12 +142,12 @@ class RinhaBackendCrebitosSimulation
 
   val criterioClienteNaoEcontrado = scenario("validação HTTP 404")
     .exec(
-      http("validações")
+      http("validations")
       .get("/members/6/balance")
       .check(status.is(404))
     )
 
-  val criteriosmembers = scenario("validações")
+  val criteriosmembers = scenario("validations")
     .feed(saldosIniciaismembers)
     .exec(
       /*
@@ -156,7 +156,7 @@ class RinhaBackendCrebitosSimulation
         O lado negativo é que, em caso de falha, pode não ser possível
         saber sua causa exata.
       */ 
-      http("validações")
+      http("validations")
       .get("/members/#{id}/balance")
       .check(
         status.is(200),
@@ -165,7 +165,7 @@ class RinhaBackendCrebitosSimulation
       )
     )
     .exec(
-      http("validações")
+      http("validations")
       .post("/members/#{id}/transactions")
           .header("content-type", "application/json")
           .body(StringBody(s"""{"valor": 1, "tipo": "c", "descricao": "toma"}"""))
@@ -176,7 +176,7 @@ class RinhaBackendCrebitosSimulation
           )
     )
     .exec(
-      http("validações")
+      http("validations")
       .post("/members/#{id}/transactions")
           .header("content-type", "application/json")
           .body(StringBody(s"""{"valor": 1, "tipo": "d", "descricao": "devolve"}"""))
@@ -187,7 +187,7 @@ class RinhaBackendCrebitosSimulation
           )
     )
     .exec(
-      http("validações")
+      http("validations")
       .get("/members/#{id}/balance")
       .check(
         jmesPath("ultimas_transactions[0].descricao").ofType[String].is("devolve"),
@@ -199,7 +199,7 @@ class RinhaBackendCrebitosSimulation
       )
     )
     .exec( // Consistencia do balance
-      http("validações")
+      http("validations")
       .post("/members/#{id}/transactions")
           .header("content-type", "application/json")
           .body(StringBody(s"""{"valor": 1, "tipo": "c", "descricao": "danada"}"""))
@@ -210,28 +210,28 @@ class RinhaBackendCrebitosSimulation
           )
           .resources(
             // 5 consultas simultâneas ao balance para verificar consistência
-            http("validações").get("/members/#{id}/balance").check(
+            http("validations").get("/members/#{id}/balance").check(
               jmesPath("ultimas_transactions[0].descricao").ofType[String].is("danada"),
               jmesPath("ultimas_transactions[0].tipo").ofType[String].is("c"),
               jmesPath("ultimas_transactions[0].valor").ofType[Int].is("1"),
               jmesPath("saldo.limite").ofType[String].is("#{limite}"),
               jmesPath("saldo.total").ofType[String].is("#{saldo}")
             ),
-            http("validações").get("/members/#{id}/balance").check(
+            http("validations").get("/members/#{id}/balance").check(
               jmesPath("ultimas_transactions[0].descricao").ofType[String].is("danada"),
               jmesPath("ultimas_transactions[0].tipo").ofType[String].is("c"),
               jmesPath("ultimas_transactions[0].valor").ofType[Int].is("1"),
               jmesPath("saldo.limite").ofType[String].is("#{limite}"),
               jmesPath("saldo.total").ofType[String].is("#{saldo}")
             ),
-            http("validações").get("/members/#{id}/balance").check(
+            http("validations").get("/members/#{id}/balance").check(
               jmesPath("ultimas_transactions[0].descricao").ofType[String].is("danada"),
               jmesPath("ultimas_transactions[0].tipo").ofType[String].is("c"),
               jmesPath("ultimas_transactions[0].valor").ofType[Int].is("1"),
               jmesPath("saldo.limite").ofType[String].is("#{limite}"),
               jmesPath("saldo.total").ofType[String].is("#{saldo}")
             ),
-            http("validações").get("/members/#{id}/balance").check(
+            http("validations").get("/members/#{id}/balance").check(
               jmesPath("ultimas_transactions[0].descricao").ofType[String].is("danada"),
               jmesPath("ultimas_transactions[0].tipo").ofType[String].is("c"),
               jmesPath("ultimas_transactions[0].valor").ofType[Int].is("1"),
@@ -242,35 +242,35 @@ class RinhaBackendCrebitosSimulation
     )
   
   .exec(
-      http("validações")
+      http("validations")
       .post("/members/#{id}/transactions")
           .header("content-type", "application/json")
           .body(StringBody(s"""{"valor": 1.2, "tipo": "d", "descricao": "devolve"}"""))
           .check(status.in(422, 400))
     )
     .exec(
-      http("validações")
+      http("validations")
       .post("/members/#{id}/transactions")
           .header("content-type", "application/json")
           .body(StringBody(s"""{"valor": 1, "tipo": "x", "descricao": "devolve"}"""))
           .check(status.in(422, 400))
     )
     .exec(
-      http("validações")
+      http("validations")
       .post("/members/#{id}/transactions")
           .header("content-type", "application/json")
           .body(StringBody(s"""{"valor": 1, "tipo": "c", "descricao": "123456789 e mais um pouco"}"""))
           .check(status.in(422, 400))
     )
     .exec(
-      http("validações")
+      http("validations")
       .post("/members/#{id}/transactions")
           .header("content-type", "application/json")
           .body(StringBody(s"""{"valor": 1, "tipo": "c", "descricao": ""}"""))
           .check(status.in(422, 400))
     )
     .exec(
-      http("validações")
+      http("validations")
       .post("/members/#{id}/transactions")
           .header("content-type", "application/json")
           .body(StringBody(s"""{"valor": 1, "tipo": "c", "descricao": null}"""))
@@ -278,7 +278,7 @@ class RinhaBackendCrebitosSimulation
     )
 
   /* 
-    Separar créditos e débitos dá uma visão
+    Separar credits e debits dá uma visão
     melhor sobre como as duas operações se
     comportam individualmente.
   */

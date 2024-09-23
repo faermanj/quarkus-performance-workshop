@@ -19,4 +19,4 @@ Esta é a minha tentativa de implementar uma solução em django para a [Rinha d
 
 ## Próximos Passos?
 
-Se você não me conhece, sou cientista de dados com mais de 12 anos de experiência mas **Dev apenas em formação**. Não tenho a pretensão de conseguir completar a rinha e disponibilizar uma aplicação de altíssima performance (como muitos estão fazendo e mostrando no Twitter). Mas já fico satisfeito de ter completado as validações e aprendido tanto em tão pouco tempo.
+Se você não me conhece, sou cientista de dados com mais de 12 anos de experiência mas **Dev apenas em formação**. Não tenho a pretensão de conseguir completar a rinha e disponibilizar uma aplicação de altíssima performance (como muitos estão fazendo e mostrando no Twitter). Mas já fico satisfeito de ter completado as validations e aprendido tanto em tão pouco tempo.

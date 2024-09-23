@@ -71,35 +71,35 @@ genTextReport() {
             allgroup4Count=$(cat $arquivoStats | jq '.stats.group4.count')
             allgroup4Precentage=$(cat $arquivoStats | jq '.stats.group4.percentage')
 
-            validacoes=$(cat $arquivoStats | jq '.contents | map(select(.name == "validações"))[0].stats.numberOfRequests.total' )
-            validacoesOk=$(cat $arquivoStats | jq '.contents | map(select(.name == "validações"))[0].stats.numberOfRequests.ok' )
-            validacoesKo=$(cat $arquivoStats | jq '.contents | map(select(.name == "validações"))[0].stats.numberOfRequests.ko' )
-            validacoesMin=$(cat $arquivoStats | jq '.contents | map(select(.name == "validações"))[0].stats.minResponseTime.total' )
-            validacoesp1=$(cat $arquivoStats | jq '.contents | map(select(.name == "validações"))[0].stats.percentiles1.total' )
-            validacoesp2=$(cat $arquivoStats | jq '.contents | map(select(.name == "validações"))[0].stats.percentiles2.total' )
-            validacoesp3=$(cat $arquivoStats | jq '.contents | map(select(.name == "validações"))[0].stats.percentiles3.total' )
-            validacoesp4=$(cat $arquivoStats | jq '.contents | map(select(.name == "validações"))[0].stats.percentiles4.total' )
-            validacoesMax=$(cat $arquivoStats | jq '.contents | map(select(.name == "validações"))[0].stats.maxResponseTime.total' )
+            validacoes=$(cat $arquivoStats | jq '.contents | map(select(.name == "validations"))[0].stats.numberOfRequests.total' )
+            validacoesOk=$(cat $arquivoStats | jq '.contents | map(select(.name == "validations"))[0].stats.numberOfRequests.ok' )
+            validacoesKo=$(cat $arquivoStats | jq '.contents | map(select(.name == "validations"))[0].stats.numberOfRequests.ko' )
+            validacoesMin=$(cat $arquivoStats | jq '.contents | map(select(.name == "validations"))[0].stats.minResponseTime.total' )
+            validacoesp1=$(cat $arquivoStats | jq '.contents | map(select(.name == "validations"))[0].stats.percentiles1.total' )
+            validacoesp2=$(cat $arquivoStats | jq '.contents | map(select(.name == "validations"))[0].stats.percentiles2.total' )
+            validacoesp3=$(cat $arquivoStats | jq '.contents | map(select(.name == "validations"))[0].stats.percentiles3.total' )
+            validacoesp4=$(cat $arquivoStats | jq '.contents | map(select(.name == "validations"))[0].stats.percentiles4.total' )
+            validacoesMax=$(cat $arquivoStats | jq '.contents | map(select(.name == "validations"))[0].stats.maxResponseTime.total' )
 
-            debitos=$(cat $arquivoStats | jq '.contents | map(select(.name == "débitos"))[0].stats.numberOfRequests.total' )
-            debitosOk=$(cat $arquivoStats | jq '.contents | map(select(.name == "débitos"))[0].stats.numberOfRequests.ok' )
-            debitosKo=$(cat $arquivoStats | jq '.contents | map(select(.name == "débitos"))[0].stats.numberOfRequests.ko' )
-            debitosMin=$(cat $arquivoStats | jq '.contents | map(select(.name == "débitos"))[0].stats.minResponseTime.total' )
-            debitosp1=$(cat $arquivoStats | jq '.contents | map(select(.name == "débitos"))[0].stats.percentiles1.total' )
-            debitosp2=$(cat $arquivoStats | jq '.contents | map(select(.name == "débitos"))[0].stats.percentiles2.total' )
-            debitosp3=$(cat $arquivoStats | jq '.contents | map(select(.name == "débitos"))[0].stats.percentiles3.total' )
-            debitosp4=$(cat $arquivoStats | jq '.contents | map(select(.name == "débitos"))[0].stats.percentiles4.total' )
-            debitosMax=$(cat $arquivoStats | jq '.contents | map(select(.name == "débitos"))[0].stats.maxResponseTime.total' )
+            debitos=$(cat $arquivoStats | jq '.contents | map(select(.name == "debits"))[0].stats.numberOfRequests.total' )
+            debitosOk=$(cat $arquivoStats | jq '.contents | map(select(.name == "debits"))[0].stats.numberOfRequests.ok' )
+            debitosKo=$(cat $arquivoStats | jq '.contents | map(select(.name == "debits"))[0].stats.numberOfRequests.ko' )
+            debitosMin=$(cat $arquivoStats | jq '.contents | map(select(.name == "debits"))[0].stats.minResponseTime.total' )
+            debitosp1=$(cat $arquivoStats | jq '.contents | map(select(.name == "debits"))[0].stats.percentiles1.total' )
+            debitosp2=$(cat $arquivoStats | jq '.contents | map(select(.name == "debits"))[0].stats.percentiles2.total' )
+            debitosp3=$(cat $arquivoStats | jq '.contents | map(select(.name == "debits"))[0].stats.percentiles3.total' )
+            debitosp4=$(cat $arquivoStats | jq '.contents | map(select(.name == "debits"))[0].stats.percentiles4.total' )
+            debitosMax=$(cat $arquivoStats | jq '.contents | map(select(.name == "debits"))[0].stats.maxResponseTime.total' )
 
-            creditos=$(cat $arquivoStats | jq '.contents | map(select(.name == "créditos"))[0].stats.numberOfRequests.total' )
-            creditosOk=$(cat $arquivoStats | jq '.contents | map(select(.name == "créditos"))[0].stats.numberOfRequests.ok' )
-            creditosKo=$(cat $arquivoStats | jq '.contents | map(select(.name == "créditos"))[0].stats.numberOfRequests.ko' )
-            creditosMin=$(cat $arquivoStats | jq '.contents | map(select(.name == "créditos"))[0].stats.minResponseTime.total' )
-            creditosp1=$(cat $arquivoStats | jq '.contents | map(select(.name == "créditos"))[0].stats.percentiles1.total' )
-            creditosp2=$(cat $arquivoStats | jq '.contents | map(select(.name == "créditos"))[0].stats.percentiles2.total' )
-            creditosp3=$(cat $arquivoStats | jq '.contents | map(select(.name == "créditos"))[0].stats.percentiles3.total' )
-            creditosp4=$(cat $arquivoStats | jq '.contents | map(select(.name == "créditos"))[0].stats.percentiles4.total' )
-            creditosMax=$(cat $arquivoStats | jq '.contents | map(select(.name == "créditos"))[0].stats.maxResponseTime.total' )
+            creditos=$(cat $arquivoStats | jq '.contents | map(select(.name == "credits"))[0].stats.numberOfRequests.total' )
+            creditosOk=$(cat $arquivoStats | jq '.contents | map(select(.name == "credits"))[0].stats.numberOfRequests.ok' )
+            creditosKo=$(cat $arquivoStats | jq '.contents | map(select(.name == "credits"))[0].stats.numberOfRequests.ko' )
+            creditosMin=$(cat $arquivoStats | jq '.contents | map(select(.name == "credits"))[0].stats.minResponseTime.total' )
+            creditosp1=$(cat $arquivoStats | jq '.contents | map(select(.name == "credits"))[0].stats.percentiles1.total' )
+            creditosp2=$(cat $arquivoStats | jq '.contents | map(select(.name == "credits"))[0].stats.percentiles2.total' )
+            creditosp3=$(cat $arquivoStats | jq '.contents | map(select(.name == "credits"))[0].stats.percentiles3.total' )
+            creditosp4=$(cat $arquivoStats | jq '.contents | map(select(.name == "credits"))[0].stats.percentiles4.total' )
+            creditosMax=$(cat $arquivoStats | jq '.contents | map(select(.name == "credits"))[0].stats.maxResponseTime.total' )
 
             balances=$(cat $arquivoStats | jq '.contents | map(select(.name == "balances"))[0].stats.numberOfRequests.total' )
             balancesOk=$(cat $arquivoStats | jq '.contents | map(select(.name == "balances"))[0].stats.numberOfRequests.ok' )
@@ -131,7 +131,7 @@ genTextReport() {
             echo "  p99: ${allPercentiles4Total}"
             echo "  Max: ${allMaxResponseTimeTotal}"
             
-            echo "validações"
+            echo "validations"
             echo "  total: ${validacoes}"
             echo "  OK: ${validacoesOk}"
             echo "  Nok: ${validacoesKo}"
@@ -142,7 +142,7 @@ genTextReport() {
             echo "  p99: ${validacoesp4}"
             echo "  Max: ${validacoesMax}"
 
-            echo "débitos"
+            echo "debits"
             echo "  total: ${debitos}"
             echo "  OK: ${debitosOk}"
             echo "  Nok: ${debitosKo}"
@@ -153,7 +153,7 @@ genTextReport() {
             echo "  p99: ${debitosp4}"
             echo "  Max: ${debitosMax}"
 
-            echo "créditos"
+            echo "credits"
             echo "  total: ${creditos}"
             echo "  OK: ${creditosOk}"
             echo "  Nok: ${creditosKo}"

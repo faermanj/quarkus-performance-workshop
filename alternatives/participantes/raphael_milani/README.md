@@ -1,7 +1,7 @@
 
 # Solução Rinha Backend 2014 - Q1 - Account Balance
 
-Solução controle de concorrência de créditos e débitos usando Pessimistic Locking, tecnologias usadas:
+Solução controle de concorrência de credits e debits usando Pessimistic Locking, tecnologias usadas:
 
 ## Tecnologias:
 

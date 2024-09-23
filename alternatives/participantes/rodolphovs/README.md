@@ -23,7 +23,7 @@ Esse projeto foi feito pensando em comparar como uma aplicação simples em C co
 
 Também foi minha primeira vez trabalhando com async em C, é um repositório interessante para quem tem curiosidade de ver como funciona(usei o select, mas existem também o poll e o epoll que são melhores).
 
-Mas por favor, nunca usem o código fonte nesse repositório para se basearem em uma aplicação C em produção. Muitas validações e garantias foram deixadas de lado para simplificar o código. Além disso, sou longe de ser um especialista em network programming em C.
+Mas por favor, nunca usem o código fonte nesse repositório para se basearem em uma aplicação C em produção. Muitas validations e garantias foram deixadas de lado para simplificar o código. Além disso, sou longe de ser um especialista em network programming em C.
 
 ---
 

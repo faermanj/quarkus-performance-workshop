@@ -30,7 +30,7 @@ public class transactionsResource {
             Map<String, Object> t) {
         Log.tracef("Transacao recebida: %s %s ", id, t);
 
-        // TODO Uma validação por vez ou múltiplas validações conjuntas ???
+        // TODO Uma validação por vez ou múltiplas validations conjuntas ???
         var valorNumber = (Number) t.get("valor");
         if (valorNumber == null
                 || !Integer.class.equals(valorNumber.getClass())) {

@@ -6,7 +6,7 @@ Submissão feita com:
 - `Node` para api (`express` + `ioredis` + `pg`)
 - `nginx` como load balancer
 - `postgres` como banco de dados
-- `redis`como cache para validações
+- `redis`como cache para validations
 - [repositório da api](https://github.com/andersonef/rinha-backend-2024q1-node1)
 
 linkedin: [Anderson N. Silva](https://www.linkedin.com/in/andersontrti) | 

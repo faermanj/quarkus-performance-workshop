@@ -22,7 +22,7 @@ libs utilizadas:
 - `pgx` e `pgxpool` para conexão com o banco de dados
 - `sqlc` _type-safe_ gerador de código das _queries SQL_
 - `testcontainers-go` para testes automatizados
-- `validator` validações do _body_ das requisições 
+- `validator` validations do _body_ das requisições 
 - `zerolog` para logging 
 
 [Repositório do projeto](https://github.com/MarcusAdriano/rinha-de-backend-2024-q1-go)

@@ -11,7 +11,7 @@
 ## Alcivan Lucas
 
 ## Sobre o Projeto 
-O desafio consiste em desenvolver uma API HTTP com endpoints específicos para lidar com transações e balances de clientes. As transações incluem créditos e débitos, e a API deve garantir consistência nos saldos dos clientes, já que o a API passa por um teste de lógica e estresse, onde são enviadas várias requisições simultâneas ao mesmo cliente, cocorrência de débito e de crédito.  
+O desafio consiste em desenvolver uma API HTTP com endpoints específicos para lidar com transações e balances de clientes. As transações incluem credits e debits, e a API deve garantir consistência nos saldos dos clientes, já que o a API passa por um teste de lógica e estresse, onde são enviadas várias requisições simultâneas ao mesmo cliente, cocorrência de débito e de crédito.  
 
 
 ## Instruções
