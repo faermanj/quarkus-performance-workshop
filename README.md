@@ -54,7 +54,7 @@ To avoid unnecessary expenses, we are using a constrained hardware model. Your c
 
 ```mermaid
 flowchart TD
-    G(Gatling Stress Test) -.-> LB(Load Balancer / porta 9999)
+    G(Gatling Stress Test) -.-> LB(Load Balancer / port 9999)
     subgraph PEECS API
         LB -.-> API1(API instance 01)
         LB -.-> API2(API instance 02)
@@ -92,6 +92,7 @@ Good luck and may fortune bless us all.
 * Change settings for the load balancer (```nginx.conf```), application (```docker-compose.yml```) and database (```postgresql.conf```).
 * Review the application code (```./peecs/src/main/java```).
 * Change the version (```version.txt```), rebuild and push the container image for the application. Check the ```.envrc-sample``` file for registry credentials.
+* Update to the latest Java release
 * Change garbage-collection algorithm and parameters
 * Improve application warmup (cold-start)
 * Build a native image
