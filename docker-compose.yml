@@ -3,7 +3,7 @@ services:
 
   api01:
     network_mode: host
-    image: ${CONTAINER_USERNAME:-faermanj}/peecs:${PEECS_VERSION:-0.0.1}
+    image: ${REGISTRY_USERNAME:-faermanj}/peecs:${PEECS_VERSION:-0.0.1}
 #    build: ./peecs
     hostname: api01
     container_name: api01
@@ -48,7 +48,7 @@ services:
 
   api02:
     network_mode: host
-    image: ${CONTAINER_USERNAME:-faermanj}/peecs:${PEECS_VERSION:-0.0.1}
+    image: ${REGISTRY_USERNAME:-faermanj}/peecs:${PEECS_VERSION:-0.0.1}
 #    build: ./peecs
     hostname: api02
     container_name: api02

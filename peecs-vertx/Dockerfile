@@ -1,9 +1,11 @@
 ####
-# export DOCKER_USERNAME=caravanacloud
-# docker build -f peecs/Dockerfile --no-cache --progress=plain -t ${DOCKER_USERNAME}/peecs:latest peecs
-# docker run -i --rm -p 9999:9990 --network=host --env-file ./.env.local ${DOCKER_USERNAME}/peecs:latest
-# docker login --username=${DOCKER_USERNAME}
-# docker push ${DOCKER_USERNAME}/peecs:latest
+# Useful container commands:
+#   export REGISTRY_USERNAME="faermanj"
+#   docker build -f peecs/Dockerfile --no-cache --progress=plain -t ${REGISTRY_USERNAME}/peecs:latest peecs
+#   docker run -i --rm -p 9999:9990 --network=host --env-file ./.env.local ${REGISTRY_USERNAME}/peecs:latest
+#   docker login --username=${REGISTRY_USERNAME}
+#   docker push ${REGISTRY_USERNAME}/peecs:latest
+# or just copy .envrc-sample to .envrc and use the rebuild.sh script
 ###
 
 ### BUILD STAGE ###

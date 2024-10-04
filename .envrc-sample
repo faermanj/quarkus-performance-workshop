@@ -1,3 +1,4 @@
-export CONTAINER_USERNAME="faermanj"
+export PEECS_VERSION=$(cat version.txt)
+export REGISTRY_USERNAME="faermanj"
 # Docker Personal Access Token: dckr_pat_
-export CONTAINER_TOKEN="Kg7ixu3QjHg1w1BPlVRNIx7ID_s"
+export REGISTRY_TOKEN="Kg7ixu3QjHg1w1BPlVRNIx7ID_s"
