@@ -12,7 +12,7 @@ tasks:
   - name: Dev check
     command: |
       echo "Checking if the application is running"
-      sleep 15
+      sleep 60
       curl -v http://localhost:9000/members/1/balance
 
   - name: Start services
