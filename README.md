@@ -21,7 +21,7 @@ POST /members/[id]/transactions
 
 ```
 
-And a balance request:
+Here's a sample balance request. You can use it to test the system in development mode with ```curl localhost:9000/members/1/balance``` :
 ```
 GET /members/[id]/balance
 
@@ -50,7 +50,19 @@ GET /members/[id]/balance
 
 Please don't worry about other transaction types for now. The volume of these two transactions are an order of magnitude larger than all others combined. If we can fix them, our job here is done. 
 
-To avoid unnecessary expenses, we are using a constrained hardware model. Your code MUST run in two API instances and be constrained in resources for the entire test execution. You'll have 1.5 CPU units and 550MB of memory. If we can make it in the constrained environment, we are ensured that it will work in with the infrastructure resources in production.
+To avoid unnecessary expenses, we are using a constrained hardware model. Your code MUST run in two API instances and be constrained in resources for the entire test execution. You'll have 1.5 CPU units and 550MB of memory. If we can make it in the constrained environment, we are ensured that it will work in with the infrastructure resources in production. Here's a diagram of the reference architecture:
+
+```mermaid
+flowchart TD
+    G(Gatling Stress Test) -.-> LB(Load Balancer / porta 9999)
+    subgraph PEECS API
+        LB -.-> API1(API instance 01)
+        LB -.-> API2(API instance 02)
+        API1 -.-> Db[(Database)]
+        API2 -.-> Db[(Database)]
+    end
+```
+
 
 Some important files in this repository:
 * ```docker-compose.yml``` these are the services that will be started and tested. Make sure your container images are built and configured correctly.
@@ -83,7 +95,9 @@ Good luck and may fortune bless us all.
 * Change garbage-collection algorithm and parameters
 * Improve application warmup (cold-start)
 * Build a native image
-* Try profile-guided optimization (PGO)
+* Use profile-guided optimization (PGO)
+* Try single-binary native images (musl)
+* Add telemetry / profiling 
 
 
 # References

@@ -1,1 +1,1 @@
-init.postgresql.1table.fn.sql
+/workspace/quarkus-performance-workshop/peecs/src/main/resources/init.sql

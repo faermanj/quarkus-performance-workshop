@@ -22,13 +22,6 @@ INSERT INTO members (nome, limite) VALUES
 	('les cruders', 10000 * 100),
 	('padaria joia de cocaia', 100000 * 100),
 	('kid mais', 5000 * 100);
-
-CREATE EXTENSION IF NOT EXISTS pg_prewarm;
-SELECT pg_prewarm('members');
-SELECT pg_prewarm('transactions');
-
-
-
 CREATE TYPE transacao_result AS (saldo INT, limite INT);
 
 CREATE OR REPLACE FUNCTION proc_transacao(p_cliente_id INT, p_valor INT, p_tipo VARCHAR, p_descricao VARCHAR)
