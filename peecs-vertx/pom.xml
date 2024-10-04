@@ -152,7 +152,8 @@
         </property>
       </activation>
       <properties>
-        <quarkus.native.additional-build-args>--static,--libc=musl,--pgo=/home/container-user/quarkus-app/profile.iprof,--gc=G1,-R:MaxRAMPercentage=99,-H:+UseCompressedReferences,--install-exit-handlers</quarkus.native.additional-build-args>
+        <!-- - - static, - - libc=musl, - - pgo=/home/container-user/quarkus-app/profile.iprof, - - gc=G1, -R:MaxRAMPercentage=99,-H:+UseCompressedReferences,-->
+        <quarkus.native.additional-build-args>--install-exit-handlers</quarkus.native.additional-build-args>
         <skipITs>false</skipITs>
         <quarkus.package.type>native</quarkus.package.type>
       </properties>

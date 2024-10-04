@@ -95,7 +95,7 @@ Good luck and may fortune bless us all.
 * Change garbage-collection algorithm and parameters
 * Improve application warmup (cold-start)
 * Build a native image
-* Use profile-guided optimization (PGO)
+* Use profile-guided optimization (PGO), an initial profile is provided in the file ```profile.iprof```
 * Try single-binary native images (musl)
 * Add telemetry / profiling 
 
