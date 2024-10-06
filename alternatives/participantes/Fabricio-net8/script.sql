@@ -25,35 +25,35 @@ CREATE UNLOGGED TABLE public."transactions" (
 CREATE INDEX "IX_transactions_IdCliente" ON public."transactions" USING btree ("IdCliente");
 
 
-CREATE OR REPLACE function  atualizar_saldo_credito(cliente_id INTEGER, valor int8, descricao varchar(100))
+CREATE OR REPLACE function  atualizar_saldo_credito(cliente_id INTEGER, amount int8, description varchar(100))
 RETURNS int8 
 LANGUAGE plpgsql
 AS $$
 DECLARE
     saldo_atual int8;
 BEGIN
-  UPDATE "Clientes" SET "Saldoinicial" = "Saldoinicial" + valor WHERE "Id" = cliente_id
+  UPDATE "Clientes" SET "Saldoinicial" = "Saldoinicial" + amount WHERE "Id" = cliente_id
   RETURNING "Saldoinicial" into saldo_atual;
 
   INSERT INTO "transactions" ("Valor", "Tipo", "Descricao", "IdCliente", "Realizada_em")
-  VALUES( valor, 'c', descricao, cliente_id, now());
+  VALUES( amount, 'c', description, cliente_id, now());
 
   RETURN saldo_atual;
 END;
 $$;
 
-CREATE OR REPLACE function  atualizar_saldo_debito(cliente_id INTEGER, valor int8, descricao varchar(100))
+CREATE OR REPLACE function  atualizar_saldo_debito(cliente_id INTEGER, amount int8, description varchar(100))
 RETURNS int8 
 LANGUAGE plpgsql
 AS $$
 DECLARE
     saldo_atual int8;
 BEGIN
-    UPDATE "Clientes" SET "Saldoinicial" = "Saldoinicial"  - valor WHERE "Id" = cliente_id AND "Saldoinicial" - valor >= "Limite"
+    UPDATE "Clientes" SET "Saldoinicial" = "Saldoinicial"  - amount WHERE "Id" = cliente_id AND "Saldoinicial" - amount >= "Limite"
     RETURNING "Saldoinicial" into saldo_atual;
    IF saldo_atual IS NOT NULL THEN
 		INSERT INTO "transactions" ("Valor", "Tipo", "Descricao", "IdCliente", "Realizada_em")
-		VALUES( valor, 'd', descricao, cliente_id, now());
+		VALUES( amount, 'd', description, cliente_id, now());
    END IF;
    RETURN saldo_atual;
 END;

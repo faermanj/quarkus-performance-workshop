@@ -1,16 +1,16 @@
 CREATE UNLOGGED TABLE "customers" (
     "id"      SERIAL       NOT NULL PRIMARY KEY,
-    "limite"  INTEGER      NOT NULL,
-    "saldo" BIGINT       NOT NULL DEFAULT 0
+    "limit"  INTEGER      NOT NULL,
+    "current_balance" BIGINT       NOT NULL DEFAULT 0
 );
 
 CREATE UNLOGGED TABLE "transactions" (
     "id"          SERIAL       NOT NULL PRIMARY KEY,
     "customer_id" INTEGER      NOT NULL,
-    "tipo"        CHARACTER(1) NOT NULL,
-    "valor"       BIGINT       NOT NULL,
-    "descricao" VARCHAR(10)  NOT NULL,
-    "realizada_em"  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "kind"        CHARACTER(1) NOT NULL,
+    "amount"       BIGINT       NOT NULL,
+    "description" VARCHAR(10)  NOT NULL,
+    "submitted_at"  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "fk_clientes_transactions_id"
         FOREIGN KEY ("customer_id") REFERENCES customers ("id")
 );
@@ -20,7 +20,7 @@ CREATE INDEX "fk_transactions_customer_id" ON "public"."transactions" ("customer
 DO
 $$
     BEGIN
-        INSERT INTO customers (limite, saldo)
+        INSERT INTO customers (limit, current_balance)
         VALUES (1000 * 100, 0),
                (800 * 100, 0),
                (10000 * 100, 0),

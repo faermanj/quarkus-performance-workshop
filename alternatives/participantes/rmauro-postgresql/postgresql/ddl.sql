@@ -70,7 +70,7 @@ CREATE OR REPLACE FUNCTION public.fn_criar_transacao_v2(
 	p_nr_value integer,
 	p_cd_type character varying,
 	p_ds_transacao character varying)
-    RETURNS TABLE(nr_saldo integer, nr_limite integer, bl_result integer) 
+    RETURNS TABLE(nr_saldo integer, nr_limit integer, bl_result integer) 
     LANGUAGE 'plpgsql'
     COST 100
     VOLATILE PARALLEL UNSAFE

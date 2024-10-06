@@ -1,17 +1,17 @@
 CREATE TABLE IF NOT EXISTS clientes (
   id     SERIAL PRIMARY KEY,
   nome   TEXT NOT NULL,
-  limite INTEGER NOT NULL,
-  saldo  INTEGER NOT NULL DEFAULT 0
+  limit INTEGER NOT NULL,
+  current_balance  INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE UNLOGGED TABLE IF NOT EXISTS transactions (
   id           SERIAL PRIMARY KEY,
-  valor        INTEGER NOT NULL,
-  tipo         CHAR(1) NOT NULL,
-  descricao    VARCHAR(10) NOT NULL,
+  amount        INTEGER NOT NULL,
+  kind         CHAR(1) NOT NULL,
+  description    VARCHAR(10) NOT NULL,
   cliente_id   INTEGER NOT NULL,
-  realizada_em TIMESTAMP NOT NULL DEFAULT NOW()
+  submitted_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 ALTER TABLE
@@ -21,7 +21,7 @@ ALTER TABLE
 
 CREATE INDEX IF NOT EXISTS idx_transactions ON transactions (cliente_id);
 
-INSERT INTO clientes (nome, limite)
+INSERT INTO clientes (nome, limit)
 VALUES
   ('o barato sai caro', 1000 * 100),
   ('zan corp ltda', 800 * 100),

@@ -1,36 +1,36 @@
 CREATE TABLE members
 (
     id      INT PRIMARY KEY,
-    limite  INTEGER     NOT NULL
+    limit  INTEGER     NOT NULL
 );
 CREATE INDEX id_cliente ON members USING HASH (id);
 
-INSERT INTO members (id, limite)
+INSERT INTO members (id, limit)
 VALUES  (1, 100000),
         (2, 80000),
         (3, 1000000),
         (4, 10000000),
         (5, 500000);
 
-CREATE TABLE saldos
+CREATE TABLE current_balances
 (
     cliente_id  INTEGER     NOT NULL,
     balanco     INTEGER     NOT NULL DEFAULT 0,
-    limite      INTEGER     NOT NULL DEFAULT 0,
+    limit      INTEGER     NOT NULL DEFAULT 0,
     criado_em   TIMESTAMP   NOT NULL DEFAULT NOW(),
-    CHECK (balanco >= (limite * -1))
+    CHECK (balanco >= (limit * -1))
 );
-CREATE INDEX saldos_cliente_id_idx ON public.saldos USING btree (cliente_id, criado_em DESC);
+CREATE INDEX current_balances_cliente_id_idx ON public.current_balances USING btree (cliente_id, criado_em DESC);
 
-INSERT INTO saldos (cliente_id, limite)
-SELECT id, limite FROM members;
+INSERT INTO current_balances (cliente_id, limit)
+SELECT id, limit FROM members;
 
 CREATE TABLE transactions
 (
     cliente_id  INTEGER     NOT NULL,
-    valor       INTEGER     NOT NULL,
+    amount       INTEGER     NOT NULL,
     operacao    CHAR(1)     NOT NULL,
-    descricao   VARCHAR(10) NOT NULL,
+    description   VARCHAR(10) NOT NULL,
     criado_em   TIMESTAMP   NOT NULL DEFAULT NOW()
 );
 CREATE INDEX transactions_cliente_id_idx ON public.transactions (cliente_id,criado_em DESC);

@@ -36,11 +36,11 @@ DECLARE
     result JSON;
 BEGIN
     SELECT json_build_object(
-        'saldo', (SELECT * FROM json_build_object('total', c.balance, 'date_balance', current_timestamp, 'limite', c.withdraw_limit)),
-        'ultimas_transactions', (
+        'current_balance', (SELECT * FROM json_build_object('total', c.balance, 'date_balance', current_timestamp, 'limit', c.withdraw_limit)),
+        'recent_transactions', (
             SELECT COALESCE(json_agg(trx.*), '[]'::json) 
                 FROM (
-                    SELECT t.description as "descricao", t.type as "tipo", t.value as "valor", t.created_at AS "realizada_em" 
+                    SELECT t.description as "description", t.type as "kind", t.value as "amount", t.created_at AS "submitted_at" 
                     FROM transaction t WHERE t.client_id = c.id ORDER BY t.created_at DESC LIMIT 10
                 ) 
             as trx)

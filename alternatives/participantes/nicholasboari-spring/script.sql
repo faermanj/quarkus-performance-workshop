@@ -1,15 +1,15 @@
 CREATE UNLOGGED TABLE tb_cliente (
                             id BIGSERIAL PRIMARY KEY,
-                            limite BIGINT NOT NULL,
-                            saldo BIGINT NOT NULL
+                            limit BIGINT NOT NULL,
+                            current_balance BIGINT NOT NULL
 );
 
 CREATE UNLOGGED TABLE tb_transacao (
                               id SERIAL PRIMARY KEY,
-                              valor BIGINT NOT NULL,
-                              tipo VARCHAR(255) NOT NULL,
-                              descricao VARCHAR(255) NOT NULL,
-                              realizada_em TIMESTAMP NOT NULL,
+                              amount BIGINT NOT NULL,
+                              kind VARCHAR(255) NOT NULL,
+                              description VARCHAR(255) NOT NULL,
+                              submitted_at TIMESTAMP NOT NULL,
                               cliente_id BIGINT NOT NULL,
                               FOREIGN KEY (cliente_id) REFERENCES tb_cliente(id)
 );
@@ -17,15 +17,15 @@ CREATE UNLOGGED TABLE tb_transacao (
 DO
 $$
 BEGIN
-INSERT INTO tb_cliente (saldo, limite)
+INSERT INTO tb_cliente (current_balance, limit)
 VALUES (0, 100000);
-INSERT INTO tb_cliente (saldo, limite)
+INSERT INTO tb_cliente (current_balance, limit)
 VALUES (0, 80000);
-INSERT INTO tb_cliente (saldo, limite)
+INSERT INTO tb_cliente (current_balance, limit)
 VALUES (0, 1000000);
-INSERT INTO tb_cliente (saldo, limite)
+INSERT INTO tb_cliente (current_balance, limit)
 VALUES (0, 10000000);
-INSERT INTO tb_cliente (saldo, limite)
+INSERT INTO tb_cliente (current_balance, limit)
 VALUES (0, 500000);
 END;
 $$;

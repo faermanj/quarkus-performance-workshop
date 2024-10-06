@@ -1,22 +1,22 @@
 CREATE TABLE clientes (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY NOT NULL,
     nome VARCHAR(50) NOT NULL,
-    limite INTEGER NOT NULL,
-    saldo INTEGER NOT NULL
+    limit INTEGER NOT NULL,
+    current_balance INTEGER NOT NULL
 );
 
 CREATE TABLE transactions (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY NOT NULL,
-    tipo CHAR(1) NOT NULL,
-    descricao VARCHAR(10) NOT NULL,
-    valor INTEGER NOT NULL,
+    kind CHAR(1) NOT NULL,
+    description VARCHAR(10) NOT NULL,
+    amount INTEGER NOT NULL,
     cliente_id INTEGER NOT NULL,
-    realizada_em TIMESTAMP NOT NULL DEFAULT NOW()
+    submitted_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 CREATE INDEX IF NOT EXISTS idx_cliente_id ON transactions (cliente_id);
 
-INSERT INTO clientes (nome, limite, saldo)
+INSERT INTO clientes (nome, limit, current_balance)
   VALUES
     ('o barato sai caro', 1000 * 100, 0),
     ('zan corp ltda', 800 * 100, 0),

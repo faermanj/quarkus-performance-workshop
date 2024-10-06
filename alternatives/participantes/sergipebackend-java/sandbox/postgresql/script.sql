@@ -1,21 +1,21 @@
 CREATE UNLOGGED TABLE IF NOT EXISTS members (
     id SERIAL PRIMARY KEY NOT NULL,
-    limite INTEGER NOT NULL,
-    saldo INTEGER NOT NULL
+    limit INTEGER NOT NULL,
+    current_balance INTEGER NOT NULL
 );
 
 CREATE UNLOGGED TABLE IF NOT EXISTS transactions (
     id SERIAL    PRIMARY KEY NOT NULL,
-    tipo         CHAR(1) NOT NULL,
-    descricao    VARCHAR(10) NOT NULL,
-    valor        INTEGER NOT NULL,
+    kind         CHAR(1) NOT NULL,
+    description    VARCHAR(10) NOT NULL,
+    amount        INTEGER NOT NULL,
     cliente_id   INTEGER NOT NULL,
-    realizada_em TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+    submitted_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
 
 CREATE INDEX idx_cliente_id ON transactions(cliente_id);
 
-INSERT INTO members (limite, saldo)
+INSERT INTO members (limit, current_balance)
 VALUES
     (100000, 0),
     (80000, 0),
@@ -23,25 +23,25 @@ VALUES
     (10000000, 0),
     (500000, 0);
 
-CREATE OR REPLACE FUNCTION atualizar_saldo()
+CREATE OR REPLACE FUNCTION atualizar_current_balance()
 RETURNS TRIGGER AS $$
 DECLARE
-    v_saldo INTEGER;
-    v_limite INTEGER;
+    v_current_balance INTEGER;
+    v_limit INTEGER;
 BEGIN
-     SELECT saldo, limite INTO v_saldo, v_limite
+     SELECT current_balance, limit INTO v_current_balance, v_limit
      FROM members WHERE id = NEW.cliente_id
      FOR UPDATE;
 
-    IF NEW.tipo = 'd' AND (v_saldo - NEW.valor) < -v_limite THEN
+    IF NEW.kind = 'd' AND (v_current_balance - NEW.amount) < -v_limit THEN
         RAISE EXCEPTION USING
             errcode='23000',
             message='Limite insuficiente';
     END IF;
 
-    UPDATE members SET saldo =
-        CASE WHEN NEW.tipo = 'd' THEN saldo - NEW.valor
-            ELSE saldo + NEW.valor
+    UPDATE members SET current_balance =
+        CASE WHEN NEW.kind = 'd' THEN current_balance - NEW.amount
+            ELSE current_balance + NEW.amount
         END
     WHERE id = NEW.cliente_id;
 
@@ -49,9 +49,9 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER atualizar_saldo_trigger
+CREATE TRIGGER atualizar_current_balance_trigger
     AFTER INSERT ON transactions
-    FOR EACH ROW EXECUTE FUNCTION atualizar_saldo();
+    FOR EACH ROW EXECUTE FUNCTION atualizar_current_balance();
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;

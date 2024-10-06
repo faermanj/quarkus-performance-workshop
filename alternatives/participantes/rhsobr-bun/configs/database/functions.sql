@@ -12,9 +12,9 @@ BEGIN
                     COALESCE(
                         JSONB_BUILD_OBJECT(
                             't',
-                            cl.saldo,
+                            cl.current_balance,
                             'l',
-                            cl.limite
+                            cl.limit
                         ),
                         NULL :: JSONB
                     )
@@ -32,20 +32,20 @@ BEGIN
                         SELECT
                             JSONB_BUILD_OBJECT(
                                 'v',
-                                t.valor,
+                                t.amount,
                                 't',
-                                t.tipo,
+                                t.kind,
                                 'd',
-                                t.descricao,
+                                t.description,
                                 'r',
-                                to_char (t.realizada_em, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')
+                                to_char (t.submitted_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')
                             ) AS line
                         FROM
                             transactions AS t
                         WHERE
                             t.cliente_id = cliente_id_p
                         ORDER BY
-                            t.realizada_em DESC
+                            t.submitted_at DESC
                         LIMIT
                             10
                     ) AS _
@@ -61,9 +61,9 @@ $$ LANGUAGE plpgsql;
 CREATE
 OR REPLACE FUNCTION inclui_transacao(
     cliente_id_p INTEGER,
-    tipo_p CHAR,
-    valor_p INTEGER,
-    descricao_p VARCHAR
+    kind_p CHAR,
+    amount_p INTEGER,
+    description_p VARCHAR
 ) RETURNS JSON AS $$
 DECLARE
     RESULT JSON;
@@ -71,19 +71,19 @@ DECLARE
 BEGIN
     WITH insertions AS (
         INSERT INTO
-            transactions (cliente_id, valor, tipo, descricao)
+            transactions (cliente_id, amount, kind, description)
         SELECT
             id,
-            valor_p,
-            tipo_p,
-            descricao_p
+            amount_p,
+            kind_p,
+            description_p
         FROM
             members cl
         WHERE
             cl.id = cliente_id_p
             AND (
-                tipo_p = 'c'
-                OR cl.saldo - valor_p >= cl.limite * -1
+                kind_p = 'c'
+                OR cl.current_balance - amount_p >= cl.limit * -1
             )
         LIMIT
             1 FOR NO KEY
@@ -93,17 +93,17 @@ BEGIN
     UPDATE
         members cl
     SET
-        saldo = saldo + (
+        current_balance = current_balance + (
             CASE
-                WHEN tipo_p = 'd' THEN valor_p * -1
-                ELSE valor_p
+                WHEN kind_p = 'd' THEN amount_p * -1
+                ELSE amount_p
             END
         )
     FROM
         insertions ins
     WHERE
         cl.id = ins.cliente_id RETURNING COALESCE(
-            JSONB_BUILD_OBJECT('saldo', saldo, 'limite', limite),
+            JSONB_BUILD_OBJECT('current_balance', current_balance, 'limit', limit),
             NULL :: JSONB
         ) INTO RESULT;
 

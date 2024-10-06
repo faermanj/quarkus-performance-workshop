@@ -1,28 +1,28 @@
 CREATE TABLE "clientes" (
     "id" SERIAL NOT NULL,
-    "saldo" INTEGER NOT NULL,
-    "limite" INTEGER NOT NULL,
+    "current_balance" INTEGER NOT NULL,
+    "limit" INTEGER NOT NULL,
 
     CONSTRAINT "cli_pkey" PRIMARY KEY ("id")
 );
 
 CREATE TABLE "transactions" (
     "id" SERIAL NOT NULL,
-    "valor" INTEGER NOT NULL,
+    "amount" INTEGER NOT NULL,
     "id_cliente" INTEGER NOT NULL,
-    "tipo" CHAR NOT NULL,
-    "descricao" VARCHAR(10) NOT NULL,
-    "realizada_em" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "kind" CHAR NOT NULL,
+    "description" VARCHAR(10) NOT NULL,
+    "submitted_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "tra_pkey" PRIMARY KEY ("id"),
-    CONSTRAINT "tra_check1" CHECK (valor > 0),
-    CONSTRAINT "tra_check2" CHECK (LENGTH(descricao) > 0),
+    CONSTRAINT "tra_check1" CHECK (amount > 0),
+    CONSTRAINT "tra_check2" CHECK (LENGTH(description) > 0),
     CONSTRAINT "tra_id_cliente_fkey" FOREIGN KEY ("id_cliente") REFERENCES "clientes" ("id")
 );
 
-CREATE INDEX tra_id_orderby ON transactions (realizada_em DESC, id_cliente);
+CREATE INDEX tra_id_orderby ON transactions (submitted_at DESC, id_cliente);
 
-CREATE OR REPLACE FUNCTION debit(p_id INTEGER, p_value INTEGER, p_descricao VARCHAR) RETURNS SETOF clientes AS $$
+CREATE OR REPLACE FUNCTION debit(p_id INTEGER, p_value INTEGER, p_description VARCHAR) RETURNS SETOF clientes AS $$
 DECLARE
     v_client clientes%ROWTYPE;
     v_new_balance NUMERIC;
@@ -33,19 +33,19 @@ BEGIN
         RAISE EXCEPTION 'P0002';
     END IF;
 
-    v_new_balance := v_client.saldo - p_value;
-    IF (v_new_balance < (v_client.limite * -1)) THEN
+    v_new_balance := v_client.current_balance - p_value;
+    IF (v_new_balance < (v_client.limit * -1)) THEN
         RAISE EXCEPTION '';
     END IF;
 
-    INSERT INTO transactions (id_cliente, valor, tipo, descricao) VALUES (p_id ,p_value, 'd', p_descricao );
-    v_client.saldo := v_new_balance;
-    UPDATE clientes SET saldo = v_new_balance WHERE id = p_id;
+    INSERT INTO transactions (id_cliente, amount, kind, description) VALUES (p_id ,p_value, 'd', p_description );
+    v_client.current_balance := v_new_balance;
+    UPDATE clientes SET current_balance = v_new_balance WHERE id = p_id;
     RETURN NEXT v_client;
 END;
 $$ LANGUAGE PLPGSQL;
 
-CREATE OR REPLACE FUNCTION credit(p_id INTEGER, p_value INTEGER, p_descricao VARCHAR) RETURNS SETOF clientes AS $$
+CREATE OR REPLACE FUNCTION credit(p_id INTEGER, p_value INTEGER, p_description VARCHAR) RETURNS SETOF clientes AS $$
 DECLARE
     v_client clientes%ROWTYPE;
     v_new_balance NUMERIC;
@@ -56,44 +56,44 @@ BEGIN
         RAISE EXCEPTION 'P0002';
     END IF;
 
-    v_new_balance := v_client.saldo + p_value;
-    INSERT INTO transactions (id_cliente, valor, tipo, descricao) VALUES (p_id, p_value, 'c', p_descricao);
-    v_client.saldo := v_new_balance;
-    UPDATE clientes SET saldo = v_new_balance WHERE id = p_id;
+    v_new_balance := v_client.current_balance + p_value;
+    INSERT INTO transactions (id_cliente, amount, kind, description) VALUES (p_id, p_value, 'c', p_description);
+    v_client.current_balance := v_new_balance;
+    UPDATE clientes SET current_balance = v_new_balance WHERE id = p_id;
     RETURN NEXT v_client;
 END;
 $$ LANGUAGE PLPGSQL;
 
 CREATE OR REPLACE FUNCTION statement(p_id INTEGER) RETURNS JSONB AS $$
 DECLARE
-    v_saldo JSONB;
+    v_current_balance JSONB;
     v_transactions JSONB;
 BEGIN
     PERFORM pg_advisory_xact_lock(p_id);
-    SELECT jsonb_build_object('total', saldo, 'date_balance', CURRENT_TIMESTAMP(6), 'limite', limite ) INTO v_saldo FROM clientes WHERE id = p_id;
-    IF (v_saldo IS NULL) THEN
+    SELECT jsonb_build_object('total', current_balance, 'date_balance', CURRENT_TIMESTAMP(6), 'limit', limit ) INTO v_current_balance FROM clientes WHERE id = p_id;
+    IF (v_current_balance IS NULL) THEN
         RAISE EXCEPTION 'P0002';
     END IF;
 
     SELECT COALESCE(jsonb_agg(
                jsonb_build_object(
-                   'valor', valor,
-                   'tipo', tipo,
-                   'descricao', descricao,
-                   'realizada_em', realizada_em
+                   'amount', amount,
+                   'kind', kind,
+                   'description', description,
+                   'submitted_at', submitted_at
                )
            ), '[]'::JSONB)
     INTO v_transactions FROM (
-        SELECT valor, tipo, descricao, realizada_em FROM transactions WHERE id_cliente = p_id ORDER BY realizada_em DESC LIMIT 10
-    ) AS ultimas_transactions;
-    RETURN jsonb_build_object('saldo', v_saldo, 'ultimas_transactions', v_transactions);
+        SELECT amount, kind, description, submitted_at FROM transactions WHERE id_cliente = p_id ORDER BY submitted_at DESC LIMIT 10
+    ) AS recent_transactions;
+    RETURN jsonb_build_object('current_balance', v_current_balance, 'recent_transactions', v_transactions);
 END;
 $$ LANGUAGE PLPGSQL;
 
 
 DO $$
 BEGIN
-	INSERT INTO clientes (saldo, limite)
+	INSERT INTO clientes (current_balance, limit)
 	VALUES
 		(0, 100000),
 		(0, 80000),

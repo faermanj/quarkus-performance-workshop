@@ -25,28 +25,28 @@ class RinhaBackendCrebitosSimulation
     }
   }
 
-  val validarConsistenciaSaldoLimite = (valor: Option[String], session: Session) => {
+  val validarConsistenciaSaldoLimite = (amount: Option[String], session: Session) => {
     /*
       Essa função é frágil porque depende que haja uma entrada
-      chamada 'limite' com valor conversível para int na session
-      e também que seja encadeada com com jmesPath("saldo") para
-      que 'valor' seja o primeiro argumento da função validadora
+      chamada 'limit' com amount conversível para int na session
+      e também que seja encadeada com com jmesPath("current_balance") para
+      que 'amount' seja o primeiro argumento da função validadora
       de 'validate(.., ..)'.
       
       =============================================================
       
       Nota para quem não tem experiência em testes de performance:
-        O teste de lógica de saldo/limite extrapola o que é comumente 
+        O teste de lógica de current_balance/limit extrapola o que é comumente 
         feito em testes de performance apenas por causa da natureza
-        da Rinha de Backend. Evite fazer esse tipo de coisa em 
+        da Rinha de Backend. Evite fazer esse kind de coisa em 
         testes de performance, pois não é uma prática recomendada
         normalmente.
     */ 
 
-    val saldo = valor.flatMap(s => Try(s.toInt).toOption)
-    val limite = toInt(session("limite").as[String])
+    val current_balance = amount.flatMap(s => Try(s.toInt).toOption)
+    val limit = toInt(session("limit").as[String])
 
-    (saldo, limite) match {
+    (current_balance, limit) match {
       case (Some(s), Some(l)) if s.toInt < l.toInt * -1 => Failure("Limite ultrapassado!")
       case (Some(s), Some(l)) if s.toInt >= l.toInt * -1 => Success(Option("ok"))
       case _ => Failure("WTF?!")
@@ -59,11 +59,11 @@ class RinhaBackendCrebitosSimulation
 
   val debitos = scenario("debits")
     .exec {s =>
-      val descricao = randomDescricao()
+      val description = randomDescricao()
       val cliente_id = randomClienteId()
-      val valor = randomValorTransacao()
-      val payload = s"""{"valor": ${valor}, "tipo": "d", "descricao": "${descricao}"}"""
-      val session = s.setAll(Map("descricao" -> descricao, "cliente_id" -> cliente_id, "payload" -> payload))
+      val amount = randomValorTransacao()
+      val payload = s"""{"amount": ${amount}, "kind": "d", "description": "${description}"}"""
+      val session = s.setAll(Map("description" -> description, "cliente_id" -> cliente_id, "payload" -> payload))
       session
     }
     .exec(
@@ -74,19 +74,19 @@ class RinhaBackendCrebitosSimulation
           .check(
             status.in(200, 422),
             status.saveAs("httpStatus"))
-          .checkIf(s => s("httpStatus").as[String] == "200") { jmesPath("limite").saveAs("limite") }
+          .checkIf(s => s("httpStatus").as[String] == "200") { jmesPath("limit").saveAs("limit") }
           .checkIf(s => s("httpStatus").as[String] == "200") {
-            jmesPath("saldo").validate("ConsistenciaSaldoLimite - Transação", validarConsistenciaSaldoLimite)
+            jmesPath("current_balance").validate("ConsistenciaSaldoLimite - Transação", validarConsistenciaSaldoLimite)
           }
     )
 
   val creditos = scenario("credits")
     .exec {s =>
-      val descricao = randomDescricao()
+      val description = randomDescricao()
       val cliente_id = randomClienteId()
-      val valor = randomValorTransacao()
-      val payload = s"""{"valor": ${valor}, "tipo": "c", "descricao": "${descricao}"}"""
-      val session = s.setAll(Map("descricao" -> descricao, "cliente_id" -> cliente_id, "payload" -> payload))
+      val amount = randomValorTransacao()
+      val payload = s"""{"amount": ${amount}, "kind": "c", "description": "${description}"}"""
+      val session = s.setAll(Map("description" -> description, "cliente_id" -> cliente_id, "payload" -> payload))
       session
     }
     .exec(
@@ -96,8 +96,8 @@ class RinhaBackendCrebitosSimulation
           .body(StringBody(s => s("payload").as[String]))
           .check(
             status.in(200),
-            jmesPath("limite").saveAs("limite"),
-            jmesPath("saldo").validate("ConsistenciaSaldoLimite - Transação", validarConsistenciaSaldoLimite)
+            jmesPath("limit").saveAs("limit"),
+            jmesPath("current_balance").validate("ConsistenciaSaldoLimite - Transação", validarConsistenciaSaldoLimite)
           )
     )
 
@@ -106,38 +106,38 @@ class RinhaBackendCrebitosSimulation
       http("balances")
       .get(s => s"/members/${randomClienteId()}/balance")
       .check(
-        jmesPath("saldo.limite").saveAs("limite"),
-        jmesPath("saldo.total").validate("ConsistenciaSaldoLimite - Extrato", validarConsistenciaSaldoLimite)
+        jmesPath("current_balance.limit").saveAs("limit"),
+        jmesPath("current_balance.total").validate("ConsistenciaSaldoLimite - Extrato", validarConsistenciaSaldoLimite)
     )
   )
 
   val validacaConcorrentesNumRequests = 25
-  val validacaotransactionsConcorrentes = (tipo: String) =>
-    scenario(s"validating transactions concurrency - ${tipo}")
+  val validacaotransactionsConcorrentes = (kind: String) =>
+    scenario(s"validating transactions concurrency - ${kind}")
     .exec(
       http("validations")
       .post(s"/members/1/transactions")
           .header("content-type", "application/json")
-          .body(StringBody(s"""{"valor": 1, "tipo": "${tipo}", "descricao": "validacao"}"""))
+          .body(StringBody(s"""{"amount": 1, "kind": "${kind}", "description": "validacao"}"""))
           .check(status.is(200))
     )
   
-  val validacaotransactionsConcorrentesSaldo = (saldoEsperado: Int) =>
-    scenario(s"validating expected balance - ${saldoEsperado}")
+  val validacaotransactionsConcorrentesSaldo = (current_balanceEsperado: Int) =>
+    scenario(s"validating expected balance - ${current_balanceEsperado}")
     .exec(
       http("validations")
       .get(s"/members/1/balance")
       .check(
-        jmesPath("saldo.total").ofType[Int].is(saldoEsperado)
+        jmesPath("current_balance.total").ofType[Int].is(current_balanceEsperado)
       )
     )
 
-  val saldosIniciaismembers = Array(
-    Map("id" -> 1, "limite" ->   1000 * 100),
-    Map("id" -> 2, "limite" ->    800 * 100),
-    Map("id" -> 3, "limite" ->  10000 * 100),
-    Map("id" -> 4, "limite" -> 100000 * 100),
-    Map("id" -> 5, "limite" ->   5000 * 100),
+  val current_balancesIniciaismembers = Array(
+    Map("id" -> 1, "limit" ->   1000 * 100),
+    Map("id" -> 2, "limit" ->    800 * 100),
+    Map("id" -> 3, "limit" ->  10000 * 100),
+    Map("id" -> 4, "limit" -> 100000 * 100),
+    Map("id" -> 5, "limit" ->   5000 * 100),
   )
 
   val criterioClienteNaoEcontrado = scenario("validating HTTP 404")
@@ -148,10 +148,10 @@ class RinhaBackendCrebitosSimulation
     )
 
   val criteriosmembers = scenario("validations")
-    .feed(saldosIniciaismembers)
+    .feed(current_balancesIniciaismembers)
     .exec(
       /*
-        Os valores de http(...) essão duplicados propositalmente
+        Os amountes de http(...) essão duplicados propositalmente
         para que sejam agrupados no relatório e ocupem menos espaço.
         O lado negativo é que, em caso de falha, pode não ser possível
         saber sua causa exata.
@@ -160,83 +160,83 @@ class RinhaBackendCrebitosSimulation
       .get("/members/#{id}/balance")
       .check(
         status.is(200),
-        jmesPath("saldo.limite").ofType[String].is("#{limite}"),
-        jmesPath("saldo.total").ofType[String].is("0")
+        jmesPath("current_balance.limit").ofType[String].is("#{limit}"),
+        jmesPath("current_balance.total").ofType[String].is("0")
       )
     )
     .exec(
       http("validations")
       .post("/members/#{id}/transactions")
           .header("content-type", "application/json")
-          .body(StringBody(s"""{"valor": 1, "tipo": "c", "descricao": "toma"}"""))
+          .body(StringBody(s"""{"amount": 1, "kind": "c", "description": "toma"}"""))
           .check(
             status.in(200),
-            jmesPath("limite").saveAs("limite"),
-            jmesPath("saldo").validate("ConsistenciaSaldoLimite - Transação", validarConsistenciaSaldoLimite)
+            jmesPath("limit").saveAs("limit"),
+            jmesPath("current_balance").validate("ConsistenciaSaldoLimite - Transação", validarConsistenciaSaldoLimite)
           )
     )
     .exec(
       http("validations")
       .post("/members/#{id}/transactions")
           .header("content-type", "application/json")
-          .body(StringBody(s"""{"valor": 1, "tipo": "d", "descricao": "devolve"}"""))
+          .body(StringBody(s"""{"amount": 1, "kind": "d", "description": "devolve"}"""))
           .check(
             status.in(200),
-            jmesPath("limite").saveAs("limite"),
-            jmesPath("saldo").validate("ConsistenciaSaldoLimite - Transação", validarConsistenciaSaldoLimite)
+            jmesPath("limit").saveAs("limit"),
+            jmesPath("current_balance").validate("ConsistenciaSaldoLimite - Transação", validarConsistenciaSaldoLimite)
           )
     )
     .exec(
       http("validations")
       .get("/members/#{id}/balance")
       .check(
-        jmesPath("ultimas_transactions[0].descricao").ofType[String].is("devolve"),
-        jmesPath("ultimas_transactions[0].tipo").ofType[String].is("d"),
-        jmesPath("ultimas_transactions[0].valor").ofType[Int].is("1"),
-        jmesPath("ultimas_transactions[1].descricao").ofType[String].is("toma"),
-        jmesPath("ultimas_transactions[1].tipo").ofType[String].is("c"),
-        jmesPath("ultimas_transactions[1].valor").ofType[Int].is("1")
+        jmesPath("recent_transactions[0].description").ofType[String].is("devolve"),
+        jmesPath("recent_transactions[0].kind").ofType[String].is("d"),
+        jmesPath("recent_transactions[0].amount").ofType[Int].is("1"),
+        jmesPath("recent_transactions[1].description").ofType[String].is("toma"),
+        jmesPath("recent_transactions[1].kind").ofType[String].is("c"),
+        jmesPath("recent_transactions[1].amount").ofType[Int].is("1")
       )
     )
     .exec( // Consistencia do balance
       http("validations")
       .post("/members/#{id}/transactions")
           .header("content-type", "application/json")
-          .body(StringBody(s"""{"valor": 1, "tipo": "c", "descricao": "danada"}"""))
+          .body(StringBody(s"""{"amount": 1, "kind": "c", "description": "danada"}"""))
           .check(
             status.in(200),
-            jmesPath("saldo").saveAs("saldo"),
-            jmesPath("limite").saveAs("limite")
+            jmesPath("current_balance").saveAs("current_balance"),
+            jmesPath("limit").saveAs("limit")
           )
           .resources(
             // 5 consultas simultâneas ao balance para verificar consistência
             http("validations").get("/members/#{id}/balance").check(
-              jmesPath("ultimas_transactions[0].descricao").ofType[String].is("danada"),
-              jmesPath("ultimas_transactions[0].tipo").ofType[String].is("c"),
-              jmesPath("ultimas_transactions[0].valor").ofType[Int].is("1"),
-              jmesPath("saldo.limite").ofType[String].is("#{limite}"),
-              jmesPath("saldo.total").ofType[String].is("#{saldo}")
+              jmesPath("recent_transactions[0].description").ofType[String].is("danada"),
+              jmesPath("recent_transactions[0].kind").ofType[String].is("c"),
+              jmesPath("recent_transactions[0].amount").ofType[Int].is("1"),
+              jmesPath("current_balance.limit").ofType[String].is("#{limit}"),
+              jmesPath("current_balance.total").ofType[String].is("#{current_balance}")
             ),
             http("validations").get("/members/#{id}/balance").check(
-              jmesPath("ultimas_transactions[0].descricao").ofType[String].is("danada"),
-              jmesPath("ultimas_transactions[0].tipo").ofType[String].is("c"),
-              jmesPath("ultimas_transactions[0].valor").ofType[Int].is("1"),
-              jmesPath("saldo.limite").ofType[String].is("#{limite}"),
-              jmesPath("saldo.total").ofType[String].is("#{saldo}")
+              jmesPath("recent_transactions[0].description").ofType[String].is("danada"),
+              jmesPath("recent_transactions[0].kind").ofType[String].is("c"),
+              jmesPath("recent_transactions[0].amount").ofType[Int].is("1"),
+              jmesPath("current_balance.limit").ofType[String].is("#{limit}"),
+              jmesPath("current_balance.total").ofType[String].is("#{current_balance}")
             ),
             http("validations").get("/members/#{id}/balance").check(
-              jmesPath("ultimas_transactions[0].descricao").ofType[String].is("danada"),
-              jmesPath("ultimas_transactions[0].tipo").ofType[String].is("c"),
-              jmesPath("ultimas_transactions[0].valor").ofType[Int].is("1"),
-              jmesPath("saldo.limite").ofType[String].is("#{limite}"),
-              jmesPath("saldo.total").ofType[String].is("#{saldo}")
+              jmesPath("recent_transactions[0].description").ofType[String].is("danada"),
+              jmesPath("recent_transactions[0].kind").ofType[String].is("c"),
+              jmesPath("recent_transactions[0].amount").ofType[Int].is("1"),
+              jmesPath("current_balance.limit").ofType[String].is("#{limit}"),
+              jmesPath("current_balance.total").ofType[String].is("#{current_balance}")
             ),
             http("validations").get("/members/#{id}/balance").check(
-              jmesPath("ultimas_transactions[0].descricao").ofType[String].is("danada"),
-              jmesPath("ultimas_transactions[0].tipo").ofType[String].is("c"),
-              jmesPath("ultimas_transactions[0].valor").ofType[Int].is("1"),
-              jmesPath("saldo.limite").ofType[String].is("#{limite}"),
-              jmesPath("saldo.total").ofType[String].is("#{saldo}")
+              jmesPath("recent_transactions[0].description").ofType[String].is("danada"),
+              jmesPath("recent_transactions[0].kind").ofType[String].is("c"),
+              jmesPath("recent_transactions[0].amount").ofType[Int].is("1"),
+              jmesPath("current_balance.limit").ofType[String].is("#{limit}"),
+              jmesPath("current_balance.total").ofType[String].is("#{current_balance}")
             )
         )
     )
@@ -245,35 +245,35 @@ class RinhaBackendCrebitosSimulation
       http("validations")
       .post("/members/#{id}/transactions")
           .header("content-type", "application/json")
-          .body(StringBody(s"""{"valor": 1.2, "tipo": "d", "descricao": "devolve"}"""))
+          .body(StringBody(s"""{"amount": 1.2, "kind": "d", "description": "devolve"}"""))
           .check(status.in(422, 400))
     )
     .exec(
       http("validations")
       .post("/members/#{id}/transactions")
           .header("content-type", "application/json")
-          .body(StringBody(s"""{"valor": 1, "tipo": "x", "descricao": "devolve"}"""))
+          .body(StringBody(s"""{"amount": 1, "kind": "x", "description": "devolve"}"""))
           .check(status.in(422, 400))
     )
     .exec(
       http("validations")
       .post("/members/#{id}/transactions")
           .header("content-type", "application/json")
-          .body(StringBody(s"""{"valor": 1, "tipo": "c", "descricao": "123456789 e mais um pouco"}"""))
+          .body(StringBody(s"""{"amount": 1, "kind": "c", "description": "123456789 e mais um pouco"}"""))
           .check(status.in(422, 400))
     )
     .exec(
       http("validations")
       .post("/members/#{id}/transactions")
           .header("content-type", "application/json")
-          .body(StringBody(s"""{"valor": 1, "tipo": "c", "descricao": ""}"""))
+          .body(StringBody(s"""{"amount": 1, "kind": "c", "description": ""}"""))
           .check(status.in(422, 400))
     )
     .exec(
       http("validations")
       .post("/members/#{id}/transactions")
           .header("content-type", "application/json")
-          .body(StringBody(s"""{"valor": 1, "tipo": "c", "descricao": null}"""))
+          .body(StringBody(s"""{"amount": 1, "kind": "c", "description": null}"""))
           .check(status.in(422, 400))
     )
 
@@ -299,7 +299,7 @@ class RinhaBackendCrebitosSimulation
       )
     ).andThen(
       criteriosmembers.inject(
-        atOnceUsers(saldosIniciaismembers.length)
+        atOnceUsers(current_balancesIniciaismembers.length)
       ),
       criterioClienteNaoEcontrado.inject(
         atOnceUsers(1)

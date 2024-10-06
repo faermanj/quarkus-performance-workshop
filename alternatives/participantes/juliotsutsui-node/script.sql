@@ -1,19 +1,19 @@
 CREATE TABLE IF NOT EXISTS client (
   id SERIAL PRIMARY KEY,
-  limite INT NOT NULL,
-  saldo INT NOT NULL
+  limit INT NOT NULL,
+  current_balance INT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS transactions (
   id SERIAL PRIMARY KEY,
   client_id INT REFERENCES client(id),
-  valor INT NOT NULL,
-  tipo VARCHAR(1) NOT NULL,
-  descricao VARCHAR(10) NOT NULL,
-  realizada_em TIMESTAMP NOT NULL DEFAULT NOW()
+  amount INT NOT NULL,
+  kind VARCHAR(1) NOT NULL,
+  description VARCHAR(10) NOT NULL,
+  submitted_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
-INSERT INTO client (limite, saldo) 
+INSERT INTO client (limit, current_balance) 
 VALUES 
   (100000, 0),
   (80000, 0),

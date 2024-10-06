@@ -6,11 +6,11 @@ db.transactions.drop();
 
 // insert 5 default clientes in collection
 db.clientes.insertMany([
-  { clienteId: 1, limite: 100000, saldo: 0 },
-  { clienteId: 2, limite: 80000, saldo: 0 },
-  { clienteId: 3, limite: 1000000, saldo: 0 },
-  { clienteId: 4, limite: 10000000, saldo: 0 },
-  { clienteId: 5, limite: 500000, saldo: 0 },
+  { clienteId: 1, limit: 100000, saldo: 0 },
+  { clienteId: 2, limit: 80000, saldo: 0 },
+  { clienteId: 3, limit: 1000000, saldo: 0 },
+  { clienteId: 4, limit: 10000000, saldo: 0 },
+  { clienteId: 5, limit: 500000, saldo: 0 },
 ]);
 
 // create indexes for clientes and transactions collections

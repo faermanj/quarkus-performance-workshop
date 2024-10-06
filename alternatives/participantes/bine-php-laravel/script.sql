@@ -13,18 +13,18 @@ SET default_table_access_method = heap;
 CREATE UNLOGGED TABLE IF NOT EXISTS clientes(
     id SERIAL PRIMARY KEY,
     nome VARCHAR(255) NOT NULL,
-    limite INTEGER NOT NULL,
-    saldo INTEGER DEFAULT 0 NOT NULL
-    CONSTRAINT check_limit CHECK (saldo >= -limite)
+    limit INTEGER NOT NULL,
+    current_balance INTEGER DEFAULT 0 NOT NULL
+    CONSTRAINT check_limit CHECK (current_balance >= -limit)
 );
 
 CREATE UNLOGGED TABLE IF NOT EXISTS transactions(
     id SERIAL PRIMARY KEY,
     cliente_id INTEGER NOT NULL REFERENCES clientes (id),
-    valor INTEGER NOT NULL,
-    tipo CHAR(1) NOT NULL,
-    descricao VARCHAR(10),
-    realizada_em TIMESTAMP DEFAULT current_timestamp
+    amount INTEGER NOT NULL,
+    kind CHAR(1) NOT NULL,
+    description VARCHAR(10),
+    submitted_at TIMESTAMP DEFAULT current_timestamp
 );
 
 CREATE INDEX idx_cliente_id ON transactions(cliente_id);
@@ -34,22 +34,22 @@ RETURNS TRIGGER
 LANGUAGE plpgsql
 AS $$
 DECLARE
-  v_limite INTEGER;
-  v_saldo INTEGER;
+  v_limit INTEGER;
+  v_current_balance INTEGER;
 BEGIN
-  IF NEW.valor < 0 THEN
+  IF NEW.amount < 0 THEN
     RAISE EXCEPTION 'Transaction amount cannot be negative!';
   END IF;
 
-  SELECT limite, saldo INTO v_limite, v_saldo FROM clientes WHERE id = NEW.cliente_id;
+  SELECT limit, current_balance INTO v_limit, v_current_balance FROM clientes WHERE id = NEW.cliente_id;
 
-  IF NEW.tipo = 'c' THEN
-    UPDATE clientes SET saldo = saldo + NEW.valor WHERE id = NEW.cliente_id;
-  ELSIF NEW.tipo = 'd' THEN
-    IF (v_saldo + v_limite - NEW.valor) < 0 THEN
+  IF NEW.kind = 'c' THEN
+    UPDATE clientes SET current_balance = current_balance + NEW.amount WHERE id = NEW.cliente_id;
+  ELSIF NEW.kind = 'd' THEN
+    IF (v_current_balance + v_limit - NEW.amount) < 0 THEN
       RAISE EXCEPTION 'Debit exceeds customer limit and balance!';
     ELSE
-      UPDATE clientes SET saldo = saldo - NEW.valor WHERE id = NEW.cliente_id;
+      UPDATE clientes SET current_balance = current_balance - NEW.amount WHERE id = NEW.cliente_id;
     END IF;
   ELSE
     RAISE EXCEPTION 'Invalid transaction!';
@@ -67,7 +67,7 @@ EXECUTE FUNCTION create_transaction_trigger_function();
 
 DO $$
 BEGIN
-  INSERT INTO clientes (nome, limite)
+  INSERT INTO clientes (nome, limit)
   VALUES
     ('o barato sai caro', 1000 * 100),
     ('zan corp ltda', 800 * 100),

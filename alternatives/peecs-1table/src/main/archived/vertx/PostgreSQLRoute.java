@@ -47,7 +47,7 @@ public class PostgreSQLRoute {
                 for (int i = 0; i < WARMUP_LEVEL; i++) {
                     warmup();
                     processExtrato(333);
-                    processTransacao(333, Map.of("valor", "0", "tipo", "c", "descricao", "warmup"));
+                    processTransacao(333, Map.of("amount", "0", "kind", "c", "description", "warmup"));
                 }
                 ready = true;
             } catch (Exception e) {
@@ -111,32 +111,32 @@ public class PostgreSQLRoute {
     }
 
     private Uni<Response> processTransacao(int id, Map<String, String> txx) {
-        var valorNumber = txx.get("valor");
-        if (valorNumber == null || valorNumber.contains(".")) {
-            return Uni.createFrom().item(errorOf("valor invalido", 422));
+        var amountNumber = txx.get("amount");
+        if (amountNumber == null || amountNumber.contains(".")) {
+            return Uni.createFrom().item(errorOf("amount invalido", 422));
         }
 
-        int valor = -1;
+        int amount = -1;
         try {
-            valor = Integer.parseInt(valorNumber);
+            amount = Integer.parseInt(amountNumber);
         } catch (NumberFormatException e) {
-            return Uni.createFrom().item(errorOf("valor invalido", 422));
+            return Uni.createFrom().item(errorOf("amount invalido", 422));
         }
-        final int valorFinal = valor;
+        final int amountFinal = amount;
 
-        String tipo = txx.get("tipo");
-        if (tipo == null || !("c".equals(tipo) || "d".equals(tipo))) {
-            return Uni.createFrom().item(errorOf("tipo invalido", 422));
+        String kind = txx.get("kind");
+        if (kind == null || !("c".equals(kind) || "d".equals(kind))) {
+            return Uni.createFrom().item(errorOf("kind invalido", 422));
         }
 
-        var descricao = txx.get("descricao");
-        if (descricao == null || descricao.isEmpty() || descricao.length() > 10 || "null".equals(descricao)) {
-            return Uni.createFrom().item(errorOf("descricao invalida", 422));
+        var description = txx.get("description");
+        if (description == null || description.isEmpty() || description.length() > 10 || "null".equals(description)) {
+            return Uni.createFrom().item(errorOf("description invalida", 422));
         }
 
         Uni<Response>  result = client.withTransaction(
             conn -> conn.preparedQuery(TRANSACAO_QUERY)
-                .execute(Tuple.of(shard, id, valorFinal, tipo, descricao))
+                .execute(Tuple.of(shard, id, amountFinal, kind, description))
                 .onItem().transform(RowSet::iterator)
                 .onItem().transform(iterator -> iterator.hasNext() ? iterator.next() : null)
                 .onItem().transform(r -> r != null ? responseOf(r) : null)

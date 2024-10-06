@@ -7,7 +7,7 @@ create unlogged table client
     id      bigserial not null,
     name    varchar(255),
     balance numeric(38, 0) default 0,
-    limite  numeric(38, 0) default 0,
+    limit  numeric(38, 0) default 0,
     primary key (id)
 );
 create unlogged table transaction
@@ -23,7 +23,7 @@ create unlogged table transaction
 alter table if exists transaction
     add constraint FK_transaction_client_id foreign key (client_id) references client;
 
-INSERT INTO client (name, limite)
+INSERT INTO client (name, limit)
 VALUES ('o barato sai caro', 1000 * 100),
        ('zan corp ltda', 800 * 100),
        ('les cruders', 10000 * 100),

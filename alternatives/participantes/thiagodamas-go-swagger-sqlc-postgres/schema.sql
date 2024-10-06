@@ -42,7 +42,7 @@ SET default_table_access_method = heap;
 
 CREATE TABLE public.dados_bancarios (
     id_conta integer NOT NULL,
-    limite bigint NOT NULL,
+    limit bigint NOT NULL,
     nome_cliente text NOT NULL
 );
 
@@ -50,16 +50,16 @@ CREATE TABLE public.dados_bancarios (
 ALTER TABLE public.dados_bancarios OWNER TO postgres;
 
 --
--- Name: saldos; Type: TABLE; Schema: public; Owner: postgres
+-- Name: current_balances; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.saldos (
+CREATE TABLE public.current_balances (
     id_conta integer NOT NULL,
-    saldo bigint NOT NULL
+    current_balance bigint NOT NULL
 );
 
 
-ALTER TABLE public.saldos OWNER TO postgres;
+ALTER TABLE public.current_balances OWNER TO postgres;
 
 --
 -- Name: transactions; Type: TABLE; Schema: public; Owner: postgres
@@ -68,9 +68,9 @@ ALTER TABLE public.saldos OWNER TO postgres;
 CREATE TABLE public.transactions (
     id bigint NOT NULL,
     id_conta integer NOT NULL,
-    tipo_operacao "char" NOT NULL,
-    valor bigint NOT NULL,
-    descricao text NOT NULL,
+    kind_operacao "char" NOT NULL,
+    amount bigint NOT NULL,
+    description text NOT NULL,
     created_at timestamp without time zone DEFAULT now() NOT NULL
 );
 
@@ -117,14 +117,14 @@ INSERT INTO public.dados_bancarios VALUES (5, 500000, 'kid mais');
 
 
 --
--- Data for Name: saldos; Type: TABLE DATA; Schema: public; Owner: postgres
+-- Data for Name: current_balances; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-INSERT INTO public.saldos VALUES (1, 0);
-INSERT INTO public.saldos VALUES (2, 0);
-INSERT INTO public.saldos VALUES (3, 0);
-INSERT INTO public.saldos VALUES (4, 0);
-INSERT INTO public.saldos VALUES (5, 0);
+INSERT INTO public.current_balances VALUES (1, 0);
+INSERT INTO public.current_balances VALUES (2, 0);
+INSERT INTO public.current_balances VALUES (3, 0);
+INSERT INTO public.current_balances VALUES (4, 0);
+INSERT INTO public.current_balances VALUES (5, 0);
 
 
 
@@ -141,15 +141,15 @@ ALTER TABLE ONLY public.dados_bancarios
 --
 
 ALTER TABLE public.transactions
-    ADD CONSTRAINT operacao CHECK (((tipo_operacao = 'c'::"char") OR (tipo_operacao = 'd'::"char"))) NOT VALID;
+    ADD CONSTRAINT operacao CHECK (((kind_operacao = 'c'::"char") OR (kind_operacao = 'd'::"char"))) NOT VALID;
 
 
 --
--- Name: saldos saldos_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: current_balances current_balances_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.saldos
-    ADD CONSTRAINT saldos_pkey PRIMARY KEY (id_conta);
+ALTER TABLE ONLY public.current_balances
+    ADD CONSTRAINT current_balances_pkey PRIMARY KEY (id_conta);
 
 
 --
@@ -169,11 +169,11 @@ ALTER TABLE ONLY public.transactions
 
 
 --
--- Name: saldos saldos_contas; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: current_balances current_balances_contas; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.saldos
-    ADD CONSTRAINT saldos_contas FOREIGN KEY (id_conta) REFERENCES public.dados_bancarios(id_conta) NOT VALID;
+ALTER TABLE ONLY public.current_balances
+    ADD CONSTRAINT current_balances_contas FOREIGN KEY (id_conta) REFERENCES public.dados_bancarios(id_conta) NOT VALID;
 
 
 --

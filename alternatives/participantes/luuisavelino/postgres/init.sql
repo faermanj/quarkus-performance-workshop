@@ -8,19 +8,19 @@ CREATE UNLOGGED TABLE clients (
 CREATE UNLOGGED TABLE accounts (
 	id SERIAL PRIMARY KEY,
 	cliente_id INTEGER NOT NULL,
-	saldo INTEGER NOT NULL,
-	limite INTEGER NOT NULL,
-	CONSTRAINT fk_clients_saldos_id
+	current_balance INTEGER NOT NULL,
+	limit INTEGER NOT NULL,
+	CONSTRAINT fk_clients_current_balances_id
 		FOREIGN KEY (cliente_id) REFERENCES clients(id)
 );
 
 CREATE UNLOGGED TABLE transactions (
 	id SERIAL PRIMARY KEY,
 	cliente_id INTEGER NOT NULL,
-	valor INTEGER NOT NULL,
-	tipo "transaction_types" NOT NULL,
-	descricao VARCHAR(10) NOT NULL,
-	realizada_em TIMESTAMP NOT NULL DEFAULT NOW(),
+	amount INTEGER NOT NULL,
+	kind "transaction_types" NOT NULL,
+	description VARCHAR(10) NOT NULL,
+	submitted_at TIMESTAMP NOT NULL DEFAULT NOW(),
 	CONSTRAINT fk_clients_transactions_id
 		FOREIGN KEY (cliente_id) REFERENCES clients(id)
 );
@@ -39,19 +39,19 @@ BEGIN
         ('padaria joia de cocaia'),
         ('kid mais');
     
-    INSERT INTO accounts (cliente_id, saldo, limite)
+    INSERT INTO accounts (cliente_id, current_balance, limit)
     SELECT id, 0, 1000 * 100 FROM clients WHERE nome = 'o barato sai caro';
     
-    INSERT INTO accounts (cliente_id, saldo, limite)
+    INSERT INTO accounts (cliente_id, current_balance, limit)
     SELECT id, 0, 800 * 100 FROM clients WHERE nome = 'zan corp ltda';
     
-    INSERT INTO accounts (cliente_id, saldo, limite)
+    INSERT INTO accounts (cliente_id, current_balance, limit)
     SELECT id, 0, 10000 * 100 FROM clients WHERE nome = 'les cruders';
     
-    INSERT INTO accounts (cliente_id, saldo, limite)
+    INSERT INTO accounts (cliente_id, current_balance, limit)
     SELECT id, 0, 100000 * 100 FROM clients WHERE nome = 'padaria joia de cocaia';
     
-    INSERT INTO accounts (cliente_id, saldo, limite)
+    INSERT INTO accounts (cliente_id, current_balance, limit)
     SELECT id, 0, 5000 * 100 FROM clients WHERE nome = 'kid mais';
 END;
 $$;

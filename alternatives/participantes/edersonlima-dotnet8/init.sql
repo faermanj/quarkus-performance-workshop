@@ -10,27 +10,27 @@ SET row_security = off;
 SET default_tablespace = '';
 SET default_table_access_method = heap;
 
-CREATE UNLOGGED TABLE saldo_cliente (
+CREATE UNLOGGED TABLE current_balance_cliente (
     id SERIAL PRIMARY KEY NOT NULL,
     id_cliente INTEGER NOT NULL,
-    saldo INTEGER NOT NULL,
-    limite INTEGER NOT NULL
+    current_balance INTEGER NOT NULL,
+    limit INTEGER NOT NULL
 );
-CREATE UNIQUE INDEX idx_cliente_id_cliente ON saldo_cliente (id_cliente);
+CREATE UNIQUE INDEX idx_cliente_id_cliente ON current_balance_cliente (id_cliente);
 
 CREATE UNLOGGED TABLE transacao_cliente (
     id SERIAL PRIMARY KEY,
     id_cliente INTEGER NOT NULL,
-    valor INTEGER NOT NULL,
-    tipo CHAR(1) NOT NULL,
-    descricao VARCHAR(10) NOT NULL,
-    realizada_em TIMESTAMP NOT NULL DEFAULT (NOW() AT TIME ZONE 'UTC')
+    amount INTEGER NOT NULL,
+    kind CHAR(1) NOT NULL,
+    description VARCHAR(10) NOT NULL,
+    submitted_at TIMESTAMP NOT NULL DEFAULT (NOW() AT TIME ZONE 'UTC')
 );
 CREATE INDEX idx_transacao_cliente_id_cliente ON transacao_cliente (id_cliente);
 
 DO $$
     BEGIN
-        INSERT INTO saldo_cliente (id_cliente, saldo, limite)
+        INSERT INTO current_balance_cliente (id_cliente, current_balance, limit)
         VALUES (1, 0,   1000 * 100),
                (2, 0,    800 * 100),
                (3, 0,  10000 * 100),
@@ -39,66 +39,66 @@ DO $$
     END;
 $$;
 
-CREATE OR REPLACE FUNCTION atualiza_saldo_cliente_and_insere_transacao(
+CREATE OR REPLACE FUNCTION atualiza_current_balance_cliente_and_insere_transacao(
     p_id_cliente INT,
-    p_valor INT,
-    p_descricao VARCHAR(10),
-    p_tipo CHAR(1))
-    RETURNS TABLE (saldo_atualizado INT, limite_atual INT, linhas_afetadas INT)
+    p_amount INT,
+    p_description VARCHAR(10),
+    p_kind CHAR(1))
+    RETURNS TABLE (current_balance_atualizado INT, limit_atual INT, linhas_afetadas INT)
 AS $$
 DECLARE
-    v_saldo INT = 0;
-    v_limite INT = 0;
+    v_current_balance INT = 0;
+    v_limit INT = 0;
     v_linhas_afetadas INT = 0;
 BEGIN
 
     PERFORM pg_advisory_xact_lock(p_id_cliente);
-    SELECT saldo, limite INTO v_saldo, v_limite FROM saldo_cliente WHERE id_cliente = p_id_cliente;
+    SELECT current_balance, limit INTO v_current_balance, v_limit FROM current_balance_cliente WHERE id_cliente = p_id_cliente;
 
-    IF p_tipo = 'c' THEN
-        v_saldo = v_saldo + p_valor;
-        UPDATE saldo_cliente SET saldo = v_saldo WHERE id_cliente = p_id_cliente;
+    IF p_kind = 'c' THEN
+        v_current_balance = v_current_balance + p_amount;
+        UPDATE current_balance_cliente SET current_balance = v_current_balance WHERE id_cliente = p_id_cliente;
         GET diagnostics v_linhas_afetadas = row_count;
     ELSE
-        v_saldo = v_saldo - p_valor;
-        UPDATE saldo_cliente SET saldo = v_saldo WHERE id_cliente = p_id_cliente AND abs(saldo - p_valor) <= limite;
+        v_current_balance = v_current_balance - p_amount;
+        UPDATE current_balance_cliente SET current_balance = v_current_balance WHERE id_cliente = p_id_cliente AND abs(current_balance - p_amount) <= limit;
         GET diagnostics v_linhas_afetadas = row_count;
     END IF;
 
     IF v_linhas_afetadas > 0 THEN
-        INSERT INTO transacao_cliente(id_cliente, valor, tipo, descricao, realizada_em)
-        VALUES (p_id_cliente, p_valor, p_tipo, p_descricao, NOW());
+        INSERT INTO transacao_cliente(id_cliente, amount, kind, description, submitted_at)
+        VALUES (p_id_cliente, p_amount, p_kind, p_description, NOW());
     END IF;
 
-    -- RETURN QUERY SELECT v_saldo, v_limite, v_linhas_afetadas;
-    RETURN QUERY SELECT saldo AS saldo_atualizado, limite AS limite_atual, v_linhas_afetadas AS linhas_afetadas FROM saldo_cliente WHERE id_cliente = p_id_cliente;
+    -- RETURN QUERY SELECT v_current_balance, v_limit, v_linhas_afetadas;
+    RETURN QUERY SELECT current_balance AS current_balance_atualizado, limit AS limit_atual, v_linhas_afetadas AS linhas_afetadas FROM current_balance_cliente WHERE id_cliente = p_id_cliente;
 END;
 $$ LANGUAGE plpgsql;
 
 
 CREATE OR REPLACE FUNCTION obter_balance_cliente(p_id_cliente INT)
     RETURNS TABLE (
-                      limite INT,
-                      valor INT,
-                      tipo CHAR(1),
-                      descricao VARCHAR(10),
+                      limit INT,
+                      amount INT,
+                      kind CHAR(1),
+                      description VARCHAR(10),
                       data TIMESTAMP)
     LANGUAGE sql
 AS $$
-(SELECT limite       AS limite
-      , saldo        AS valor
-      , NULL         AS tipo
-      , NULL         AS descricao
+(SELECT limit       AS limit
+      , current_balance        AS amount
+      , NULL         AS kind
+      , NULL         AS description
       , NOW()        AS data
- FROM saldo_cliente
+ FROM current_balance_cliente
  WHERE id_cliente = p_id_cliente
  LIMIT 1)
 UNION ALL
-(SELECT NULL         AS limite
-      , valor        AS valor
-      , tipo         AS tipo
-      , descricao    AS descricao
-      , realizada_em AS data
+(SELECT NULL         AS limit
+      , amount        AS amount
+      , kind         AS kind
+      , description    AS description
+      , submitted_at AS data
  FROM transacao_cliente
  WHERE id_cliente = p_id_cliente
  ORDER BY id DESC

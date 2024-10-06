@@ -5,13 +5,13 @@ CREATE OR REPLACE FUNCTION obter_balance(
 )
 RETURNS TABLE (
 	r_result_code VARCHAR(20),
-	r_cliente_limite INT,
-	r_cliente_saldo INT,
-	r_cliente_saldo_atualizado_em TIMESTAMPTZ,
-	r_tran_valor INT,
-	r_tran_tipo CHAR(1),
-	r_tran_descricao VARCHAR(10),
-	r_tran_realizada_em TIMESTAMPTZ,
+	r_cliente_limit INT,
+	r_cliente_current_balance INT,
+	r_cliente_current_balance_atualizado_em TIMESTAMPTZ,
+	r_tran_amount INT,
+	r_tran_kind CHAR(1),
+	r_tran_description VARCHAR(10),
+	r_tran_submitted_at TIMESTAMPTZ,
 	r_tran_count INT
 )
 LANGUAGE plpgsql
@@ -37,12 +37,12 @@ BEGIN
 
 	RETURN QUERY (
 		WITH
-			cte_saldo_cliente AS (
+			cte_current_balance_cliente AS (
 				SELECT
 					cliente_id,
-					limite,
-					saldo,
-					saldo_atualizado_em
+					limit,
+					current_balance,
+					current_balance_atualizado_em
 				FROM clientes
 				WHERE cliente_id = clienteId
 			),
@@ -50,10 +50,10 @@ BEGIN
 				SELECT
 					transacao_id,
 					cliente_id,
-					valor,
-					tipo,
-					descricao,
-					realizada_em
+					amount,
+					kind,
+					description,
+					submitted_at
 				FROM transactions
 				WHERE cliente_id = clienteId
 				ORDER BY realizada_Em DESC
@@ -61,17 +61,17 @@ BEGIN
 			)
 			SELECT
 				'[OK]'::VARCHAR,
-				saldo.limite,
-				saldo.saldo,
-				saldo.saldo_atualizado_em,
-				balance.valor,
-				balance.tipo,
-				balance.descricao,
-				balance.realizada_em,
+				current_balance.limit,
+				current_balance.current_balance,
+				current_balance.current_balance_atualizado_em,
+				balance.amount,
+				balance.kind,
+				balance.description,
+				balance.submitted_at,
 				(count(balance.transacao_id) OVER())::INT
-			FROM cte_saldo_cliente as saldo
+			FROM cte_current_balance_cliente as current_balance
 			LEFT JOIN cte_balance_cliente as balance
-				ON balance.cliente_id = saldo.cliente_id
+				ON balance.cliente_id = current_balance.cliente_id
 	);
 END;
 $$;
@@ -82,32 +82,32 @@ DROP FUNCTION IF EXISTS criar_transacao;
 
 CREATE OR REPLACE FUNCTION criar_transacao(
 	IN clienteId INT,
-	IN valor INT,
-	IN tipo CHAR(1),
-	IN descricao VARCHAR(10),
+	IN amount INT,
+	IN kind CHAR(1),
+	IN description VARCHAR(10),
 	IN realizadaEm TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 )
 RETURNS TABLE (
 	r_result_code VARCHAR(20),
-	r_cliente_limite INT,
-	r_cliente_saldo INT
+	r_cliente_limit INT,
+	r_cliente_current_balance INT
 )
 LANGUAGE plpgsql
 AS $$
 DECLARE
-	v_saldo_atual_cliente RECORD;
-	v_valor_crebito INT;
+	v_current_balance_atual_cliente RECORD;
+	v_amount_crebito INT;
 BEGIN
 	-- raise notice 'Id do Cliente %.', clienteId;
 
-	SELECT limite, saldo
+	SELECT limit, current_balance
 	FROM clientes
 	WHERE cliente_id = clienteId
-	INTO v_saldo_atual_cliente;
+	INTO v_current_balance_atual_cliente;
 
-	-- raise notice 'Saldo do Cliente %.', v_saldo_atual_cliente;
+	-- raise notice 'Saldo do Cliente %.', v_current_balance_atual_cliente;
 
-	IF v_saldo_atual_cliente IS NULL THEN
+	IF v_current_balance_atual_cliente IS NULL THEN
 		RETURN QUERY (SELECT
 			'[NOT_FOUND]'::VARCHAR,
 			NULL::INT,
@@ -117,37 +117,37 @@ BEGIN
 		-- RAISE EXCEPTION '[NOT_FOUND]::Cliente não encontrado.';
 	END IF;
 
-	-- raise notice 'Novo saldo do Cliente %.', novo_valor_saldo;
+	-- raise notice 'Novo current_balance do Cliente %.', novo_amount_current_balance;
 
-	v_valor_crebito = CASE WHEN tipo = 'c' THEN valor ELSE -valor END;
+	v_amount_crebito = CASE WHEN kind = 'c' THEN amount ELSE -amount END;
 
 	UPDATE clientes SET
-		saldo = saldo + v_valor_crebito,
-		saldo_atualizado_em = CURRENT_TIMESTAMP
+		current_balance = current_balance + v_amount_crebito,
+		current_balance_atualizado_em = CURRENT_TIMESTAMP
 	WHERE cliente_id = clienteId
-	RETURNING limite, saldo
-	INTO v_saldo_atual_cliente;
+	RETURNING limit, current_balance
+	INTO v_current_balance_atual_cliente;
 
-	-- raise notice 'Saldo atualizado do Cliente %.', v_saldo_atual_cliente;
+	-- raise notice 'Saldo atualizado do Cliente %.', v_current_balance_atual_cliente;
 
-	IF tipo = 'd' AND v_saldo_atual_cliente.saldo < -v_saldo_atual_cliente.limite THEN
+	IF kind = 'd' AND v_current_balance_atual_cliente.current_balance < -v_current_balance_atual_cliente.limit THEN
 		RETURN QUERY (SELECT
 			'[LIMIT_EXCEEDED]'::VARCHAR,
 			NULL::INT,
 			NULL::INT
 		);
 		RETURN;
-		-- RAISE EXCEPTION '[LIMIT_EXCEEDED]::O novo saldo do cliente excede o limite permitido.';
+		-- RAISE EXCEPTION '[LIMIT_EXCEEDED]::O novo current_balance do cliente excede o limit permitido.';
 	END IF;
 
-	INSERT INTO transactions (cliente_id, valor, tipo, descricao, realizada_em, saldo)
+	INSERT INTO transactions (cliente_id, amount, kind, description, submitted_at, current_balance)
 	VALUES (
-	  clienteId, valor, tipo, descricao, realizadaEm, v_saldo_atual_cliente.saldo
+	  clienteId, amount, kind, description, realizadaEm, v_current_balance_atual_cliente.current_balance
 	);
 
 	RETURN QUERY SELECT
 		'[OK]'::VARCHAR,
-		v_saldo_atual_cliente.limite,
-		v_saldo_atual_cliente.saldo;
+		v_current_balance_atual_cliente.limit,
+		v_current_balance_atual_cliente.current_balance;
 END;
 $$;

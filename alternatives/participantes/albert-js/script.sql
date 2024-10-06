@@ -2,11 +2,11 @@
 CREATE UNLOGGED TABLE transactions(
     id SERIAL PRIMARY KEY,
     cliente_id INTEGER NOT NULL,
-    saldo INTEGER NOT NULL,
-    valor INTEGER NOT NULL,
-    tipo CHAR(1) NOT NULL,
-    descricao VARCHAR(10) NOT NULL,
-    realizada_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    current_balance INTEGER NOT NULL,
+    amount INTEGER NOT NULL,
+    kind CHAR(1) NOT NULL,
+    description VARCHAR(10) NOT NULL,
+    submitted_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX transactions_idx ON transactions(cliente_id);
@@ -17,42 +17,42 @@ CREATE TYPE json_result AS (
   status_code INT
 );
 
-CREATE OR REPLACE FUNCTION calcular_saldo(clientId INT, t_tipo CHAR, t_valor DECIMAL, t_descricao CHAR(10) , t_limite INT)
+CREATE OR REPLACE FUNCTION calcular_current_balance(clientId INT, t_kind CHAR, t_amount DECIMAL, t_description CHAR(10) , t_limit INT)
     RETURNS json as $$
     DECLARE
-        saldo_atual INTEGER;
-        limite_atual INTEGER;
+        current_balance_atual INTEGER;
+        limit_atual INTEGER;
         result json_result;
     BEGIN
 
-        SELECT saldo INTO saldo_atual
+        SELECT current_balance INTO current_balance_atual
         FROM transactions
         WHERE cliente_id = clientId
-        ORDER BY realizada_em DESC, id DESC
+        ORDER BY submitted_at DESC, id DESC
         LIMIT 1;
         
         IF NOT FOUND THEN
-            saldo_atual := 0;
+            current_balance_atual := 0;
         END IF;
 
-        limite_atual := t_limite;
+        limit_atual := t_limit;
 
-        IF t_tipo = 'd' THEN
-            IF (saldo_atual + (-1 * t_valor)) < (-1 * limite_atual) THEN
-                result.body := '{"error": "Valor excede o limite de saldo disponível"}';
+        IF t_kind = 'd' THEN
+            IF (current_balance_atual + (-1 * t_amount)) < (-1 * limit_atual) THEN
+                result.body := '{"error": "Valor excede o limit de current_balance disponível"}';
                 result.status_code := 422;
-                RETURN json_build_object('error','valor excede o limite de saldo disponível', 'code', 422);
+                RETURN json_build_object('error','amount excede o limit de current_balance disponível', 'code', 422);
             ELSE
-                saldo_atual := saldo_atual + (-1 * t_valor);
+                current_balance_atual := current_balance_atual + (-1 * t_amount);
             END IF;
-        ELSIF t_tipo = 'c' THEN
-            -- Verificar se o novo saldo ultrapassa o limite
-            IF (saldo_atual + t_valor) > limite_atual THEN
-                result.body :=  '{"error": "Valor excede o limite de crédito disponível"}';
+        ELSIF t_kind = 'c' THEN
+            -- Verificar se o novo current_balance ultrapassa o limit
+            IF (current_balance_atual + t_amount) > limit_atual THEN
+                result.body :=  '{"error": "Valor excede o limit de crédito disponível"}';
                 result.status_code := 422;
-                RETURN json_build_object('error', 'Valor excede o limite de crédito disponível', 'code',422);
+                RETURN json_build_object('error', 'Valor excede o limit de crédito disponível', 'code',422);
             ELSE
-                saldo_atual := saldo_atual + t_valor;
+                current_balance_atual := current_balance_atual + t_amount;
             END IF;
         ELSE
             result.body := '{"error": "Tipo de transação inválido"}';
@@ -60,10 +60,10 @@ CREATE OR REPLACE FUNCTION calcular_saldo(clientId INT, t_tipo CHAR, t_valor DEC
             RETURN json_build_object('error','Tipo de transação inválido', 'code', 400);
         END IF;
 
-        INSERT INTO transactions (cliente_id, valor, tipo, descricao, realizada_em, saldo)
-        VALUES (clientId, t_valor, t_tipo, t_descricao, now(), saldo_atual);
+        INSERT INTO transactions (cliente_id, amount, kind, description, submitted_at, current_balance)
+        VALUES (clientId, t_amount, t_kind, t_description, now(), current_balance_atual);
 
-    RETURN json_build_object('saldo', saldo_atual,'limite', t_limite, 'code', 200);
+    RETURN json_build_object('current_balance', current_balance_atual,'limit', t_limit, 'code', 200);
 
 EXCEPTION
     WHEN OTHERS THEN

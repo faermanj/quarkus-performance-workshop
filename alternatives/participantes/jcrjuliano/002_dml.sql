@@ -1,11 +1,11 @@
---insert into TB_CLIENTES (limite, saldo) values (100000, 0);
---insert into TB_CLIENTES (limite, saldo) values (80000, 0);
---insert into TB_CLIENTES (limite, saldo) values (1000000, 0);
---insert into TB_CLIENTES (limite, saldo) values (10000000, 0);
---insert into TB_CLIENTES (limite, saldo) values (500000, 0);
+--insert into TB_CLIENTES (limit, saldo) values (100000, 0);
+--insert into TB_CLIENTES (limit, saldo) values (80000, 0);
+--insert into TB_CLIENTES (limit, saldo) values (1000000, 0);
+--insert into TB_CLIENTES (limit, saldo) values (10000000, 0);
+--insert into TB_CLIENTES (limit, saldo) values (500000, 0);
 DO $$
 BEGIN
-  INSERT INTO TB_CLIENTES ("name", "limite")
+  INSERT INTO TB_CLIENTES ("name", "limit")
   VALUES
     ('o barato sai caro', 1000 * 100),
     ('zan corp ltda', 800 * 100),

@@ -5,18 +5,18 @@
               CREATE UNLOGGED TABLE "members" (
                   id SERIAL NOT NULL,
                   nome TEXT NOT NULL,
-                  limite INTEGER NOT NULL,
-                  saldo INTEGER NOT NULL DEFAULT 0,
+                  limit INTEGER NOT NULL,
+                  current_balance INTEGER NOT NULL DEFAULT 0,
               
                   CONSTRAINT "members_pkey" PRIMARY KEY ("id")
               );
               
               CREATE UNLOGGED TABLE "transactions" (
                   id SERIAL NOT NULL,
-                  valor INTEGER NOT NULL,
-                  tipo CHAR(1) NOT NULL,
-                  descricao VARCHAR(10) NOT NULL,
-                  realizada_em TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                  amount INTEGER NOT NULL,
+                  kind CHAR(1) NOT NULL,
+                  description VARCHAR(10) NOT NULL,
+                  submitted_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
                   client_id INTEGER NOT NULL,
               
                   CONSTRAINT "transactions_pkey" PRIMARY KEY ("id")
@@ -32,7 +32,7 @@
             
               DO $$
               BEGIN
-                INSERT INTO members (nome, limite)
+                INSERT INTO members (nome, limit)
                 VALUES
                   ('o barato sai caro', 1000 * 100),
                   ('zan corp ltda', 800 * 100),

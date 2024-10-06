@@ -1,48 +1,48 @@
 
-CREATE TYPE tipo_transacao AS ENUM (
+CREATE TYPE kind_transacao AS ENUM (
   'c',
   'd'
 );
 
 CREATE TABLE members (
   id SERIAL PRIMARY KEY,
-  limite INT NOT NULL DEFAULT 0,
-  saldo INT NOT NULL DEFAULT 0 CHECK (saldo >= limite * -1)
+  limit INT NOT NULL DEFAULT 0,
+  current_balance INT NOT NULL DEFAULT 0 CHECK (current_balance >= limit * -1)
 );
 
 CREATE TABLE transactions (
   cliente_id INT REFERENCES members (id),
-  valor INT NOT NULL,
-  descricao VARCHAR(10) NOT NULL CHECK (LENGTH(descricao) >= 1),
-  tipo tipo_transacao NOT NULL,
-  realizada_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+  amount INT NOT NULL,
+  description VARCHAR(10) NOT NULL CHECK (LENGTH(description) >= 1),
+  kind kind_transacao NOT NULL,
+  submitted_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX transacao_realizada_em_idx ON transactions (realizada_em);
+CREATE INDEX transacao_submitted_at_idx ON transactions (submitted_at);
 
-CREATE OR REPLACE FUNCTION create_transacao (cliente_id int, valor int, tipo tipo_transacao, descricao varchar(10))
-    RETURNS TABLE (cliente_saldo int, cliente_limite int)
+CREATE OR REPLACE FUNCTION create_transacao (cliente_id int, amount int, kind kind_transacao, description varchar(10))
+    RETURNS TABLE (cliente_current_balance int, cliente_limit int)
     AS $$
 DECLARE
-  ajuste_valor int;
+  ajuste_amount int;
 BEGIN
-  IF tipo = 'd' THEN
-    ajuste_valor := valor * - 1;
+  IF kind = 'd' THEN
+    ajuste_amount := amount * - 1;
   ELSE
-    ajuste_valor := valor;
+    ajuste_amount := amount;
   END IF;
-  INSERT INTO transactions (cliente_id, valor, tipo, descricao)
-    VALUES(cliente_id, valor, tipo::tipo_transacao, descricao);
+  INSERT INTO transactions (cliente_id, amount, kind, description)
+    VALUES(cliente_id, amount, kind::kind_transacao, description);
   RETURN QUERY
   UPDATE
     members
   SET
-    saldo = saldo + ajuste_valor
+    current_balance = current_balance + ajuste_amount
   WHERE
     id = cliente_id
   RETURNING
-    saldo,
-    limite;
+    current_balance,
+    limit;
 END;
 $$
 LANGUAGE plpgsql;
@@ -50,7 +50,7 @@ LANGUAGE plpgsql;
 DO $$
 BEGIN
   INSERT INTO members
-  (id, limite)
+  (id, limit)
 VALUES
   (1, 100000),
   (2, 80000),

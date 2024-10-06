@@ -28,19 +28,19 @@ Submissão feita com:
 
 - Da mesma forma, **Waterpark** fornece facilidades para trabalhar com um pool de conexões com um BD (MySQL, PostgreSQL e SQlite).
 
-- O **JSONY**, além de ser mais rápido que a implementação original, oferece diversos recursos adicionais com ganchos para popular valores default e qualquer outra coisa que você imaginar.
+- O **JSONY**, além de ser mais rápido que a implementação original, oferece diversos recursos adicionais com ganchos para popular amountes default e qualquer outra coisa que você imaginar.
 
 ## Implementação
 
-Apesar de ter sido fornecido um exemplo, achei que tinha muita tabela para algo que apenas pretendia adicionar ou subtrair valores de uma determinada com e mostrar o saldo. O balance mostra apenas os últimos 10 lançamentos.
+Apesar de ter sido fornecido um exemplo, achei que tinha muita tabela para algo que apenas pretendia adicionar ou subtrair amountes de uma determinada com e mostrar o saldo. O balance mostra apenas os últimos 10 lançamentos.
 
 Também retirei todos os procedimentos armazenados no BD. Testar no programa é mais rápido do que enviar para o SGBD, processar e retornar um erro.
 
-Resolvi colocar o saldo juntamente com o limite na tabela de clientes e uma outra tabela para a movimentação (já teria os últimos 10 lançamentos).
+Resolvi colocar o saldo juntamente com o limit na tabela de clientes e uma outra tabela para a movimentação (já teria os últimos 10 lançamentos).
 
 Como o ID dos clientes era de 1-5 (e pediram para não colocar 6), executei o teste diretamente no programa. Evita uma leitura desnecessária no banco de dados.
 
-Considero que as regras para a movimentação estão meio confusas. Poderia retornar erro **422**. se a entrada tivesse um débito que fosse deixar o saldo inconsistente (abaixo do limite da conta) e **400** sempre que o JSON tivesse uma valor incorreto.
+Considero que as regras para a movimentação estão meio confusas. Poderia retornar erro **422**. se a entrada tivesse um débito que fosse deixar o saldo inconsistente (abaixo do limit da conta) e **400** sempre que o JSON tivesse uma amount incorreto.
 
 Ao executar os testes no Docker, provavelmente por restrições da rinha ou desconhecimento **meu** sobre algumas configurações, o programa se comportava melhor com apenas uma conexão (o que não invalida a utilização do waterpark).
 

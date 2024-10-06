@@ -1,22 +1,22 @@
 CREATE TABLE IF NOT EXISTS clientes (
     id SERIAL PRIMARY KEY,
-    limite INT,
-    saldo INT
+    limit INT,
+    current_balance INT
 );
 
 CREATE TABLE IF NOT EXISTS transactions (
     id SERIAL PRIMARY KEY,
     cliente_id INTEGER NOT NULL,
-    valor INTEGER,
-    tipo CHAR(1),
-    descricao VARCHAR(10),
-    realizada_em VARCHAR(27)
+    amount INTEGER,
+    kind CHAR(1),
+    description VARCHAR(10),
+    submitted_at VARCHAR(27)
 );
 
 CREATE INDEX IF NOT EXISTS idx_cliente_id ON transactions(cliente_id);
-CREATE INDEX IF NOT EXISTS idx_realizada_em ON transactions(realizada_em);
+CREATE INDEX IF NOT EXISTS idx_submitted_at ON transactions(submitted_at);
 
-INSERT INTO clientes (limite, saldo)
+INSERT INTO clientes (limit, current_balance)
 VALUES
     (  100000, 0),
     (   80000, 0),

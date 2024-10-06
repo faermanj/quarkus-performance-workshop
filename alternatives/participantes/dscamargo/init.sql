@@ -1,8 +1,8 @@
 CREATE TABLE IF NOT EXISTS "clientes" (
                                           "id" serial PRIMARY KEY NOT NULL,
                                           "nome" text NOT NULL,
-                                          "saldo" integer DEFAULT 0 NOT NULL,
-                                          "limite" integer DEFAULT 0 NOT NULL
+                                          "current_balance" integer DEFAULT 0 NOT NULL,
+                                          "limit" integer DEFAULT 0 NOT NULL
 );
 
 CREATE INDEX clientes_id_idx ON "clientes" USING HASH(id);
@@ -10,9 +10,9 @@ CREATE INDEX clientes_id_idx ON "clientes" USING HASH(id);
 CREATE TABLE IF NOT EXISTS "transactions" (
                                             "id" serial PRIMARY KEY NOT NULL,
                                             "cliente_id" integer NOT NULL ,
-                                            "valor" integer NOT NULL,
-                                            "tipo" char(1) NOT NULL,
-                                            "descricao" varchar(10) NOT NULL,
+                                            "amount" integer NOT NULL,
+                                            "kind" char(1) NOT NULL,
+                                            "description" varchar(10) NOT NULL,
                                             "realizado_em" timestamp NOT NULL DEFAULT now()
 );
 
@@ -21,11 +21,11 @@ CREATE INDEX transactions_cliente_id_idx ON "transactions" USING HASH(cliente_id
 
 create or replace procedure criar_transacao(
     id_cliente INTEGER,
-    valor integer,
-    tipo text,
-    descricao text,
-    inout saldo_atualizado integer default null,
-    inout limite_atualizado integer default null
+    amount integer,
+    kind text,
+    description text,
+    inout current_balance_atualizado integer default null,
+    inout limit_atualizado integer default null
 )
 
     language plpgsql
@@ -33,22 +33,22 @@ as $$
 
 begin
     UPDATE clientes
-    set saldo = saldo + valor
-    where id = id_cliente and saldo + valor >= - limite
-    returning saldo, limite into saldo_atualizado, limite_atualizado;
+    set current_balance = current_balance + amount
+    where id = id_cliente and current_balance + amount >= - limit
+    returning current_balance, limit into current_balance_atualizado, limit_atualizado;
 
-    if saldo_atualizado is null or limite_atualizado is null then return; end if;
+    if current_balance_atualizado is null or limit_atualizado is null then return; end if;
 
     commit;
 
-    INSERT INTO transactions (valor, tipo, descricao, cliente_id)
-    VALUES (ABS(valor), tipo, descricao, id_cliente);
+    INSERT INTO transactions (amount, kind, description, cliente_id)
+    VALUES (ABS(amount), kind, description, id_cliente);
 end;
 $$;
 
 DO $$
     BEGIN
-        INSERT INTO clientes (nome, limite)
+        INSERT INTO clientes (nome, limit)
         VALUES
             ('o barato sai caro', 1000 * 100),
             ('zan corp ltda', 800 * 100),

@@ -145,17 +145,17 @@ Optou-se por não utilizar uma arquitetura com muitas classes para não aumentar
 namespace negocio #DDDDDD {
 class "Conta" << record >> {
     - idCliente:long
-    - limiteEmCentavos:long
-    - saldoInicialEmCentavos:long
-    - saldoAtualEmCentavos:long
+    - limitEmCentavos:long
+    - current_balanceInicialEmCentavos:long
+    - current_balanceAtualEmCentavos:long
 }
 
 class "Transacao" << record >> {
     - idCliente:long
     - realizadaEm:Instant
-    - tipo:String
-    - valorEmCentavos:long
-    - descricao:String
+    - kind:String
+    - amountEmCentavos:long
+    - description:String
 }
 
 interface Contas << interface >> {
@@ -163,12 +163,12 @@ interface Contas << interface >> {
     + obterContaPorIdClienteEBloquearParaAtualizacao(idCliente:long):Mono<Conta>
     + atualizar(conta:Conta):Mono<Long>
     + obtertransactionsDaContaParaExtrato(idCliente:long):Flux<Transacao>
-    + realizarTransacao(idCliente:long, tipo:String, valorEmCentavos:long, descricao:String):Mono<Long>
+    + realizarTransacao(idCliente:long, kind:String, amountEmCentavos:long, description:String):Mono<Long>
 }
 
 interface "ContaServico" {
     + obterContaParaGeracaoExtrato(idCliente:long):Mono<Conta>
-    + realizarTransacao(idCliente:long, tipo:String, valorEmCentavos:long, descricao:String):Mono<StatusTransacao>
+    + realizarTransacao(idCliente:long, kind:String, amountEmCentavos:long, description:String):Mono<StatusTransacao>
 }
 
 class "StatusTransacao" << (R,orchid) record >> {
@@ -190,7 +190,7 @@ class "ContaRepositorioR2DBC" {
     + obterContaPorIdClienteEBloquearParaAtualizacao(idCliente:long):Mono<Conta>
     + update(conta:Conta):Mono<Long>
     + obtertransactionsDaContaParaExtrato(idCliente:long):Flux<Transacao>
-    + realizarTransacao(idCliente:long, tipo:String, valorEmCentavos:long, descricao:String):Mono<Long>
+    + realizarTransacao(idCliente:long, kind:String, amountEmCentavos:long, description:String):Mono<Long>
 }
 
 Contas <|-- "ContasMicronaut"

@@ -1,20 +1,20 @@
 CREATE TABLE members (
      id SERIAL PRIMARY KEY,
-     limite INTEGER NOT NULL,
-     saldo INTEGER NOT NULL
+     limit INTEGER NOT NULL,
+     current_balance INTEGER NOT NULL
 );
 
 CREATE TABLE transactions (
   id SERIAL PRIMARY KEY,
   cliente_id INTEGER REFERENCES members(id),
-  valor INTEGER NOT NULL,
-  tipo VARCHAR NOT NULL,
-  descricao VARCHAR(10) NOT NULL,
+  amount INTEGER NOT NULL,
+  kind VARCHAR NOT NULL,
+  description VARCHAR(10) NOT NULL,
   data VARCHAR NOT NULL
 );
 
 insert into members
-(id, limite, saldo)
+(id, limit, current_balance)
 values
     (1, 100000, 0),
     (2, 80000, 0),

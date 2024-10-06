@@ -25,7 +25,7 @@ VALUES
     (4, 10000000, 0),
     (5, 500000, 0);
 
-CREATE OR REPLACE FUNCTION atualiza_saldo(p_id INT, p_valor INT, p_tipo BPCHAR(1), p_descricao VARCHAR(10))
+CREATE OR REPLACE FUNCTION atualiza_saldo(p_id INT, p_amount INT, p_kind BPCHAR(1), p_description VARCHAR(10))
 RETURNS TABLE (Saldo INT, Erro BOOLEAN) AS $$
 
 DECLARE rows_affected INT;
@@ -34,15 +34,15 @@ BEGIN
 	UPDATE "members"
 	SET "Saldo" =
 		(CASE
-			WHEN 'd' = p_tipo
-				THEN "Saldo" - p_valor
-				ELSE "Saldo" + p_valor
+			WHEN 'd' = p_kind
+				THEN "Saldo" - p_amount
+				ELSE "Saldo" + p_amount
 		END)
 	WHERE
 		"Id" = p_id
 		AND CASE
-			WHEN 'd' = p_tipo
-				THEN ("Saldo" - p_valor + "Limite") >= 0
+			WHEN 'd' = p_kind
+				THEN ("Saldo" - p_amount + "Limite") >= 0
 				ELSE TRUE
 			END;
 
@@ -51,7 +51,7 @@ BEGIN
 	IF rows_affected > 0 THEN
 		INSERT INTO public."transactions"
 		("Id", "ClienteId", "Valor", "Tipo", "Descricao", "Data")
-		VALUES(DEFAULT, p_id, p_valor, p_tipo, p_descricao, NOW());
+		VALUES(DEFAULT, p_id, p_amount, p_kind, p_description, NOW());
 
 		RETURN query
 		SELECT "Saldo", FALSE AS "Erro" FROM "members" c WHERE "Id" = p_id;

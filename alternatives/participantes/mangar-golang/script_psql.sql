@@ -1,25 +1,25 @@
 CREATE TABLE IF NOT EXISTS clientes
 (
     id          int not null Primary key,
-    limite      int not null default 0,
-    saldo       int not null default 0
+    limit      int not null default 0,
+    current_balance       int not null default 0
 );
 
 
-insert into clientes (id, limite, saldo) values(1, 100000, 0);
-insert into clientes (id, limite, saldo) values(2, 80000, 0);
-insert into clientes (id, limite, saldo) values(3, 1000000, 0);
-insert into clientes (id, limite, saldo) values(4, 10000000, 0);
-insert into clientes (id, limite, saldo) values(5, 500000, 0);
+insert into clientes (id, limit, current_balance) values(1, 100000, 0);
+insert into clientes (id, limit, current_balance) values(2, 80000, 0);
+insert into clientes (id, limit, current_balance) values(3, 1000000, 0);
+insert into clientes (id, limit, current_balance) values(4, 10000000, 0);
+insert into clientes (id, limit, current_balance) values(5, 500000, 0);
 
 CREATE UNLOGGED TABLE IF NOT EXISTS transactions
 (
     id           varchar(100) not null,
     id_cliente   INT NOT NULL,
-    valor        INT NOT NULL,
-    tipo         VARCHAR(1) NOT NULL,
-    descricao    VARCHAR(100) NOT NULL,
-    ultimo_saldo INT,
+    amount        INT NOT NULL,
+    kind         VARCHAR(1) NOT NULL,
+    description    VARCHAR(100) NOT NULL,
+    ultimo_current_balance INT,
     created_at   TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
@@ -32,24 +32,24 @@ ALTER TABLE transactions SET (autovacuum_enabled = false);
 CREATE OR REPLACE FUNCTION func_credito(
     pid VARCHAR(30),
     pid_cliente INT,
-    pvalor INT,
-    pdescricao VARCHAR(10),
+    pamount INT,
+    pdescription VARCHAR(10),
     pcreated_at TIMESTAMPTZ
 )
-RETURNS TABLE (saldo_atual INT, limite_atual INT)
+RETURNS TABLE (current_balance_atual INT, limit_atual INT)
 LANGUAGE plpgsql
 AS $$
 DECLARE
-    var_saldo INT;
+    var_current_balance INT;
 BEGIN
     LOCK TABLE clientes, transactions IN ACCESS EXCLUSIVE MODE;
 
-    INSERT INTO transactions (id, id_cliente, valor, tipo, descricao, ultimo_saldo, created_at)
-    VALUES (pid, pid_cliente, pvalor, 'c', pdescricao, var_saldo, pcreated_at);
+    INSERT INTO transactions (id, id_cliente, amount, kind, description, ultimo_current_balance, created_at)
+    VALUES (pid, pid_cliente, pamount, 'c', pdescription, var_current_balance, pcreated_at);
 
     RETURN QUERY
-        UPDATE clientes SET saldo = saldo + pvalor WHERE id = pid_cliente
-        RETURNING saldo, limite;
+        UPDATE clientes SET current_balance = current_balance + pamount WHERE id = pid_cliente
+        RETURNING current_balance, limit;
 END;
 $$;
 
@@ -61,38 +61,38 @@ $$;
 CREATE OR REPLACE FUNCTION func_debito(
     pid VARCHAR(30),
     pid_cliente INT,
-    pvalor INT,
-    pdescricao VARCHAR(10),
+    pamount INT,
+    pdescription VARCHAR(10),
     pcreated_at TIMESTAMPTZ
 )
-RETURNS TABLE (saldo_atual INT, limite_atual INT) 
+RETURNS TABLE (current_balance_atual INT, limit_atual INT) 
 LANGUAGE plpgsql 
 AS $$
 DECLARE
-    var_saldo INT;
-    var_limite INT;
+    var_current_balance INT;
+    var_limit INT;
 BEGIN
     LOCK TABLE clientes, transactions IN ACCESS EXCLUSIVE MODE;
 
-    SELECT c.saldo, c.limite 
-    INTO var_saldo, var_limite
+    SELECT c.current_balance, c.limit 
+    INTO var_current_balance, var_limit
     FROM clientes c
     WHERE c.id = pid_cliente;
 
-    IF (var_saldo - pvalor >= -var_limite) THEN
+    IF (var_current_balance - pamount >= -var_limit) THEN
 
 
-        INSERT INTO transactions (id, id_cliente, valor, tipo, descricao, ultimo_saldo, created_at)
-        VALUES (pid, pid_cliente, pvalor, 'd', pdescricao, var_saldo, pcreated_at);
+        INSERT INTO transactions (id, id_cliente, amount, kind, description, ultimo_current_balance, created_at)
+        VALUES (pid, pid_cliente, pamount, 'd', pdescription, var_current_balance, pcreated_at);
 
-        UPDATE clientes SET saldo = var_saldo WHERE id = pid_cliente;
+        UPDATE clientes SET current_balance = var_current_balance WHERE id = pid_cliente;
 
         RETURN QUERY 
-            UPDATE clientes SET saldo = saldo - pvalor WHERE id = pid_cliente
-            RETURNING saldo, limite;
+            UPDATE clientes SET current_balance = current_balance - pamount WHERE id = pid_cliente
+            RETURNING current_balance, limit;
 
     ELSE
-        RAISE EXCEPTION '[001] Cliente não tem limite para a operação';
+        RAISE EXCEPTION '[001] Cliente não tem limit para a operação';
     END IF;
 END;
 $$;

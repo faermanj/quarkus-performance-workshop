@@ -3,21 +3,21 @@ DROP TABLE IF EXISTS cliente;
 
 CREATE UNLOGGED TABLE cliente (
     id     SMALLSERIAL PRIMARY KEY,
-    limite INT NOT NULL,
-    saldo  BIGINT NOT NULL DEFAULT 0
+    limit INT NOT NULL,
+    current_balance  BIGINT NOT NULL DEFAULT 0
 );
 
 CREATE UNLOGGED TABLE transacao (
    id           SERIAL PRIMARY KEY,
    cliente_id   SMALLINT NOT NULL,
-   valor        BIGINT NOT NULL,
-   tipo         CHAR(1) NOT NULL,
-   descricao    TEXT NOT NULL,
-   realizada_em TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()::timestamp,
+   amount        BIGINT NOT NULL,
+   kind         CHAR(1) NOT NULL,
+   description    TEXT NOT NULL,
+   submitted_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()::timestamp,
    CONSTRAINT fk_transacao_cliente FOREIGN KEY (cliente_id) REFERENCES cliente (id)
 );
 
-CREATE INDEX ON transacao (cliente_id, realizada_em DESC);
+CREATE INDEX ON transacao (cliente_id, submitted_at DESC);
 
 CREATE OR REPLACE FUNCTION public.get_stmt(c INT)
     RETURNS JSON AS
@@ -27,9 +27,9 @@ DECLARE
     tnxs   JSON;
 BEGIN
     SELECT json_build_object(
-        'total', saldo,
+        'total', current_balance,
         'date_balance', to_char(now() AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"'),
-        'limite', limite
+        'limit', limit
     )
     INTO holder
     FROM cliente
@@ -37,21 +37,21 @@ BEGIN
 
     SELECT json_agg(
        json_build_object(
-           'valor', valor,
-           'tipo', tipo,
-           'descricao', descricao,
-           'realizada_em', to_char(realizada_em AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"')
+           'amount', amount,
+           'kind', kind,
+           'description', description,
+           'submitted_at', to_char(submitted_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"')
        )
     ) INTO tnxs
     FROM (
-        SELECT valor, tipo, descricao, realizada_em
+        SELECT amount, kind, description, submitted_at
         FROM transacao
         WHERE cliente_id = c
-        ORDER BY realizada_em DESC
+        ORDER BY submitted_at DESC
         LIMIT 10
     ) AS t;
 
-    RETURN json_build_object('saldo', holder, 'ultimas_transactions', COALESCE(tnxs, '[]'::json));
+    RETURN json_build_object('current_balance', holder, 'recent_transactions', COALESCE(tnxs, '[]'::json));
 END;
 $$ LANGUAGE plpgsql;
 
@@ -67,8 +67,8 @@ DECLARE
     n BIGINT;
     l INT;
 BEGIN
-    SELECT saldo INTO s FROM cliente WHERE id = c FOR UPDATE;
-    SELECT limite INTO l FROM cliente WHERE id = c;
+    SELECT current_balance INTO s FROM cliente WHERE id = c FOR UPDATE;
+    SELECT limit INTO l FROM cliente WHERE id = c;
 
     IF t = 'c' THEN
         n := s + v;
@@ -77,9 +77,9 @@ BEGIN
     END IF;
 
     IF n >= -l THEN
-        UPDATE cliente SET saldo = n WHERE id = c;
-        INSERT INTO transacao(cliente_id, valor, tipo, descricao) VALUES (c, v, t, d);
-        RETURN json_build_object('limite', l, 'saldo', n);
+        UPDATE cliente SET current_balance = n WHERE id = c;
+        INSERT INTO transacao(cliente_id, amount, kind, description) VALUES (c, v, t, d);
+        RETURN json_build_object('limit', l, 'current_balance', n);
     END IF;
 END;
 $$ LANGUAGE plpgsql;
@@ -87,7 +87,7 @@ $$ LANGUAGE plpgsql;
 DO
 $$
     BEGIN
-        INSERT INTO cliente (limite)
+        INSERT INTO cliente (limit)
         VALUES (100000), (80000), (1000000), (10000000), (500000);
     END;
 $$;

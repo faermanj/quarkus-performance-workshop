@@ -12,35 +12,35 @@ ALTER SYSTEM SET huge_pages = off;
 ALTER SYSTEM SET min_wal_size = "1GB";
 ALTER SYSTEM SET max_wal_size = "4GB";*/
 
-CREATE UNLOGGED TABLE IF NOT EXISTS clientes (id INTEGER PRIMARY KEY, limite INTEGER, saldo INTEGER DEFAULT 0);
-INSERT INTO clientes (id, limite) VALUES (1, 100000), (2, 80000), (3, 1000000), (4, 10000000), (5, 500000) ON CONFLICT DO NOTHING;
-CREATE UNLOGGED TABLE IF NOT EXISTS transactions (id SERIAL PRIMARY KEY, id_cliente INTEGER, valor INTEGER, tipo TEXT, descricao VARCHAR, realizada_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY(id_cliente) REFERENCES clientes(id));
+CREATE UNLOGGED TABLE IF NOT EXISTS clientes (id INTEGER PRIMARY KEY, limit INTEGER, current_balance INTEGER DEFAULT 0);
+INSERT INTO clientes (id, limit) VALUES (1, 100000), (2, 80000), (3, 1000000), (4, 10000000), (5, 500000) ON CONFLICT DO NOTHING;
+CREATE UNLOGGED TABLE IF NOT EXISTS transactions (id SERIAL PRIMARY KEY, id_cliente INTEGER, amount INTEGER, kind TEXT, description VARCHAR, submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY(id_cliente) REFERENCES clientes(id));
 DELETE FROM transactions;
 
-CREATE OR REPLACE FUNCTION fn_add_transacao(p_id_cliente integer, p_valor INTEGER, p_tipo text, p_descricao text) 
-RETURNS TABLE (status text, saldo INTEGER, limite integer) AS 
+CREATE OR REPLACE FUNCTION fn_add_transacao(p_id_cliente integer, p_amount INTEGER, p_kind text, p_description text) 
+RETURNS TABLE (status text, current_balance INTEGER, limit integer) AS 
 $$
 DECLARE
    v_status text;
-   v_saldo INTEGER;
-   v_limite integer;
-   v_novo_saldo INTEGER;
+   v_current_balance INTEGER;
+   v_limit integer;
+   v_novo_current_balance INTEGER;
 BEGIN
-    SELECT c.saldo, c.limite INTO v_saldo, v_limite FROM clientes c WHERE c.id = p_id_cliente for update;
-	v_novo_saldo := v_saldo + (CASE WHEN p_tipo = 'c' THEN p_valor ELSE -p_valor end);
-    IF v_novo_saldo >= -v_limite THEN
-        INSERT INTO transactions (id_cliente, valor, tipo, descricao) VALUES (p_id_cliente, p_valor, p_tipo, p_descricao);
+    SELECT c.current_balance, c.limit INTO v_current_balance, v_limit FROM clientes c WHERE c.id = p_id_cliente for update;
+	v_novo_current_balance := v_current_balance + (CASE WHEN p_kind = 'c' THEN p_amount ELSE -p_amount end);
+    IF v_novo_current_balance >= -v_limit THEN
+        INSERT INTO transactions (id_cliente, amount, kind, description) VALUES (p_id_cliente, p_amount, p_kind, p_description);
         
-        UPDATE clientes SET saldo = v_novo_saldo WHERE id = p_id_cliente;
+        UPDATE clientes SET current_balance = v_novo_current_balance WHERE id = p_id_cliente;
 
         v_status := 'success';
-        RETURN QUERY SELECT v_status, v_novo_saldo, v_limite;
+        RETURN QUERY SELECT v_status, v_novo_current_balance, v_limit;
     ELSE
         v_status := 'error';
-        RETURN QUERY SELECT v_status, v_saldo, v_limite;
+        RETURN QUERY SELECT v_status, v_current_balance, v_limit;
     END IF;
 
-    --RETURN QUERY SELECT v_status, (case when v_status = 'success' then v_novo_saldo else v_saldo end), v_limite;
+    --RETURN QUERY SELECT v_status, (case when v_status = 'success' then v_novo_current_balance else v_current_balance end), v_limit;
 END;
 $$
 LANGUAGE plpgsql;

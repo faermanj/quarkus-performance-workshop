@@ -18,4 +18,4 @@ Submissão feita com:
 
 Special thanks for @alina-yur and @lobaorn for all support - https://github.com/rodrigorodrigues/rinha-de-backend-2024-q1-javaslow-spring/issues/1
 
-PS: Precisa esperar um pouco pra testar tipo 2 min por causa do Cassandra(Java eh lento :D)
+PS: Precisa esperar um pouco pra testar kind 2 min por causa do Cassandra(Java eh lento :D)

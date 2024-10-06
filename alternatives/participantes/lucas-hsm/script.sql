@@ -1,63 +1,63 @@
 CREATE TABLE clientes (
     id int,
-    limite int,
-    saldo int
+    limit int,
+    current_balance int
 );
 
 create table transactions (
     id_cliente int,
-    tipo char,
-    descricao varchar(10),
-    realizada_em timestamp with time zone,
-    valor int
+    kind char,
+    description varchar(10),
+    submitted_at timestamp with time zone,
+    amount int
 );
 
 create index clientes_index on clientes using hash (id);
 create index transactions_index on transactions using hash (id_cliente);
 
-CREATE OR REPLACE FUNCTION update_client(client_id int, val int, tipo char, descricao varchar(10), re timestamp with time zone)
+CREATE OR REPLACE FUNCTION update_client(client_id int, val int, kind char, description varchar(10), re timestamp with time zone)
 RETURNS TABLE (
-    new_limite int,
-    new_saldo int
+    new_limit int,
+    new_current_balance int
 )
 LANGUAGE plpgsql AS $$
 DECLARE
-    csaldo int;
-    climite int;
+    ccurrent_balance int;
+    climit int;
 BEGIN
     BEGIN
-        SELECT saldo, limite INTO csaldo, climite FROM clientes WHERE id = client_id FOR UPDATE;
+        SELECT current_balance, limit INTO ccurrent_balance, climit FROM clientes WHERE id = client_id FOR UPDATE;
 
-        IF (csaldo - val) < (climite * -1) THEN
+        IF (ccurrent_balance - val) < (climit * -1) THEN
             RETURN QUERY SELECT -1, -1;
             RETURN;
         END IF;
 
-        UPDATE clientes SET saldo = (csaldo - val) WHERE id = client_id;
+        UPDATE clientes SET current_balance = (ccurrent_balance - val) WHERE id = client_id;
 
-        INSERT INTO transactions (id_cliente, tipo, descricao, realizada_em, valor)
-        VALUES (client_id, tipo, descricao, re, ABS(val));
+        INSERT INTO transactions (id_cliente, kind, description, submitted_at, amount)
+        VALUES (client_id, kind, description, re, ABS(val));
     END;
-    RETURN QUERY SELECT climite, (csaldo - val);
+    RETURN QUERY SELECT climit, (ccurrent_balance - val);
     RETURN;
 END;
 $$;
 
 CREATE TYPE Transacao AS (
-       tipo char,
-       descricao varchar(10),
-       valor int,
-       realizada_em TIMESTAMP WITH TIME ZONE
+       kind char,
+       description varchar(10),
+       amount int,
+       submitted_at TIMESTAMP WITH TIME ZONE
 );
 
 CREATE OR REPLACE FUNCTION get_client_and_transactions(client_id INT)
 RETURNS TABLE (
-    nlimite int,
-    nsaldo int,
-    ntipo char,
-    ndescricao varchar(10),
-    nvalor int,
-    nrealizada_em TIMESTAMP WITH TIME ZONE
+    nlimit int,
+    ncurrent_balance int,
+    nkind char,
+    ndescription varchar(10),
+    namount int,
+    nsubmitted_at TIMESTAMP WITH TIME ZONE
 )
 AS $$
 DECLARE
@@ -65,14 +65,14 @@ DECLARE
     transacao record;
     c int;
 BEGIN
-    SELECT limite, saldo INTO nlimite, nsaldo FROM clientes WHERE id = client_id;
+    SELECT limit, current_balance INTO nlimit, ncurrent_balance FROM clientes WHERE id = client_id;
     SELECT COUNT(id_cliente) INTO c FROM transactions where id_cliente = client_id;
     IF c < 1 then
-        RETURN QUERY SELECT nlimite, nsaldo, ntipo, ndescricao, nvalor, nrealizada_em;
+        RETURN QUERY SELECT nlimit, ncurrent_balance, nkind, ndescription, namount, nsubmitted_at;
         RETURN;
     END IF;
-    FOR transacao IN SELECT tipo, descricao, valor, realizada_em FROM transactions where id_cliente = client_id ORDER BY realizada_em DESC LIMIT 10 LOOP
-        RETURN QUERY SELECT nlimite, nsaldo, transacao.tipo, transacao.descricao, transacao.valor, transacao.realizada_em;
+    FOR transacao IN SELECT kind, description, amount, submitted_at FROM transactions where id_cliente = client_id ORDER BY submitted_at DESC LIMIT 10 LOOP
+        RETURN QUERY SELECT nlimit, ncurrent_balance, transacao.kind, transacao.description, transacao.amount, transacao.submitted_at;
     END LOOP;
 END;
 $$ LANGUAGE plpgsql;

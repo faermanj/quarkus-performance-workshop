@@ -1,74 +1,74 @@
 CREATE TABLE members (
 	id SERIAL PRIMARY KEY,
 	nome VARCHAR(50) NOT NULL,
-	limite INTEGER NOT NULL
+	limit INTEGER NOT NULL
 );
 
 CREATE TABLE transactions (
 	id SERIAL PRIMARY KEY,
 	cliente_id INTEGER NOT NULL,
-	valor INTEGER NOT NULL,
-	tipo CHAR(1) NOT NULL,
-	descricao VARCHAR(10) NOT NULL,
-	realizada_em TIMESTAMP NOT NULL DEFAULT NOW(),
+	amount INTEGER NOT NULL,
+	kind CHAR(1) NOT NULL,
+	description VARCHAR(10) NOT NULL,
+	submitted_at TIMESTAMP NOT NULL DEFAULT NOW(),
 	CONSTRAINT fk_members_transactions_id
 		FOREIGN KEY (cliente_id) REFERENCES members(id)
 );
 
-CREATE TABLE saldos (
+CREATE TABLE current_balances (
 	id SERIAL PRIMARY KEY,
 	cliente_id INTEGER NOT NULL,
-	valor INTEGER NOT NULL,
-	CONSTRAINT fk_members_saldos_id
+	amount INTEGER NOT NULL,
+	CONSTRAINT fk_members_current_balances_id
 		FOREIGN KEY (cliente_id) REFERENCES members(id)
 );
 
-CREATE TYPE saldo_result AS (
+CREATE TYPE current_balance_result AS (
 	efetuado boolean,
-    limite integer,
-    saldo integer
+    limit integer,
+    current_balance integer
 );
 
-CREATE OR REPLACE FUNCTION atualiza_saldo(uclient_id integer, uvalor integer, utipo char, udescricao varchar) RETURNS saldo_result AS $$
+CREATE OR REPLACE FUNCTION atualiza_current_balance(uclient_id integer, uamount integer, ukind char, udescription varchar) RETURNS current_balance_result AS $$
 DECLARE
 	ctotal integer;
-	climite integer;
-	novo_saldo integer;
-	limite integer;
-	saldo integer;
-	result saldo_result;
+	climit integer;
+	novo_current_balance integer;
+	limit integer;
+	current_balance integer;
+	result current_balance_result;
 BEGIN
 	result.efetuado := false;
 
-	SELECT c.limite as limite, s.valor as total
-	INTO climite, ctotal
+	SELECT c.limit as limit, s.amount as total
+	INTO climit, ctotal
 	FROM members c 
-	JOIN saldos s on c.id = s.cliente_id 
+	JOIN current_balances s on c.id = s.cliente_id 
 	WHERE c.id = uclient_id FOR UPDATE;
 	
-	IF utipo = 'd' THEN
-		novo_saldo := ctotal - uvalor;
-		IF novo_saldo < -climite THEN
+	IF ukind = 'd' THEN
+		novo_current_balance := ctotal - uamount;
+		IF novo_current_balance < -climit THEN
 			result.efetuado := true;
 		END IF;
 	ELSE
-		novo_saldo := ctotal + uvalor;
+		novo_current_balance := ctotal + uamount;
 	END IF;
 
 	IF result.efetuado = false THEN
-		UPDATE saldos SET valor = novo_saldo WHERE cliente_id = uclient_id;
-		INSERT INTO transactions (cliente_id, valor, tipo, descricao) VALUES (uclient_id, uvalor, utipo, udescricao);
+		UPDATE current_balances SET amount = novo_current_balance WHERE cliente_id = uclient_id;
+		INSERT INTO transactions (cliente_id, amount, kind, description) VALUES (uclient_id, uamount, ukind, udescription);
 	END IF;
 
-	result.limite := climite;
-    result.saldo := novo_saldo;
+	result.limit := climit;
+    result.current_balance := novo_current_balance;
     RETURN result;
 END;
 $$ LANGUAGE plpgsql;
 
 DO $$
 BEGIN
-	INSERT INTO members (nome, limite)
+	INSERT INTO members (nome, limit)
 	VALUES
 		('o barato sai caro', 1000 * 100),
 		('zan corp ltda', 800 * 100),
@@ -76,7 +76,7 @@ BEGIN
 		('padaria joia de cocaia', 100000 * 100),
 		('kid mais', 5000 * 100);
 	
-	INSERT INTO saldos (cliente_id, valor)
+	INSERT INTO current_balances (cliente_id, amount)
 		SELECT id, 0 FROM members;
 END;
 $$;

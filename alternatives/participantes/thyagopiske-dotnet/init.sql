@@ -1,22 +1,22 @@
 
 create unlogged table if not exists members (
 	id serial primary key,
-  	limite integer,
-	saldo integer
+  	limit integer,
+	current_balance integer
 );
 
 create unlogged table if not exists transactions (
 	id serial primary key,
 	clienteId integer not null references members(id),
-	valor integer,
-	tipo char not null,
-	descricao varchar(10),
+	amount integer,
+	kind char not null,
+	description varchar(10),
 	realizadaEm timestamp
 );
 
 create index if not exists idx_transactions_clienteId on transactions(clienteId);
 
-insert into members (limite, saldo) 
+insert into members (limit, current_balance) 
 values
   (100000, 0),
   (80000, 0),
@@ -24,13 +24,13 @@ values
 	(10000000, 0),
 	(500000, 0);
 
-create type meuTipo as (codigo integer, limite integer, saldo integer);
+create type meuTipo as (codigo integer, limit integer, current_balance integer);
 
 create or replace function criarTransacao(
 	in clienteId integer,
-	in valor integer,
-	in tipo char,
-	in descricao varchar(10)
+	in amount integer,
+	in kind char,
+	in description varchar(10)
 ) returns meuTipo as $$
 	declare
 		cliente members%rowtype;
@@ -49,39 +49,39 @@ create or replace function criarTransacao(
 			return mt;
 		end if;
 
-		if tipo = 'd' then
-			novoSaldo := cliente.saldo - valor;
+		if kind = 'd' then
+			novoSaldo := cliente.current_balance - amount;
 		else
-			novoSaldo := cliente.saldo + valor;
+			novoSaldo := cliente.current_balance + amount;
 		end if;
 
-		if novoSaldo + cliente.limite < 0 then
+		if novoSaldo + cliente.limit < 0 then
 			mt.codigo := -2;
 			return mt;
 		end if;
 
 		insert into transactions 
-		(valor, tipo, descricao, clienteId, realizadaEm)
+		(amount, kind, description, clienteId, realizadaEm)
 		values
-		(valor, tipo, descricao, clienteId, now()::timestamp);
+		(amount, kind, description, clienteId, now()::timestamp);
 
 		update members
-		set saldo = novoSaldo
+		set current_balance = novoSaldo
 		where id = clienteId;
 		
 		mt.codigo := 1;
-		mt.limite := cliente.limite;
-		mt.saldo := novoSaldo;
+		mt.limit := cliente.limit;
+		mt.current_balance := novoSaldo;
 		
 		return mt;
 	end;
 $$ language plpgsql;
 
 
-create type saldotype as (
+create type current_balancetype as (
 	total integer,
 	dataExtrato timestamp,
-	limite integer
+	limit integer
 );
 
 create or replace function obterbalance(
@@ -89,7 +89,7 @@ create or replace function obterbalance(
 ) returns json as $$
 	declare
 		cliente members%rowtype;
-		saldo saldotype;
+		current_balance current_balancetype;
 		ultimastransactions json[];
 	begin
 
@@ -104,15 +104,15 @@ create or replace function obterbalance(
 			);
 		end if;
 
-		saldo.total := cliente.saldo;
-		saldo.dataExtrato := now()::timestamp;
-		saldo.limite := cliente.limite;
+		current_balance.total := cliente.current_balance;
+		current_balance.dataExtrato := now()::timestamp;
+		current_balance.limit := cliente.limit;
 
 		select array_agg(
 			json_build_object(
-			'valor', t.valor,
-			'tipo', t.tipo,
-			'descricao', t.descricao,
+			'amount', t.amount,
+			'kind', t.kind,
+			'description', t.description,
 			'realizadaEm', t.realizadaEm
 		) order by t.realizadaEm desc
 		)
@@ -127,10 +127,10 @@ create or replace function obterbalance(
 
     return json_build_object(
 			'codigo', 1,
-        'saldo', json_build_object(
-            'total', saldo.total,
-            'dataExtrato', saldo.dataExtrato,
-            'limite', saldo.limite
+        'current_balance', json_build_object(
+            'total', current_balance.total,
+            'dataExtrato', current_balance.dataExtrato,
+            'limit', current_balance.limit
         ),
         'ultimastransactions', ultimastransactions
     );

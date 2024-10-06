@@ -103,7 +103,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION public.InsertTransacao(IN id INTEGER, IN valor INTEGER, IN tipo VARCHAR(1), IN descricao VARCHAR(10))
+CREATE OR REPLACE FUNCTION public.InsertTransacao(IN id INTEGER, IN amount INTEGER, IN kind VARCHAR(1), IN description VARCHAR(10))
 RETURNS INTEGER AS $$
 BEGIN
   INSERT INTO public."transactions" ("Valor", "Tipo", "Descricao", "ClienteId", "RealizadoEm")

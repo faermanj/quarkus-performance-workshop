@@ -10,17 +10,17 @@ SET default_tablespace = '';
 
 CREATE UNLOGGED TABLE customers (
 	id SERIAL PRIMARY KEY,
-	saldo INTEGER NOT NULL,
-	limite INTEGER NOT NULL
+	current_balance INTEGER NOT NULL,
+	limit INTEGER NOT NULL
 );
 
 CREATE UNLOGGED TABLE transactions (
 	id SERIAL PRIMARY KEY,
 	customerId INTEGER NOT NULL,
-	valor INTEGER NOT NULL,
-	tipo CHAR(1) NOT NULL,
-	descricao VARCHAR(10) NOT NULL,
-	realizada_em TIMESTAMP NOT NULL DEFAULT NOW(),
+	amount INTEGER NOT NULL,
+	kind CHAR(1) NOT NULL,
+	description VARCHAR(10) NOT NULL,
+	submitted_at TIMESTAMP NOT NULL DEFAULT NOW(),
 	CONSTRAINT fk_cliente_transacao_id
 		FOREIGN KEY (customerId) REFERENCES customers(id)
 );
@@ -32,7 +32,7 @@ CREATE INDEX ix_transacao_idcliente ON transactions
 
 DO $$
 BEGIN
-	INSERT INTO customers (limite, saldo)
+	INSERT INTO customers (limit, current_balance)
 	VALUES
 		(100000, 0),
 		(80000, 0),
@@ -44,62 +44,62 @@ $$;
 
 CREATE OR REPLACE FUNCTION debit(
 	customerId INT,
-	valor INT,
-	descricao VARCHAR(10))
-RETURNS TABLE (saldoFinal INT, error BOOL)
+	amount INT,
+	description VARCHAR(10))
+RETURNS TABLE (current_balanceFinal INT, error BOOL)
 LANGUAGE plpgsql
 AS $$
 DECLARE
-	limiteAtual int;
-	saldoAtual int;
+	limitAtual int;
+	current_balanceAtual int;
 BEGIN
 	PERFORM pg_advisory_xact_lock(customerId);
 	SELECT 
-		c.limite,
-		c.saldo 
+		c.limit,
+		c.current_balance 
 	INTO
-		limiteAtual,
-		saldoAtual
+		limitAtual,
+		current_balanceAtual
 	FROM customers c
 	WHERE c.id = customerId;
 
-	IF saldoAtual - valor < limiteAtual * -1 THEN
+	IF current_balanceAtual - amount < limitAtual * -1 THEN
 		RETURN QUERY 
 			SELECT
-				saldo,
-				TRUE -- saldo insuficiente
+				current_balance,
+				TRUE -- current_balance insuficiente
 			FROM customers
 			WHERE id = customerId;
 	ELSE
 		INSERT INTO transactions
-			VALUES(DEFAULT, customerId, valor, 'd', descricao, DEFAULT);
+			VALUES(DEFAULT, customerId, amount, 'd', description, DEFAULT);
 		
 		RETURN QUERY
 			UPDATE customers
-			SET saldo = saldo - valor
+			SET current_balance = current_balance - amount
 			WHERE id = customerId
-			RETURNING saldo, FALSE;
+			RETURNING current_balance, FALSE;
 	END IF;
 END;
 $$;
 
 CREATE OR REPLACE FUNCTION credit(
 	customerId INT,
-	valor INT,
-	descricao VARCHAR(10))
-RETURNS TABLE (saldoFinal INT)
+	amount INT,
+	description VARCHAR(10))
+RETURNS TABLE (current_balanceFinal INT)
 LANGUAGE plpgsql
 AS $$
 BEGIN
 	PERFORM pg_advisory_xact_lock(customerId);
 
 	INSERT INTO transactions
-		VALUES(DEFAULT, customerId, valor, 'c', descricao, DEFAULT);
+		VALUES(DEFAULT, customerId, amount, 'c', description, DEFAULT);
 
 	RETURN QUERY
 		UPDATE customers
-		SET saldo = saldo + valor
+		SET current_balance = current_balance + amount
 		WHERE id = customerId
-		RETURNING saldo;
+		RETURNING current_balance;
 END;
 $$;

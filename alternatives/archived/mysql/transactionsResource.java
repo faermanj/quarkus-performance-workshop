@@ -24,8 +24,8 @@ public class transactionsResource {
     @Inject
     DataSource ds;
 
-    // curl -v -X POST -H "Content-Type: application/json" -d '{"valor": 100,
-    // "tipo": "c", "descricao": "Compra"}'
+    // curl -v -X POST -H "Content-Type: application/json" -d '{"amount": 100,
+    // "kind": "c", "description": "Compra"}'
     // http://localhost:9999/members/1/transactions
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
@@ -35,19 +35,19 @@ public class transactionsResource {
             Map<String, Object> t) {
         Log.tracef("Transacao recebida: %s %s ", id, t);
 
-        var valorNumber = (Number) t.get("valor");
-        if (valorNumber == null || !Integer.class.equals(valorNumber.getClass())) {
+        var amountNumber = (Number) t.get("amount");
+        if (amountNumber == null || !Integer.class.equals(amountNumber.getClass())) {
             return Response.status(422).entity("Valor invalido").build();
         }
-        Integer valor = valorNumber.intValue();
+        Integer amount = amountNumber.intValue();
 
-        var tipo = (String) t.get("tipo");
-        if (tipo == null || !("c".equals(tipo) || "d".equals(tipo))) {
+        var kind = (String) t.get("kind");
+        if (kind == null || !("c".equals(kind) || "d".equals(kind))) {
             return Response.status(422).entity("Tipo invalido").build();
         }
 
-        var descricao = (String) t.get("descricao");
-        if (descricao == null || descricao.isEmpty() || descricao.length() > 10) {
+        var description = (String) t.get("description");
+        if (description == null || description.isEmpty() || description.length() > 10) {
             return Response.status(422).entity("Descricao invalida").build();
         }
 
@@ -60,9 +60,9 @@ public class transactionsResource {
             conn.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
 
             stmt.setInt(1, id);
-            stmt.setInt(2, valor);
-            stmt.setString(3, tipo);
-            stmt.setString(4, descricao);
+            stmt.setInt(2, amount);
+            stmt.setString(3, kind);
+            stmt.setString(4, description);
 
             stmt.registerOutParameter(5, Types.INTEGER);
             stmt.registerOutParameter(6, Types.INTEGER);
@@ -73,16 +73,16 @@ public class transactionsResource {
             }
             try (var rs = stmt.getResultSet()) {
                 if (rs.next()){
-                    var saldo =  rs.getInt(1);
-                    var limite =  rs.getInt(2);
+                    var current_balance =  rs.getInt(1);
+                    var limit =  rs.getInt(2);
 
-                    if (saldo < -1 * limite) {
-                        Log.error("*** LIMITE ULTRAPASSADO " + saldo + " / " + limite);
+                    if (current_balance < -1 * limit) {
+                        Log.error("*** LIMITE ULTRAPASSADO " + current_balance + " / " + limit);
                         Log.error(t.toString());
                         throw new WebApplicationException("ERRO DE CONSISTENCIA", 422);
                     }
 
-                    var body = Map.of("limite", limite, "saldo", saldo);
+                    var body = Map.of("limit", limit, "current_balance", current_balance);
                     return Response.ok(body).build();
                 } else{
                     return Response.status(500).entity("Erro: no next").build();

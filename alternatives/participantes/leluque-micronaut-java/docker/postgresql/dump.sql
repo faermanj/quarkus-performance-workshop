@@ -1,16 +1,16 @@
 CREATE UNLOGGED TABLE conta (
                         id_cliente INT PRIMARY KEY NOT NULL,
-                        saldo_inicial_em_centavos BIGINT NOT NULL,
-                        limite_em_centavos BIGINT NOT NULL,
-                        saldo_atual_em_centavos BIGINT NOT NULL
+                        current_balance_inicial_em_centavos BIGINT NOT NULL,
+                        limit_em_centavos BIGINT NOT NULL,
+                        current_balance_atual_em_centavos BIGINT NOT NULL
 );
 
 CREATE UNLOGGED TABLE transacao (
                             id BIGSERIAL PRIMARY KEY NOT NULL,
-                            valor_em_centavos BIGINT NOT NULL,
-                            tipo CHAR(1) NOT NULL,
-                            descricao VARCHAR(10),
-                            realizada_em TIMESTAMP WITH TIME ZONE NOT NULL,
+                            amount_em_centavos BIGINT NOT NULL,
+                            kind CHAR(1) NOT NULL,
+                            description VARCHAR(10),
+                            submitted_at TIMESTAMP WITH TIME ZONE NOT NULL,
                             id_cliente INT NOT NULL,
                             FOREIGN KEY (id_cliente) REFERENCES conta(id_cliente)
 );
@@ -18,41 +18,41 @@ CREATE UNLOGGED TABLE transacao (
 -- CREATE INDEX idx_transacao_id_cliente ON transacao(id_cliente);
 
 -----------------------------
--- Procedimento de atualização do saldo e inclusão da transação.
+-- Procedimento de atualização do current_balance e inclusão da transação.
 
-CREATE OR REPLACE PROCEDURE atualizar_saldo_e_inserir_transacao(
+CREATE OR REPLACE PROCEDURE atualizar_current_balance_e_inserir_transacao(
     _id_cliente BIGINT,
-    _valor_em_centavos BIGINT,
-    _tipo CHAR(1),
-    _descricao VARCHAR(10),
+    _amount_em_centavos BIGINT,
+    _kind CHAR(1),
+    _description VARCHAR(10),
     INOUT _retorno VARCHAR(100))
 LANGUAGE plpgsql AS $$
 DECLARE
-    v_saldo_atual INT;
-    v_limite INT;
+    v_current_balance_atual INT;
+    v_limit INT;
 BEGIN
-    IF _tipo = 'd' THEN
+    IF _kind = 'd' THEN
         UPDATE conta
-        SET saldo_atual_em_centavos = saldo_atual_em_centavos - _valor_em_centavos
+        SET current_balance_atual_em_centavos = current_balance_atual_em_centavos - _amount_em_centavos
         WHERE id_cliente = _id_cliente
-          AND saldo_atual_em_centavos - _valor_em_centavos >= -limite_em_centavos
-            RETURNING saldo_atual_em_centavos, limite_em_centavos INTO v_saldo_atual, v_limite;
+          AND current_balance_atual_em_centavos - _amount_em_centavos >= -limit_em_centavos
+            RETURNING current_balance_atual_em_centavos, limit_em_centavos INTO v_current_balance_atual, v_limit;
     ELSE
         UPDATE conta
-        SET saldo_atual_em_centavos = saldo_atual_em_centavos + _valor_em_centavos
+        SET current_balance_atual_em_centavos = current_balance_atual_em_centavos + _amount_em_centavos
         WHERE id_cliente = _id_cliente
-            RETURNING saldo_atual_em_centavos, limite_em_centavos INTO v_saldo_atual, v_limite;
+            RETURNING current_balance_atual_em_centavos, limit_em_centavos INTO v_current_balance_atual, v_limit;
     END IF;
 
-    -- Só não retornará se não tiver saldo suficiente. A existência do cliente é verificada na aplicação.
+    -- Só não retornará se não tiver current_balance suficiente. A existência do cliente é verificada na aplicação.
     IF NOT FOUND THEN
       _retorno = 'SI'; -- Saldo insuficiente.
       RETURN;
     ELSE
       -- Insere a nova transação.
-      INSERT INTO transacao (id_cliente, realizada_em, valor_em_centavos, tipo, descricao) VALUES (_id_cliente, NOW(), _valor_em_centavos, _tipo, _descricao);
+      INSERT INTO transacao (id_cliente, submitted_at, amount_em_centavos, kind, description) VALUES (_id_cliente, NOW(), _amount_em_centavos, _kind, _description);
       COMMIT;
-      _retorno = CONCAT(v_saldo_atual::varchar, ':', v_limite::varchar);
+      _retorno = CONCAT(v_current_balance_atual::varchar, ':', v_limit::varchar);
     END IF;
 END;
 $$;
@@ -60,7 +60,7 @@ $$;
 -----------------------------
 -- Inserção de dados de teste.
 
-INSERT INTO conta (id_cliente, saldo_inicial_em_centavos, limite_em_centavos, saldo_atual_em_centavos)
+INSERT INTO conta (id_cliente, current_balance_inicial_em_centavos, limit_em_centavos, current_balance_atual_em_centavos)
 VALUES
     (1, 0, 100000, 0),
     (2, 0, 80000, 0),

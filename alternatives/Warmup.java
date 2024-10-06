@@ -23,7 +23,7 @@ public class Warmup {
         HttpRequest postRequest = HttpRequest.newBuilder()
                 .uri(URI.create("http://127.0.0.1:9999/members/333/transactions"))
                 .header("Content-Type", "application/json")
-                .POST(BodyPublishers.ofString("{\"valor\": 0, \"tipo\": \"d\", \"descricao\": \"warmup\"}"))
+                .POST(BodyPublishers.ofString("{\"amount\": 0, \"kind\": \"d\", \"description\": \"warmup\"}"))
                 .build();
 
         HttpResponse<String> postResponse = client.send(postRequest, BodyHandlers.ofString());

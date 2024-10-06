@@ -1,21 +1,21 @@
 CREATE TABLE clientes (
 	id SERIAL PRIMARY KEY,
-	limite INTEGER NOT NULL,
-	saldo INTEGER NOT NULL DEFAULT 0
+	limit INTEGER NOT NULL,
+	current_balance INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE TABLE transactions (
 	id SERIAL PRIMARY KEY,
 	cliente_id INTEGER NOT NULL,
-	valor INTEGER NOT NULL,
-	tipo CHAR(1) NOT NULL,
-	descricao VARCHAR(10) NOT NULL,
-	realizada_em TIMESTAMP NOT NULL DEFAULT NOW(),
+	amount INTEGER NOT NULL,
+	kind CHAR(1) NOT NULL,
+	description VARCHAR(10) NOT NULL,
+	submitted_at TIMESTAMP NOT NULL DEFAULT NOW(),
 	CONSTRAINT fk_transactions_clientes_id FOREIGN KEY (cliente_id) REFERENCES clientes(id)
 );
 
 INSERT INTO
-	clientes (id, limite)
+	clientes (id, limit)
 VALUES
 	(1, 100000),
 	(2, 80000),

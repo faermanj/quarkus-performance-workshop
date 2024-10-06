@@ -5,10 +5,10 @@ CREATE TABLE IF NOT EXISTS clients
 (
   id              BIGSERIAL       PRIMARY KEY,
   name            VARCHAR(100)    NOT NULL,
-  limite          int             NOT NULL
+  limit          int             NOT NULL
 );
 
-INSERT INTO clients (name, limite)
+INSERT INTO clients (name, limit)
 VALUES
   ('o barato sai caro', 1000 * 100),
   ('zan corp ltda', 800 * 100),
@@ -37,16 +37,16 @@ CREATE OR REPLACE FUNCTION transaction_operation(
     transaction_id UUID,
     cliente_id INT,
     value INT,
-    tipo transactionType,
+    kind transactionType,
     description VARCHAR(10),
     transaction_created_at TIMESTAMPTZ,
-    limite INT
+    limit INT
 )
 RETURNS INT AS $$
 DECLARE
     balance INT;
 BEGIN
-    -- Obtém o último saldo do cliente
+    -- Obtém o último current_balance do cliente
     SELECT COALESCE(
       (SELECT last_balance
       FROM transactions t
@@ -56,16 +56,16 @@ BEGIN
       0
     ) INTO balance;
 
-    balance := balance + CASE WHEN tipo = 'c' THEN value ELSE -value END;
+    balance := balance + CASE WHEN kind = 'c' THEN value ELSE -value END;
 
-    IF tipo = 'd' AND balance < -limite THEN
+    IF kind = 'd' AND balance < -limit THEN
         RAISE EXCEPTION 'operation is not available: balance is below limit';
     END IF;
 
     -- Insere a nova transação
     INSERT INTO transactions (id, type, value, description, client_id, last_balance, created_at)
     VALUES (
-      transaction_id, tipo, 
+      transaction_id, kind, 
       value, description, 
       cliente_id, 
       balance, 
@@ -73,7 +73,7 @@ BEGIN
 
     RAISE NOTICE 'passei aqui 2';
 
-    -- Retorna o novo saldo
+    -- Retorna o novo current_balance
     RETURN balance;
 
 

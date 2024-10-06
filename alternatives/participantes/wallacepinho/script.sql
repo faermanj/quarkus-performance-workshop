@@ -3,20 +3,20 @@ create schema rinha;
 -- tables
 create table rinha.cliente (
     id integer,
-    limite integer,
-    saldo integer
+    limit integer,
+    current_balance integer
 );
 
 create table rinha.transacao (
     cliente_id integer,
-    valor integer,
-    tipo varchar(1),
-    descricao varchar(10),
-    realizada_em timestamp
+    amount integer,
+    kind varchar(1),
+    description varchar(10),
+    submitted_at timestamp
 );
 
 -- data
-insert into rinha.cliente(id, limite, saldo) values 
+insert into rinha.cliente(id, limit, current_balance) values 
 (1, 100000, 0),
 (2, 80000, 0),
 (3, 1000000, 0),

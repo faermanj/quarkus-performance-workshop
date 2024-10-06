@@ -6,7 +6,7 @@ ALTER SEQUENCE transactions_id_seq RESTART WITH 1;
 
 DO $$
 BEGIN
-  INSERT INTO clientes (nome, limite, created_at, updated_at)
+  INSERT INTO clientes (nome, limit, created_at, updated_at)
   VALUES
     ('o barato sai caro', 1000 * 100, NOW(), NOW()),
     ('zan corp ltda', 800 * 100, NOW(), NOW()),

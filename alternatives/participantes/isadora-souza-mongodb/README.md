@@ -10,19 +10,19 @@ A aplicação possui dois endpoints:
 
 ```json
 {
-  "valor": 1000,
+  "amount": 1000,
 
-  "tipo": "c",
+  "kind": "c",
 
-  "descricao": "descricao"
+  "description": "description"
 }
 ```
 
-- `valor`: O valor da transação.
+- `amount`: O amount da transação.
 
-- `tipo`: O tipo de transação (por exemplo, "c" para crédito).
+- `kind`: O kind de transação (por exemplo, "c" para crédito).
 
-- `descricao`: Descrição da transação.
+- `description`: Descrição da transação.
 
 2.  **GET /clientes/[id]/balance**: Este endpoint permite obter o balance de transações de um cliente específico.
 

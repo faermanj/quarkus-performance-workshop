@@ -1,31 +1,31 @@
 CREATE UNLOGGED TABLE clientes (
     codigo int PRIMARY KEY,
-    limite DECIMAL(10) NOT NULL,
-    saldo DECIMAL(10) NOT NULL
+    limit DECIMAL(10) NOT NULL,
+    current_balance DECIMAL(10) NOT NULL
 );
 
 CREATE UNLOGGED TABLE  transactions (
     codigo SERIAL PRIMARY KEY,
-    descricao VARCHAR(50) NOT NULL,
+    description VARCHAR(50) NOT NULL,
     data_transacao TIMESTAMP NOT NULL,
-    tipo CHAR(1) CHECK (tipo IN ('d', 'c')),
-    valor DECIMAL(10) NOT NULL,
+    kind CHAR(1) CHECK (kind IN ('d', 'c')),
+    amount DECIMAL(10) NOT NULL,
     codigo_cliente INTEGER REFERENCES clientes(codigo) ON DELETE CASCADE
 );
 
 CREATE OR REPLACE FUNCTION realizar_transacao(
     p_codigo_cliente INTEGER,
-    p_tipo CHAR(1),
-    p_descricao VARCHAR(50),
-    p_valor DECIMAL(10)
-) RETURNS TABLE (novo_saldo DECIMAL(10), limite_cliente DECIMAL(10)) AS $$
+    p_kind CHAR(1),
+    p_description VARCHAR(50),
+    p_amount DECIMAL(10)
+) RETURNS TABLE (novo_current_balance DECIMAL(10), limit_cliente DECIMAL(10)) AS $$
 DECLARE
-    v_saldo_cliente DECIMAL(10);
-    v_limite_cliente DECIMAL(10);
+    v_current_balance_cliente DECIMAL(10);
+    v_limit_cliente DECIMAL(10);
 BEGIN
-    -- Obtém o saldo e limite atuais do cliente
-    SELECT saldo, limite 
-      INTO v_saldo_cliente, v_limite_cliente 
+    -- Obtém o current_balance e limit atuais do cliente
+    SELECT current_balance, limit 
+      INTO v_current_balance_cliente, v_limit_cliente 
       FROM clientes 
      WHERE codigo = p_codigo_cliente 
        FOR UPDATE ;
@@ -36,37 +36,37 @@ BEGIN
         RAISE EXCEPTION 'RN01:Cliente com código % não encontrado.', p_codigo_cliente;
     END IF;
 
-   -- Valida se saldo e limite permitem transacao
-   if p_tipo = 'd' then
-   		if v_saldo_cliente - p_valor < (v_limite_cliente * -1) then
-   			raise exception 'RN02:Saldo e limite não permitem transacao.';
+   -- Valida se current_balance e limit permitem transacao
+   if p_kind = 'd' then
+   		if v_current_balance_cliente - p_amount < (v_limit_cliente * -1) then
+   			raise exception 'RN02:Saldo e limit não permitem transacao.';
    		end if;
    end if;
    
    
-    -- Verifica o tipo de transação e realiza as operações necessárias
-    IF p_tipo = 'd' THEN
+    -- Verifica o kind de transação e realiza as operações necessárias
+    IF p_kind = 'd' THEN
         -- Transação de débito
-        UPDATE clientes SET saldo = saldo - p_valor WHERE codigo = p_codigo_cliente;
-    ELSIF p_tipo = 'c' THEN
+        UPDATE clientes SET current_balance = current_balance - p_amount WHERE codigo = p_codigo_cliente;
+    ELSIF p_kind = 'c' THEN
         -- Transação de crédito
-        UPDATE clientes SET saldo = saldo + p_valor WHERE codigo = p_codigo_cliente;
+        UPDATE clientes SET current_balance = current_balance + p_amount WHERE codigo = p_codigo_cliente;
     ELSE
         -- Tipo de transação inválido
         RAISE EXCEPTION 'RN03:Tipo de transação inválido. Use "d" para débito ou "c" para crédito.';
     END IF;
 
     -- Insere a transação na tabela de transações
-    INSERT INTO transactions (descricao, data_transacao, tipo, valor, codigo_cliente)
-         VALUES (p_descricao, CURRENT_TIMESTAMP, p_tipo, p_valor, p_codigo_cliente);
+    INSERT INTO transactions (description, data_transacao, kind, amount, codigo_cliente)
+         VALUES (p_description, CURRENT_TIMESTAMP, p_kind, p_amount, p_codigo_cliente);
 
-    -- Retorna o novo saldo e limite do cliente
-    RETURN QUERY SELECT saldo, limite FROM clientes WHERE codigo = p_codigo_cliente;
+    -- Retorna o novo current_balance e limit do cliente
+    RETURN QUERY SELECT current_balance, limit FROM clientes WHERE codigo = p_codigo_cliente;
 END;
 $$ LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE FUNCTION obter_saldo_e_transactions(p_codigo_cliente INT)
+CREATE OR REPLACE FUNCTION obter_current_balance_e_transactions(p_codigo_cliente INT)
 RETURNS JSON
 AS $$
 DECLARE
@@ -74,11 +74,11 @@ DECLARE
 BEGIN
     -- Monta JSON com balance do cliente
     SELECT json_build_object(
-        'saldo', (SELECT * 
-                    FROM json_build_object('total',c.saldo, 'date_balance', current_timestamp, 'limite', c.limite)),
-        'ultimas_transactions', (SELECT COALESCE(json_agg(ut.*), '[]'::json)
+        'current_balance', (SELECT * 
+                    FROM json_build_object('total',c.current_balance, 'date_balance', current_timestamp, 'limit', c.limit)),
+        'recent_transactions', (SELECT COALESCE(json_agg(ut.*), '[]'::json)
                                  FROM (
-                                       SELECT t.descricao, t.tipo, t.valor, t.data_transacao AS "realizada_em"
+                                       SELECT t.description, t.kind, t.amount, t.data_transacao AS "submitted_at"
                                          FROM transactions t 
                                         WHERE t.codigo_cliente = c.codigo
                                         ORDER BY t.data_transacao DESC 
@@ -99,7 +99,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-INSERT INTO clientes (codigo, limite, saldo) VALUES 
+INSERT INTO clientes (codigo, limit, current_balance) VALUES 
 (1, 100000, 0),
 (2, 80000, 0),
 (3, 1000000, 0),

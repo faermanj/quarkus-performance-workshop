@@ -3,11 +3,11 @@ SET enable_seqscan = off;
 create unlogged table cliente
 (
     id     integer primary key,
-    limite bigint not null,
-    saldo  bigint not null default 0 check ( (abs(limite) - abs(saldo)) > 0 )
+    limit bigint not null,
+    current_balance  bigint not null default 0 check ( (abs(limit) - abs(current_balance)) > 0 )
 );
 
-insert into cliente (id, limite, saldo)
+insert into cliente (id, limit, current_balance)
 values (1, 100000, 0),
        (2, 80000, 0),
        (3, 1000000, 0),
@@ -19,9 +19,9 @@ create UNLOGGED table transacao
 (
     id           serial primary key,
     cliente_id   integer references cliente (id),
-    valor        bigint      not null,
-    tipo         char        not null,
-    descricao    varchar(11) not null,
+    amount        bigint      not null,
+    kind         char        not null,
+    description    varchar(11) not null,
     realidada_em timestamp   not null default now()
 
 );

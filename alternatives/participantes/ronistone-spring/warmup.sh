@@ -7,17 +7,17 @@ startWarmupMakeTransactions() {
                       --url http://nginx:9999/members/1/transactions \
                       --header 'Content-Type: application/json' \
                       --data '{
-                        "valor": 1000,
-                        "tipo" : "c",
-                        "descricao" : "descricao"
+                        "amount": 1000,
+                        "kind" : "c",
+                        "description" : "description"
                     }' > /dev/null && \
         curl --fail -s --request POST \
                               --url http://nginx:9999/members/1/transactions \
                               --header 'Content-Type: application/json' \
                               --data '{
-                                "valor": 1000,
-                                "tipo" : "d",
-                                "descricao" : "descricao"
+                                "amount": 1000,
+                                "kind" : "d",
+                                "description" : "description"
                             }' > /dev/null
     done
 }

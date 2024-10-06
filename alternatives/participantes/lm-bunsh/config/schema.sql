@@ -1,21 +1,21 @@
 CREATE TABLE IF NOT EXISTS Clientes (
     id INTEGER PRIMARY KEY,
-    saldo INTEGER,
-    limite INTEGER
+    current_balance INTEGER,
+    limit INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS transactions (
     id INTEGER PRIMARY KEY,
-    valor INTEGER,
-    tipo VARCHAR(1),
-    descricao VARCHAR(10),
+    amount INTEGER,
+    kind VARCHAR(1),
+    description VARCHAR(10),
     clienteId INTEGER,
-    realizada_em DATE,
+    submitted_at DATE,
     FOREIGN KEY (clienteId) REFERENCES Clientes(id)
 );
 
-INSERT OR IGNORE INTO Clientes (id, saldo, limite) VALUES (1, 0, 100000);
-INSERT OR IGNORE INTO Clientes (id, saldo, limite) VALUES (2, 0, 80000);
-INSERT OR IGNORE INTO Clientes (id, saldo, limite) VALUES (3, 0, 1000000);
-INSERT OR IGNORE INTO Clientes (id, saldo, limite) VALUES (4, 0, 10000000);
-INSERT OR IGNORE INTO Clientes (id, saldo, limite) VALUES (5, 0, 500000);
+INSERT OR IGNORE INTO Clientes (id, current_balance, limit) VALUES (1, 0, 100000);
+INSERT OR IGNORE INTO Clientes (id, current_balance, limit) VALUES (2, 0, 80000);
+INSERT OR IGNORE INTO Clientes (id, current_balance, limit) VALUES (3, 0, 1000000);
+INSERT OR IGNORE INTO Clientes (id, current_balance, limit) VALUES (4, 0, 10000000);
+INSERT OR IGNORE INTO Clientes (id, current_balance, limit) VALUES (5, 0, 500000);

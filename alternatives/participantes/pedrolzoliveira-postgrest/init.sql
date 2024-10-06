@@ -4,46 +4,46 @@ GRANT USAGE ON SCHEMA api TO anon;
 
 CREATE UNLOGGED TABLE api.members (
   id SERIAL PRIMARY KEY,
-  limite INT NOT NULL DEFAULT 0,
-  saldo INT NOT NULL DEFAULT 0 CHECK (saldo >= -limite)
+  limit INT NOT NULL DEFAULT 0,
+  current_balance INT NOT NULL DEFAULT 0 CHECK (current_balance >= -limit)
 );
 
 CREATE UNLOGGED TABLE api.transactions (
   cliente_id INT REFERENCES api.members (id),
-  valor INT NOT NULL,
-  descricao VARCHAR(10) NOT NULL,
-  tipo CHAR(1) NOT NULL,
-  realizada_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+  amount INT NOT NULL,
+  description VARCHAR(10) NOT NULL,
+  kind CHAR(1) NOT NULL,
+  submitted_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX transacao_realizada_em_idx ON api.transactions (realizada_em);
+CREATE INDEX transacao_submitted_at_idx ON api.transactions (submitted_at);
 
-CREATE OR REPLACE FUNCTION api.create_transacao (cliente_id int, valor int, tipo char(1), descricao varchar(10))
+CREATE OR REPLACE FUNCTION api.create_transacao (cliente_id int, amount int, kind char(1), description varchar(10))
 RETURNS JSON
 AS $$
 DECLARE
-  ajuste_valor int;
-  novo_saldo int;
-  novo_limite int;
+  ajuste_amount int;
+  novo_current_balance int;
+  novo_limit int;
   json_result JSON;
 BEGIN
-  IF tipo = 'd' THEN
-    ajuste_valor := -valor;
+  IF kind = 'd' THEN
+    ajuste_amount := -amount;
   ELSE
-    ajuste_valor := valor;
+    ajuste_amount := amount;
   END IF;
 
-  INSERT INTO api.transactions (cliente_id, valor, tipo, descricao)
-    VALUES (cliente_id, valor, tipo, descricao);
+  INSERT INTO api.transactions (cliente_id, amount, kind, description)
+    VALUES (cliente_id, amount, kind, description);
 
   UPDATE api.members
-  SET saldo = saldo + ajuste_valor
+  SET current_balance = current_balance + ajuste_amount
   WHERE id = cliente_id
-  RETURNING saldo, limite INTO novo_saldo, novo_limite;
+  RETURNING current_balance, limit INTO novo_current_balance, novo_limit;
 
   json_result := json_build_object(
-    'saldo', novo_saldo,
-    'limite', novo_limite
+    'current_balance', novo_current_balance,
+    'limit', novo_limit
   );
 
   RETURN json_result;
@@ -51,7 +51,7 @@ BEGIN
   EXCEPTION
     WHEN OTHERS THEN
       RAISE sqlstate 'PGRST' USING
-        message = '{"code":"422","message":"limite de saldo excedido"}',
+        message = '{"code":"422","message":"limit de current_balance excedido"}',
         detail = '{"status":422,"headers":{}}';
 
 
@@ -65,21 +65,21 @@ AS $$
 DECLARE
   result JSON;
 BEGIN
-  WITH ultimas_transactions AS (
-    SELECT valor, tipo, descricao, realizada_em
+  WITH recent_transactions AS (
+    SELECT amount, kind, description, submitted_at
     FROM api.transactions t
     WHERE cliente_id = p_cliente_id
-    ORDER BY realizada_em DESC
+    ORDER BY submitted_at DESC
     LIMIT 10
   ),
-  saldo AS (
-    SELECT saldo AS total, NOW() AS date_balance, limite
+  current_balance AS (
+    SELECT current_balance AS total, NOW() AS date_balance, limit
     FROM api.members c
     WHERE id = p_cliente_id
   )
   SELECT json_build_object(
-    'saldo', (SELECT row_to_json(s) FROM saldo s),
-    'ultimas_transactions', (SELECT COALESCE(json_agg(u), '[]') FROM ultimas_transactions u)
+    'current_balance', (SELECT row_to_json(s) FROM current_balance s),
+    'recent_transactions', (SELECT COALESCE(json_agg(u), '[]') FROM recent_transactions u)
   ) INTO result;
   
   RETURN result;
@@ -93,7 +93,7 @@ GRANT SELECT, INSERT ON api.transactions TO anon;
 DO $$
 BEGIN
   INSERT INTO api.members
-  (id, limite)
+  (id, limit)
 VALUES
   (1, 100000),
   (2, 80000),

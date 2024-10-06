@@ -44,21 +44,21 @@ CREATE OR REPLACE FUNCTION creditar(
 )
 	RETURNS TABLE(
 	    LinhaAfetada BOOLEAN,
-	    _limite INT,
+	    _limit INT,
 	    _total INT
 	)
 	LANGUAGE plpgsql AS
 $func$
 DECLARE
-    updated_limite INT;
+    updated_limit INT;
     updated_saldo INT;
 BEGIN
 
     UPDATE public.Cliente SET Total = Total + Valor WHERE Id = ClienteId
-		RETURNING Limite, Total INTO updated_limite, updated_saldo;
+		RETURNING Limite, Total INTO updated_limit, updated_saldo;
 
     INSERT INTO public.Transacao (ClienteId, Valor, Descricao, Tipo, CriadoEm) VALUES (ClienteId, Valor, Descricao, 'c', NOW());
-    RETURN QUERY SELECT true, updated_limite, updated_saldo;
+    RETURN QUERY SELECT true, updated_limit, updated_saldo;
 
 END;
 $func$;
@@ -70,22 +70,22 @@ CREATE OR REPLACE FUNCTION debitar(
 )
 	RETURNS TABLE(
 	    LinhaAfetada BOOLEAN,
-	    _limite INT,
+	    _limit INT,
 	    _total INT
 	)
 	LANGUAGE plpgsql AS
 $func$
 DECLARE
-    updated_limite INT;
+    updated_limit INT;
     updated_saldo INT;
 BEGIN
 
     update public.Cliente SET Total = Total - @Valor WHERE Id = @ClienteId AND ((Total - @Valor) >= -Limite)
-		RETURNING Limite, Total INTO updated_limite, updated_saldo;
+		RETURNING Limite, Total INTO updated_limit, updated_saldo;
 
     IF FOUND THEN
     	INSERT INTO public.Transacao (ClienteId, Valor, Descricao, Tipo, CriadoEm) VALUES (ClienteId, Valor, Descricao, 'd', NOW());
-        RETURN QUERY SELECT true, updated_limite, updated_saldo;
+        RETURN QUERY SELECT true, updated_limit, updated_saldo;
     ELSE
         RETURN QUERY SELECT false, 0, 0;
     END IF;

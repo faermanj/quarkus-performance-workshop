@@ -2,18 +2,18 @@ CREATE UNLOGGED TABLE IF NOT EXISTS members
 (
     id     SERIAL PRIMARY KEY,
     nome   VARCHAR(22) NOT NULL,
-    limite INTEGER     NOT NULL
+    limit INTEGER     NOT NULL
 );
 
 CREATE UNLOGGED TABLE IF NOT EXISTS transactions
 (
     id           SERIAL8 PRIMARY KEY,
     cliente_id   INTEGER     NOT NULL,
-    valor        INTEGER     NOT NULL,
-    tipo         CHAR(1)     NOT NULL,
-    descricao    VARCHAR(10) NOT NULL,
-    saldo        INTEGER     NOT NULL,
-    realizada_em TIMESTAMP   NOT NULL,
+    amount        INTEGER     NOT NULL,
+    kind         CHAR(1)     NOT NULL,
+    description    VARCHAR(10) NOT NULL,
+    current_balance        INTEGER     NOT NULL,
+    submitted_at TIMESTAMP   NOT NULL,
 
     FOREIGN KEY (cliente_id) REFERENCES members (id)
 );
@@ -23,7 +23,7 @@ CREATE INDEX IF NOT EXISTS idx_transactions_cliente_id ON transactions (cliente_
 DO
 $$
     BEGIN
-        INSERT INTO members (nome, limite)
+        INSERT INTO members (nome, limit)
         VALUES ('o barato sai caro', 1000 * 100),
                ('zan corp ltda', 800 * 100),
                ('les cruders', 10000 * 100),

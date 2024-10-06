@@ -1,30 +1,30 @@
 CREATE UNLOGGED TABLE members (
                                    id SMALLSERIAL PRIMARY KEY,
-                                   limite INTEGER,
-                                   valor INTEGER
+                                   limit INTEGER,
+                                   amount INTEGER
 );
 
 CREATE UNLOGGED TABLE transactions (
 --          id SERIAL PRIMARY KEY,
 --          cliente_id INTEGER NOT NULL,
---          valor INTEGER NOT NULL,
---          tipo CHAR(1) NOT NULL,
---          descricao VARCHAR(10) NOT NULL,
---          realizada_em TIMESTAMP NOT NULL DEFAULT NOW()
+--          amount INTEGER NOT NULL,
+--          kind CHAR(1) NOT NULL,
+--          description VARCHAR(10) NOT NULL,
+--          submitted_at TIMESTAMP NOT NULL DEFAULT NOW()
 
                                      id SERIAL PRIMARY KEY,
                                      cliente_id SMALLINT,
-                                     valor INTEGER,
-                                     tipo CHAR(1),
-                                     descricao VARCHAR(10),
-                                     realizada_em TIMESTAMP
+                                     amount INTEGER,
+                                     kind CHAR(1),
+                                     description VARCHAR(10),
+                                     submitted_at TIMESTAMP
 --          CONSTRAINT fk_members_transactions_id
 --              FOREIGN KEY (cliente_id) REFERENCES members(id)
 );
 
-CREATE INDEX idx_transactions_cliente_id ON transactions(cliente_id, realizada_em);
+CREATE INDEX idx_transactions_cliente_id ON transactions(cliente_id, submitted_at);
 
-INSERT INTO members (id, limite, valor)
+INSERT INTO members (id, limit, amount)
 VALUES
     (1, 100000, 0),
     (2, 80000, 0),
@@ -37,31 +37,31 @@ CREATE EXTENSION IF NOT EXISTS pg_prewarm;
 SELECT pg_prewarm('members');
 
 -- create function make_transaction(transaction_client_id integer, transaction_value integer, transaction_type character, transaction_description text)
---     returns TABLE(valor integer, limite integer)
+--     returns TABLE(amount integer, limit integer)
 --     language plpgsql
 -- as
 -- $$
 -- DECLARE
 --     client RECORD;
 -- BEGIN
---     -- Select valor and limite from members
---     SELECT INTO client members.valor, members.limite FROM members WHERE id = transaction_client_id FOR UPDATE;
+--     -- Select amount and limit from members
+--     SELECT INTO client members.amount, members.limit FROM members WHERE id = transaction_client_id FOR UPDATE;
 --
 --     -- Update client value
---     client.valor := client.valor + transaction_value;
+--     client.amount := client.amount + transaction_value;
 --
 --     -- Check if the new balance is less than the negative limit
---     IF client.valor < -client.limite THEN
---         RAISE EXCEPTION 'saldo insuficiente';
+--     IF client.amount < -client.limit THEN
+--         RAISE EXCEPTION 'current_balance insuficiente';
 --     END IF;
 --
 --     -- Update members
---     UPDATE members SET valor = client.valor WHERE id = transaction_client_id;
+--     UPDATE members SET amount = client.amount WHERE id = transaction_client_id;
 --
 --     -- Insert into transactions
---     INSERT INTO transactions(valor, cliente_id, tipo, descricao, realizada_em)
+--     INSERT INTO transactions(amount, cliente_id, kind, description, submitted_at)
 --     VALUES (transaction_value, transaction_client_id, transaction_type, transaction_description, NOW());
 --
 --     -- Return the updated client values
---     RETURN QUERY SELECT client.valor, client.limite;
+--     RETURN QUERY SELECT client.amount, client.limit;
 -- END; $$;

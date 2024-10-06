@@ -24,11 +24,11 @@ VALUES (1, 100000),
 
 CREATE OR REPLACE PROCEDURE efetuar_transacao(
     IN clienteIdParam int,
-    IN tipoParam varchar(1),
-    IN valorParam int,
-    IN descricaoParam varchar(10),
-    OUT saldoRetorno int,
-    OUT limiteRetorno int
+    IN kindParam varchar(1),
+    IN amountParam int,
+    IN descriptionParam varchar(10),
+    OUT current_balanceRetorno int,
+    OUT limitRetorno int
 )
 LANGUAGE plpgsql
 AS $$
@@ -37,25 +37,25 @@ cliente cliente%rowtype;
     novoSaldo int;
 BEGIN
 
-    IF tipoParam = 'd' THEN
-        novoSaldo := valorParam * -1;
+    IF kindParam = 'd' THEN
+        novoSaldo := amountParam * -1;
 ELSE
-        novoSaldo := valorParam;
+        novoSaldo := amountParam;
 END IF;
 
 UPDATE cliente
-SET saldo = saldo + novoSaldo
+SET current_balance = current_balance + novoSaldo
 WHERE id = clienteIdParam
-  AND (novoSaldo > 0 OR limite * -1 <= saldo + novoSaldo)
+  AND (novoSaldo > 0 OR limit * -1 <= current_balance + novoSaldo)
     RETURNING * INTO cliente;
 
 IF NOT FOUND THEN
-            RAISE EXCEPTION 'Cliente não possui limite';
+            RAISE EXCEPTION 'Cliente não possui limit';
 END IF;
 
-INSERT INTO transacao (cliente_id, valor, tipo, descricao, data)
-VALUES (clienteIdParam, valorParam, tipoParam, descricaoParam, current_timestamp);
+INSERT INTO transacao (cliente_id, amount, kind, description, data)
+VALUES (clienteIdParam, amountParam, kindParam, descriptionParam, current_timestamp);
 
-SELECT cliente.saldo, cliente.limite INTO saldoRetorno, limiteRetorno;
+SELECT cliente.current_balance, cliente.limit INTO current_balanceRetorno, limitRetorno;
 END;
 $$;

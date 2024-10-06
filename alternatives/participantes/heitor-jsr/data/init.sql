@@ -39,29 +39,29 @@ SET default_table_access_method = heap;
 
 CREATE TABLE public.clientes (
     id integer DEFAULT nextval('public.client_id_seq'::regclass) NOT NULL,
-    limite integer,
-    saldo integer,
+    limit integer,
+    current_balance integer,
     nome varchar(255),
     PRIMARY KEY (id)
 );
 
 ALTER TABLE public.clientes OWNER TO postgres;
 
-CREATE TABLE public.saldo (
+CREATE TABLE public.current_balance (
     total integer,
     date_balance timestamp without time zone default now(),
-    limite integer
+    limit integer
 );
 
-ALTER TABLE public.saldo OWNER TO postgres;
+ALTER TABLE public.current_balance OWNER TO postgres;
 
 CREATE TABLE public.transactions (
     id integer DEFAULT nextval('public.client_id_seq'::regclass) NOT NULL,
     PRIMARY KEY (id),
-    valor integer,
-    tipo varchar(255),
-    descricao varchar(255),
-    realizada_em timestamp without time zone default now(),
+    amount integer,
+    kind varchar(255),
+    description varchar(255),
+    submitted_at timestamp without time zone default now(),
 	cliente_id INTEGER NOT NULL,
 	CONSTRAINT fk_clientes_transactions_id
 		FOREIGN KEY (cliente_id) REFERENCES clientes(id)
@@ -69,7 +69,7 @@ CREATE TABLE public.transactions (
 
 ALTER TABLE public.transactions OWNER TO postgres;
 
-INSERT INTO public.clientes (nome, limite, saldo) VALUES
+INSERT INTO public.clientes (nome, limit, current_balance) VALUES
 		('o barato sai caro', 1000 * 100, 0),
 		('zan corp ltda', 800 * 100, 0),
 		('les cruders', 10000 * 100, 0),

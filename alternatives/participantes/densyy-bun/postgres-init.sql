@@ -2,17 +2,17 @@
 
 CREATE UNLOGGED TABLE clientes (
 	id SERIAL PRIMARY KEY,
-	limite INTEGER NOT NULL,
-	saldo INTEGER NOT NULL
-  CONSTRAINT saldo_limite CHECK (saldo >= limite * -1)
+	limit INTEGER NOT NULL,
+	current_balance INTEGER NOT NULL
+  CONSTRAINT current_balance_limit CHECK (current_balance >= limit * -1)
 );
 
 CREATE UNLOGGED TABLE transactions (
 	id SERIAL PRIMARY KEY,
 	cliente_id INTEGER NOT NULL,
-	valor INTEGER NOT NULL,
-	tipo CHAR(1) NOT NULL,
-	descricao VARCHAR(10) NOT NULL,
+	amount INTEGER NOT NULL,
+	kind CHAR(1) NOT NULL,
+	description VARCHAR(10) NOT NULL,
 	data_registro TIMESTAMP NOT NULL DEFAULT NOW(),
   CONSTRAINT fk_clientes_transactions_id FOREIGN KEY (cliente_id) REFERENCES clientes(id)
 );
@@ -24,45 +24,45 @@ CREATE INDEX idx_transactions_cliente_id ON transactions (cliente_id);
 
 -- Funcoes
 
-CREATE OR REPLACE FUNCTION credito(_id INTEGER, valor INTEGER, descricao VARCHAR)
+CREATE OR REPLACE FUNCTION credito(_id INTEGER, amount INTEGER, description VARCHAR)
 RETURNS json AS $$
 DECLARE
-  saldo_final INTEGER;
-  limite_final INTEGER;
+  current_balance_final INTEGER;
+  limit_final INTEGER;
 BEGIN
 
   PERFORM pg_advisory_xact_lock(_id);
 
-  INSERT INTO transactions (cliente_id, valor, tipo, descricao) VALUES (_id, valor, 'c', descricao);
-  UPDATE clientes SET saldo = saldo + valor WHERE id = _id;
+  INSERT INTO transactions (cliente_id, amount, kind, description) VALUES (_id, amount, 'c', description);
+  UPDATE clientes SET current_balance = current_balance + amount WHERE id = _id;
 
-  SELECT saldo, limite INTO saldo_final, limite_final FROM clientes WHERE id = _id;
-  RETURN json_build_object('saldo', saldo_final, 'limite', limite_final);
+  SELECT current_balance, limit INTO current_balance_final, limit_final FROM clientes WHERE id = _id;
+  RETURN json_build_object('current_balance', current_balance_final, 'limit', limit_final);
 
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION debito(_id INTEGER, valor INTEGER, descricao VARCHAR)
+CREATE OR REPLACE FUNCTION debito(_id INTEGER, amount INTEGER, description VARCHAR)
 RETURNS json AS $$
 DECLARE
-  saldo_antigo INTEGER;
-  limite_antigo INTEGER;
-  saldo_final INTEGER;
-  limite_final INTEGER;
+  current_balance_antigo INTEGER;
+  limit_antigo INTEGER;
+  current_balance_final INTEGER;
+  limit_final INTEGER;
 BEGIN
 
   PERFORM pg_advisory_xact_lock(_id);
 
-  SELECT saldo, limite INTO saldo_antigo, limite_antigo FROM clientes WHERE id = _id;
-  IF (saldo_antigo - valor < limite_antigo * -1) THEN
+  SELECT current_balance, limit INTO current_balance_antigo, limit_antigo FROM clientes WHERE id = _id;
+  IF (current_balance_antigo - amount < limit_antigo * -1) THEN
     RETURN json_build_object('error', true);
   END IF;
 
-  INSERT INTO transactions (cliente_id, valor, tipo, descricao) VALUES (_id, valor, 'd', descricao);
-  UPDATE clientes SET saldo = saldo - valor WHERE id = _id;
+  INSERT INTO transactions (cliente_id, amount, kind, description) VALUES (_id, amount, 'd', description);
+  UPDATE clientes SET current_balance = current_balance - amount WHERE id = _id;
 
-  SELECT saldo, limite INTO saldo_final, limite_final FROM clientes WHERE id = _id;
-  RETURN json_build_object('saldo', saldo_final, 'limite', limite_final);
+  SELECT current_balance, limit INTO current_balance_final, limit_final FROM clientes WHERE id = _id;
+  RETURN json_build_object('current_balance', current_balance_final, 'limit', limit_final);
 
 END;
 $$ LANGUAGE plpgsql;
@@ -77,11 +77,11 @@ BEGIN
   PERFORM pg_advisory_xact_lock(_id);
 
   SELECT row_to_json(t) INTO cliente_info FROM (
-    SELECT limite, saldo FROM clientes WHERE id = _id
+    SELECT limit, current_balance FROM clientes WHERE id = _id
   ) t;
 
   SELECT json_agg(row_to_json(t)) INTO transactions_info FROM (
-    SELECT valor, tipo, descricao, data_registro FROM transactions WHERE cliente_id = _id ORDER BY data_registro DESC LIMIT 10
+    SELECT amount, kind, description, data_registro FROM transactions WHERE cliente_id = _id ORDER BY data_registro DESC LIMIT 10
   ) t;
 
   RETURN json_build_object('cliente', cliente_info, 'transactions', transactions_info);
@@ -93,7 +93,7 @@ $$ LANGUAGE plpgsql;
 
 DO $$
 BEGIN
-	INSERT INTO clientes (id, limite, saldo)
+	INSERT INTO clientes (id, limit, current_balance)
 	VALUES
     (1, 1000 * 100, 0),
     (2, 800 * 100, 0),

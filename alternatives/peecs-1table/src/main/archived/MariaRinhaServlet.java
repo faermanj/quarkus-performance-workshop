@@ -33,13 +33,13 @@ public class MariaRinhaServlet extends HttpServlet {
     private static final String EXTRATO_CALL = "{CALL proc_balance(?, ?, ?)}";
     private static final String TRANSACAO_CALL = "{CALL proc_transacao(?, ?, ?, ?, ?, ?, ?)}";
     private static final String WARMUP_QUERY = "SELECT 1+1";
-    private static final String valorPattern = "\"valor\":\\s*(\\d+(\\.\\d+)?)";
-    private static final String tipoPattern = "\"tipo\":\\s*\"([^\"]*)\"";
-    private static final String descricaoPattern = "\"descricao\":\\s*(?:\"([^\"]*)\"|null)";
+    private static final String amountPattern = "\"amount\":\\s*(\\d+(\\.\\d+)?)";
+    private static final String kindPattern = "\"kind\":\\s*\"([^\"]*)\"";
+    private static final String descriptionPattern = "\"description\":\\s*(?:\"([^\"]*)\"|null)";
 
-    private static final Pattern pValor = Pattern.compile(valorPattern);
-    private static final Pattern pTipo = Pattern.compile(tipoPattern);
-    private static final Pattern pDescricao = Pattern.compile(descricaoPattern);
+    private static final Pattern pValor = Pattern.compile(amountPattern);
+    private static final Pattern pTipo = Pattern.compile(kindPattern);
+    private static final Pattern pDescricao = Pattern.compile(descriptionPattern);
 
     @Inject
     DataSource ds;
@@ -143,42 +143,42 @@ public class MariaRinhaServlet extends HttpServlet {
         Matcher mDescricao = pDescricao.matcher(json);
 
         if (mValor.find() && mTipo.find() && mDescricao.find()) {
-            String valorStr = mValor.group(1);
-            Integer valor = null;
+            String amountStr = mValor.group(1);
+            Integer amount = null;
             try {
-                valor = Integer.parseInt(valorStr);
+                amount = Integer.parseInt(amountStr);
             }catch (NumberFormatException e){
                 sendError(resp, 422 , "Valor invalido");
                 return;
             }
-            String tipo = mTipo.group(1);
-            if (! tipo.equals("c") && ! tipo.equals("d")) {
+            String kind = mTipo.group(1);
+            if (! kind.equals("c") && ! kind.equals("d")) {
                 sendError(resp, 422 , "Tipo invalido");
                 return;
             }
-            String descricao = mDescricao.group(1);
-            if (descricao == null || descricao.isEmpty() || descricao.length() > 10) {
+            String description = mDescricao.group(1);
+            if (description == null || description.isEmpty() || description.length() > 10) {
                 sendError(resp, 422 , "Descricao invalido");
                 return;
             }
-            postTransacao(id, valor, tipo, descricao, resp);
+            postTransacao(id, amount, kind, description, resp);
         } else {
             sendError(resp, SC_BAD_REQUEST, "Corpo da requisição JSON inválido ou incompleto.");
         }
     }
 
-    private void postTransacao(Integer id, Integer valor, String tipo, String descricao, HttpServletResponse resp)
+    private void postTransacao(Integer id, Integer amount, String kind, String description, HttpServletResponse resp)
             throws IOException {
         try (var conn = ds.getConnection();
              var cstmt = conn.prepareCall(TRANSACAO_CALL)) {
             //conn.setAutoCommit(false);
             //conn.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
-            var realizada_em = Timestamp.valueOf(LocalDateTime.now());
+            var submitted_at = Timestamp.valueOf(LocalDateTime.now());
             cstmt.setInt(1, id);
-            cstmt.setInt(2, valor);
-            cstmt.setString(3, tipo);
-            cstmt.setString(4, descricao);
-            cstmt.setTimestamp(5, realizada_em);
+            cstmt.setInt(2, amount);
+            cstmt.setString(3, kind);
+            cstmt.setString(4, description);
+            cstmt.setTimestamp(5, submitted_at);
             cstmt.registerOutParameter(6, Types.VARCHAR); // For the JSON body
             cstmt.registerOutParameter(7, Types.INTEGER); // For the status code
             cstmt.execute();
@@ -187,7 +187,7 @@ public class MariaRinhaServlet extends HttpServlet {
             var status = cstmt.getInt(7);
 
             if (resp != null) {
-                //Log.infof("TRANSACAO %s %s %s %s %s \n %s",id,valor,tipo,descricao,realizada_em, body);
+                //Log.infof("TRANSACAO %s %s %s %s %s \n %s",id,amount,kind,description,submitted_at, body);
                 resp.setStatus(status);
                 resp.setContentType("application/json");
                 resp.getWriter().write(body);

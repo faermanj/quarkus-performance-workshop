@@ -1,18 +1,18 @@
 CREATE TABLE clientes (
   id SERIAL PRIMARY KEY,
   nome VARCHAR(100) NOT NULL,
-  limite INTEGER NOT NULL,
-  saldo INTEGER DEFAULT 0
+  limit INTEGER NOT NULL,
+  current_balance INTEGER DEFAULT 0
 );
 CREATE TABLE transactions (
   id SERIAL PRIMARY KEY,
-  valor INTEGER,
-  tipo CHAR(1) CHECK (type IN ('c', 'd')),
-  descricao VARCHAR(10),
+  amount INTEGER,
+  kind CHAR(1) CHECK (type IN ('c', 'd')),
+  description VARCHAR(10),
   cliente_id INTEGER REFERENCES clientes(id),
   realizado_em VARCHAR(27)
 );
-INSERT INTO clientes (nome, limite, saldo)
+INSERT INTO clientes (nome, limit, current_balance)
   VALUES
     ('o barato sai caro', 1000 * 100, 0),
     ('zan corp ltda', 800 * 100, 0),

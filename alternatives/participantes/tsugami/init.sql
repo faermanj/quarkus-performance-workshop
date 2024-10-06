@@ -5,20 +5,20 @@ CREATE TYPE "TransactionType" AS ENUM('c', 'd');
 CREATE TABLE "accounts" (
     "id" SERIAL NOT NULL PRIMARY KEY,
 
-    "saldo" BIGINT NOT NULL,
-    "limite" BIGINT NOT NULL
+    "current_balance" BIGINT NOT NULL,
+    "limit" BIGINT NOT NULL
 );
 
-ALTER TABLE "accounts" ADD CONSTRAINT "accounts_saldo_limit" CHECK ("saldo" >= ~"limite");
+ALTER TABLE "accounts" ADD CONSTRAINT "accounts_current_balance_limit" CHECK ("current_balance" >= ~"limit");
 
 -- CreateTable
 CREATE TABLE "transactions" (
     "id" SERIAL NOT NULL PRIMARY KEY,
-    "valor" BIGINT NOT NULL,
-    "tipo" "TransactionType" NOT NULL,
-    "realizada_em" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "amount" BIGINT NOT NULL,
+    "kind" "TransactionType" NOT NULL,
+    "submitted_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "account_id" INTEGER NOT NULL,
-    "descricao" TEXT
+    "description" TEXT
 );
 
 -- AddForeignKey
@@ -27,7 +27,7 @@ ADD CONSTRAINT "transactions_account_id_fkey" FOREIGN KEY ("account_id") REFEREN
 
 DO $$
 BEGIN
-	INSERT INTO accounts (id, limite, saldo)
+	INSERT INTO accounts (id, limit, current_balance)
 	VALUES
 		(1, 1000 * 100, 0),
 		(2, 800 * 100, 0),

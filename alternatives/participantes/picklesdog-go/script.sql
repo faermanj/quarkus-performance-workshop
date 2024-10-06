@@ -9,14 +9,14 @@ DROP FUNCTION IF EXISTS CREATE_TRANSACATION;
 
 CREATE UNLOGGED TABLE members (
     id INTEGER NOT NULL,
-    limite INTEGER NOT NULL,
-    saldo INTEGER CHECK((limite * -1) <= saldo) NOT NULL
+    limit INTEGER NOT NULL,
+    current_balance INTEGER CHECK((limit * -1) <= current_balance) NOT NULL
 );
 
 CREATE UNLOGGED TABLE transactions (
     cliente_id INTEGER NOT NULL,
-    valor INTEGER NOT NULL,
-    descricao VARCHAR(10) NOT NULL,
+    amount INTEGER NOT NULL,
+    description VARCHAR(10) NOT NULL,
     data TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
@@ -30,17 +30,17 @@ BEGIN
 				
 	UPDATE members 
 	SET 
-		saldo = saldo + amount
+		current_balance = current_balance + amount
 	WHERE 
 		id = (SELECT id FROM members WHERE id = customer_id FOR UPDATE)
-	RETURNING saldo, limite, 0 INTO ret;
+	RETURNING current_balance, limit, 0 INTO ret;
 	
 	IF ret IS NULL THEN
 		RAISE EXCEPTION '-1';
 	END IF;
 
 	INSERT 
-		INTO transactions (cliente_id, valor, descricao)
+		INTO transactions (cliente_id, amount, description)
 	VALUES
 		(customer_id, amount, description);
 

@@ -1,22 +1,22 @@
 CREATE UNLOGGED TABLE members (
     id SERIAL PRIMARY KEY,
-    limite INT NOT NULL,
-    saldo INT NOT NULL DEFAULT 0
+    limit INT NOT NULL,
+    current_balance INT NOT NULL DEFAULT 0
 );
 
 CREATE UNLOGGED TABLE transactions (
     id SERIAL PRIMARY KEY,
-    valor INT NOT NULL,
-    tipo CHAR(1) NOT NULL,
-    descricao VARCHAR(10) NOT NULL,
-    realizada_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    amount INT NOT NULL,
+    kind CHAR(1) NOT NULL,
+    description VARCHAR(10) NOT NULL,
+    submitted_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     cliente_id INT,
     CONSTRAINT fk_cliente_transactions FOREIGN KEY (cliente_id) REFERENCES members(id)
 );
 
 CREATE INDEX idx_transactions_cliente_id_id_desc ON transactions (cliente_id, id DESC);
 
-INSERT INTO members (id, limite, saldo) VALUES
+INSERT INTO members (id, limit, current_balance) VALUES
 (1, 100000, 0),
 (2, 80000, 0),
 (3, 1000000, 0),

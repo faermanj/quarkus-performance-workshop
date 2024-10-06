@@ -31,7 +31,7 @@ ALTER TABLE "transactions" ADD CONSTRAINT "transactions_client_id_fkey" FOREIGN 
 
 CREATE OR REPLACE FUNCTION process_debit(
     p_client_id INT,
-    p_valor NUMERIC,
+    p_amount NUMERIC,
     p_description TEXT
 ) RETURNS JSON AS $$
 DECLARE
@@ -53,19 +53,19 @@ BEGIN
         FOR UPDATE;
 
         -- Check if debit exceeds limit
-        IF (v_client_balance - p_valor) < -v_client_limit THEN
+        IF (v_client_balance - p_amount) < -v_client_limit THEN
             RAISE EXCEPTION 'Limit exceeded';
         END IF;
 
 
         -- Update client's balance
         UPDATE clients
-        SET balance = balance - p_valor
+        SET balance = balance - p_amount
         WHERE id = p_client_id;
 
         -- Create debit transaction
         INSERT INTO transactions (client_id, amount, type, description)
-        VALUES (p_client_id, p_valor, 'debit', p_description);
+        VALUES (p_client_id, p_amount, 'debit', p_description);
 
         -- Commit the transaction
     EXCEPTION
@@ -85,7 +85,7 @@ $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION process_credit(
     p_client_id INT,
-    p_valor NUMERIC,
+    p_amount NUMERIC,
     p_description TEXT
 ) RETURNS JSON AS $$
 DECLARE
@@ -101,12 +101,12 @@ BEGIN
     BEGIN
         -- Update client's balance
         UPDATE clients
-        SET balance = balance + p_valor
+        SET balance = balance + p_amount
         WHERE id = p_client_id;
 
         -- Create debit transaction
         INSERT INTO transactions (client_id, amount, type, description)
-        VALUES (p_client_id, p_valor, 'credit', p_description);
+        VALUES (p_client_id, p_amount, 'credit', p_description);
 
         -- Commit the transaction
     EXCEPTION

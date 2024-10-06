@@ -6,26 +6,26 @@ DROP TABLE IF EXISTS transacao;
 
 CREATE TABLE cliente(
     id serial PRIMARY KEY,
-    limite integer NOT NULL,
-    saldo integer NOT NULL DEFAULT 0
+    limit integer NOT NULL,
+    current_balance integer NOT NULL DEFAULT 0
 );
 
 CREATE TABLE transacao(
     id serial PRIMARY KEY,
-    valor integer NOT NULL,
-    descricao varchar(10) NOT NULL,
-    tipo char NOT NULL,
-    realizada_em timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    amount integer NOT NULL,
+    description varchar(10) NOT NULL,
+    kind char NOT NULL,
+    submitted_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
     id_cliente integer NOT NULL
 );
 
 CREATE INDEX idx_cliente_id ON cliente(id);
 
-CREATE INDEX idx_transacao_cliente_tempo ON transacao(id_cliente, realizada_em DESC);
+CREATE INDEX idx_transacao_cliente_tempo ON transacao(id_cliente, submitted_at DESC);
 
 CREATE INDEX idx_transacao_cliente_id ON transacao(id_cliente);
 
-INSERT INTO cliente(id, limite, saldo)
+INSERT INTO cliente(id, limit, current_balance)
     VALUES (1, 1000 * 100, 0),
 (2, 800 * 100, 0),
 (3, 10000 * 100, 0),
@@ -43,7 +43,7 @@ BEGIN
     PERFORM pg_advisory_xact_lock(_customer_id);
 
     SELECT
-        saldo, limite
+        current_balance, limit
     INTO
         client_balance, client_limit
     FROM cliente
@@ -52,10 +52,10 @@ BEGIN
     --tried doing the other way around (new balance < -limit), but apparently a return doesn't end the function call, so even if the operation is not allowed, the balance gets updated
     IF (client_balance - _transaction_value) >= (-1 * client_limit) THEN
         UPDATE cliente
-            SET saldo = saldo - _transaction_value
+            SET current_balance = current_balance - _transaction_value
         WHERE id = _customer_id;
 
-        INSERT INTO transacao(id_cliente, valor, tipo, descricao)
+        INSERT INTO transacao(id_cliente, amount, kind, description)
             VALUES (_customer_id, _transaction_value, 'd', _transaction_description);
 
         RETURN QUERY SELECT TRUE, client_limit, client_balance - _transaction_value;
@@ -80,7 +80,7 @@ BEGIN
     PERFORM pg_advisory_xact_lock(_customer_id);
 
     SELECT
-        saldo, limite
+        current_balance, limit
     INTO
         client_balance, client_limit
     FROM cliente
@@ -88,10 +88,10 @@ BEGIN
     FOR UPDATE;
 
     UPDATE cliente
-        SET saldo = saldo + _transaction_value
+        SET current_balance = current_balance + _transaction_value
     WHERE id = _customer_id;
 
-    INSERT INTO transacao(id_cliente, valor, tipo, descricao)
+    INSERT INTO transacao(id_cliente, amount, kind, description)
         VALUES (_customer_id, _transaction_value, 'c', _transaction_description);
 
     RETURN QUERY SELECT TRUE, client_limit, client_balance + _transaction_value;
@@ -115,32 +115,32 @@ AS $$
 BEGIN
     RETURN QUERY
     SELECT
-        saldo, -- total
-        limite,
+        current_balance, -- total
+        limit,
         CURRENT_TIMESTAMP, -- date_balance
         COALESCE(
             json_agg(
-                json_build_object('valor', trans.valor,'tipo', trans.tipo,'descricao', trans.descricao,'realizada_em', trans.realizada_em))
-                FILTER (WHERE trans.valor IS NOT NULL
+                json_build_object('amount', trans.amount,'kind', trans.kind,'description', trans.description,'submitted_at', trans.submitted_at))
+                FILTER (WHERE trans.amount IS NOT NULL
             ),
             '[]'
-        )::jsonb -- ultimas_transactions
+        )::jsonb -- recent_transactions
         FROM cliente
         LEFT OUTER JOIN (
             SELECT *
             FROM transacao
             WHERE id_cliente = _customer_id
-            ORDER BY realizada_em DESC
+            ORDER BY submitted_at DESC
             LIMIT 10
         ) trans
         ON cliente.id = trans.id_cliente
         WHERE cliente.id = _customer_id
-        GROUP BY saldo, limite;
+        GROUP BY current_balance, limit;
 END;
 $$
 
--- UPDATE cliente SET saldo = saldo + 100 WHERE id = 1; INSERT INTO transacao(id_cliente, valor, tipo, descricao) VALUES (1, 100, 'c', 'test');
--- UPDATE cliente SET saldo = 0 WHERE id = 1; DELETE FROM transacao WHERE id_cliente = 1;
+-- UPDATE cliente SET current_balance = current_balance + 100 WHERE id = 1; INSERT INTO transacao(id_cliente, amount, kind, description) VALUES (1, 100, 'c', 'test');
+-- UPDATE cliente SET current_balance = 0 WHERE id = 1; DELETE FROM transacao WHERE id_cliente = 1;
 
 -- SELECT * FROM cliente WHERE id = @id LIMIT 1;
--- SELECT valor, tipo, descricao, realizada_em FROM transacao WHERE id_cliente = @id ORDER BY realizada_em DESC LIMIT 10;
+-- SELECT amount, kind, description, submitted_at FROM transacao WHERE id_cliente = @id ORDER BY submitted_at DESC LIMIT 10;

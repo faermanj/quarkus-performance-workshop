@@ -1,42 +1,42 @@
 CREATE UNLOGGED TABLE IF NOT EXISTS clientes (
     id SERIAL PRIMARY KEY,
     nome VARCHAR(30) NOT NULL,
-    limite INTEGER NOT NULL,
-    saldo INTEGER NOT NULL DEFAULT 0
+    limit INTEGER NOT NULL,
+    current_balance INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE UNLOGGED TABLE IF NOT EXISTS transactions (
     id SERIAL PRIMARY KEY,
     cliente_id INTEGER NOT NULL,
-    tipo CHAR(1) NOT NULL,
-    valor INTEGER NOT NULL,
-    descricao VARCHAR(10) NOT NULL,
-    realizada_em TIMESTAMP NOT NULL DEFAULT NOW()
+    kind CHAR(1) NOT NULL,
+    amount INTEGER NOT NULL,
+    description VARCHAR(10) NOT NULL,
+    submitted_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_transactions ON transactions (cliente_id, realizada_em desc);
+CREATE INDEX idx_transactions ON transactions (cliente_id, submitted_at desc);
 
-CREATE OR REPLACE FUNCTION inserir_transcacao(cliente INTEGER, tipo CHAR(1), valor INTEGER, descricao VARCHAR(10))
-RETURNS TABLE(saldo_novo INTEGER, limite INTEGER, erro BOOLEAN) AS $$
+CREATE OR REPLACE FUNCTION inserir_transcacao(cliente INTEGER, kind CHAR(1), amount INTEGER, description VARCHAR(10))
+RETURNS TABLE(current_balance_novo INTEGER, limit INTEGER, erro BOOLEAN) AS $$
 DECLARE
-  saldo_atual INTEGER;
-  limite INTEGER;
-  saldo_novo INTEGER;
+  current_balance_atual INTEGER;
+  limit INTEGER;
+  current_balance_novo INTEGER;
 BEGIN
-    SELECT c.saldo, c.limite INTO saldo_atual, limite FROM clientes c WHERE c.id = cliente FOR UPDATE;
+    SELECT c.current_balance, c.limit INTO current_balance_atual, limit FROM clientes c WHERE c.id = cliente FOR UPDATE;
 
-    IF tipo = 'd' THEN
-        saldo_novo := saldo_atual - valor;
+    IF kind = 'd' THEN
+        current_balance_novo := current_balance_atual - amount;
     ELSE
-        saldo_novo := saldo_atual + valor;
+        current_balance_novo := current_balance_atual + amount;
     END IF;
 
-    IF saldo_novo + limite >= 0 THEN
-        UPDATE clientes SET saldo = saldo_novo WHERE id = cliente;
+    IF current_balance_novo + limit >= 0 THEN
+        UPDATE clientes SET current_balance = current_balance_novo WHERE id = cliente;
 
-        INSERT INTO transactions (cliente_id, tipo, valor, descricao) VALUES (cliente, tipo, valor, descricao);
+        INSERT INTO transactions (cliente_id, kind, amount, description) VALUES (cliente, kind, amount, description);
 
-        RETURN QUERY SELECT saldo_novo, limite, false;
+        RETURN QUERY SELECT current_balance_novo, limit, false;
     ELSE
         RETURN QUERY SELECT 0, 0, true;
     END IF;
@@ -45,7 +45,7 @@ $$ LANGUAGE plpgsql;
 
 DO $$
 BEGIN
-  INSERT INTO clientes (nome, limite)
+  INSERT INTO clientes (nome, limit)
   VALUES
     ('o barato sai caro', 1000 * 100),
     ('zan corp ltda', 800 * 100),

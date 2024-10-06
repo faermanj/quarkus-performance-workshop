@@ -1,18 +1,18 @@
 CREATE TABLE IF NOT EXISTS clientes (
   id INTEGER,
-  limite INTEGER,
-  saldo INTEGER
+  limit INTEGER,
+  current_balance INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS transactions (
-  valor INTEGER,
-  tipo TEXT,
-  descricao TEXT,
+  amount INTEGER,
+  kind TEXT,
+  description TEXT,
   momento TIMESTAMPTZ DEFAULT NOW(),
   id INTEGER
 );
 
-INSERT INTO clientes (id, limite, saldo)
+INSERT INTO clientes (id, limit, current_balance)
 VALUES 
   (1, 100000, 0),
   (2, 80000, 0),

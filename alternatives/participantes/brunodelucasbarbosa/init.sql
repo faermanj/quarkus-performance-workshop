@@ -2,22 +2,22 @@
 CREATE TABLE clientes (
   id SERIAL PRIMARY KEY,
   nome TEXT NOT NULL,
-  limite INTEGER NOT NULL
+  limit INTEGER NOT NULL
 );
 
 CREATE TABLE transactions (
   cliente_id INT NOT NULL,
-	valor INTEGER NOT NULL,
-  tipo CHAR(1) NOT NULL,
-  descricao VARCHAR(10) NOT NULL,
-  realizada_em TIMESTAMP NOT NULL DEFAULT NOW(),
+	amount INTEGER NOT NULL,
+  kind CHAR(1) NOT NULL,
+  description VARCHAR(10) NOT NULL,
+  submitted_at TIMESTAMP NOT NULL DEFAULT NOW(),
   FOREIGN KEY (cliente_id) REFERENCES clientes(id)
 );
 
 
 DO $$
 BEGIN
-  INSERT INTO clientes (nome, limite)
+  INSERT INTO clientes (nome, limit)
   VALUES
     ('o barato sai caro', 1000 * 100),
     ('zan corp ltda', 800 * 100),

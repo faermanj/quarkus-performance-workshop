@@ -1,24 +1,24 @@
 CREATE UNLOGGED TABLE clientes (
 	id SERIAL PRIMARY KEY,
 	nome VARCHAR(50) NOT NULL,
-	limite INTEGER NOT NULL,
-	saldo INTEGER NOT NULL DEFAULT 0,
-	CONSTRAINT valida_saldo CHECK (saldo >= (- limite))
+	limit INTEGER NOT NULL,
+	current_balance INTEGER NOT NULL DEFAULT 0,
+	CONSTRAINT valida_current_balance CHECK (current_balance >= (- limit))
 );
 
 CREATE UNLOGGED TABLE transactions (
 	id SERIAL PRIMARY KEY,
 	cliente_id INTEGER NOT NULL,
-	valor INTEGER NOT NULL,
-	tipo CHAR(1) NOT NULL,
-	descricao VARCHAR(10) NOT NULL,
-	realizada_em TIMESTAMP NOT NULL DEFAULT NOW()
+	amount INTEGER NOT NULL,
+	kind CHAR(1) NOT NULL,
+	description VARCHAR(10) NOT NULL,
+	submitted_at TIMESTAMP NOT NULL DEFAULT NOW()
 	--CONSTRAINT fk_clientes_transactions_id FOREIGN KEY (cliente_id) REFERENCES clientes(id)
 );
 
 DO $$
 BEGIN
-	INSERT INTO clientes (nome, limite)
+	INSERT INTO clientes (nome, limit)
 	VALUES
 		('Fulano', 1000 * 100),
 		('Beltrano', 800 * 100),
@@ -28,38 +28,38 @@ BEGIN
 END;
 $$;
 
-CREATE OR REPLACE FUNCTION inserir_transacao_credito_e_retornar_saldo (
+CREATE OR REPLACE FUNCTION inserir_transacao_credito_e_retornar_current_balance (
 	clienteid_in int,
-	valor_in int,
-	descricao_in varchar(10)
+	amount_in int,
+	description_in varchar(10)
 )
 RETURNS int
 AS $$
-	DECLARE saldo_atualizado int;
+	DECLARE current_balance_atualizado int;
 BEGIN	
-	INSERT INTO "transactions" ("cliente_id", "valor", "tipo", "descricao") values (clienteid_in, valor_in, 'c', descricao_in);
-	UPDATE "clientes" set "saldo" = "saldo" + valor_in where "id" = clienteid_in RETURNING "saldo" into saldo_atualizado;
-    return saldo_atualizado;
+	INSERT INTO "transactions" ("cliente_id", "amount", "kind", "description") values (clienteid_in, amount_in, 'c', description_in);
+	UPDATE "clientes" set "current_balance" = "current_balance" + amount_in where "id" = clienteid_in RETURNING "current_balance" into current_balance_atualizado;
+    return current_balance_atualizado;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION inserir_transacao_debito_e_retornar_saldo (
+CREATE OR REPLACE FUNCTION inserir_transacao_debito_e_retornar_current_balance (
 	clienteid_in int,
-	valor_in int,
-	descricao_in varchar(10)
+	amount_in int,
+	description_in varchar(10)
 )
 RETURNS int
 AS $$
-	DECLARE saldo_atualizado int;
+	DECLARE current_balance_atualizado int;
 BEGIN	
-    UPDATE "clientes" set "saldo" = "saldo" - valor_in where "id" = clienteid_in and "saldo" - valor_in >= ("limite" * -1) returning "saldo" into saldo_atualizado;
+    UPDATE "clientes" set "current_balance" = "current_balance" - amount_in where "id" = clienteid_in and "current_balance" - amount_in >= ("limit" * -1) returning "current_balance" into current_balance_atualizado;
 
-    IF saldo_atualizado IS NOT NULL THEN
-	    INSERT INTO "transactions" ("cliente_id", "valor", "tipo", "descricao") values (clienteid_in, valor_in, 'd', descricao_in);
+    IF current_balance_atualizado IS NOT NULL THEN
+	    INSERT INTO "transactions" ("cliente_id", "amount", "kind", "description") values (clienteid_in, amount_in, 'd', description_in);
     END IF;
 
-    RETURN saldo_atualizado;
+    RETURN current_balance_atualizado;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE INDEX idx_transactions_on_cliente_id_realizado_em ON transactions USING btree (cliente_id, realizada_em);
+CREATE INDEX idx_transactions_on_cliente_id_realizado_em ON transactions USING btree (cliente_id, submitted_at);

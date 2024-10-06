@@ -1,27 +1,27 @@
 CREATE UNLOGGED TABLE members (
 	id SERIAL PRIMARY KEY,
 	nome VARCHAR(255) NOT NULL,
-	limite INTEGER NOT NULL,
-	saldo INTEGER NOT NULL DEFAULT 0
+	limit INTEGER NOT NULL,
+	current_balance INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE UNLOGGED TABLE transactions (
 	id SERIAL PRIMARY KEY,
 	cliente_id INTEGER NOT NULL,
-	valor INTEGER NOT NULL,
-	tipo CHAR(1) NOT NULL,
-	descricao VARCHAR(10) NOT NULL,
-	realizada_em TIMESTAMP(6) NOT NULL
+	amount INTEGER NOT NULL,
+	kind CHAR(1) NOT NULL,
+	description VARCHAR(10) NOT NULL,
+	submitted_at TIMESTAMP(6) NOT NULL
 );
 
-INSERT INTO members (nome, limite) VALUES
+INSERT INTO members (nome, limit) VALUES
 	('o barato sai caro', 1000 * 100),
 	('zan corp ltda', 800 * 100),
 	('les cruders', 10000 * 100),
 	('padaria joia de cocaia', 100000 * 100),
 	('kid mais', 5000 * 100);
 
-INSERT INTO transactions (cliente_id, valor, tipo, descricao, realizada_em)
+INSERT INTO transactions (cliente_id, amount, kind, description, submitted_at)
     SELECT id, 0, 'c', 'init', clock_timestamp()
     FROM members;
 
@@ -31,7 +31,7 @@ SELECT pg_prewarm('members');
 SELECT pg_prewarm('transactions');
 
 
-CREATE OR REPLACE FUNCTION limite_cliente(p_cliente_id INTEGER)
+CREATE OR REPLACE FUNCTION limit_cliente(p_cliente_id INTEGER)
 RETURNS INTEGER AS $$
 BEGIN
     RETURN CASE p_cliente_id
@@ -45,14 +45,14 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TYPE transacao_result AS (saldo INT, limite INT);
+CREATE TYPE transacao_result AS (current_balance INT, limit INT);
 
-CREATE OR REPLACE FUNCTION proc_transacao(p_cliente_id INT, p_valor INT, p_tipo CHAR, p_descricao CHAR(10))
+CREATE OR REPLACE FUNCTION proc_transacao(p_cliente_id INT, p_amount INT, p_kind CHAR, p_description CHAR(10))
 RETURNS transacao_result as $$
 DECLARE
     diff INT;
-    v_saldo INT;
-    v_limite INT;
+    v_current_balance INT;
+    v_limit INT;
     result transacao_result;
 BEGIN
     -- PERFORM pg_try_advisory_xact_lock(42);
@@ -62,35 +62,35 @@ BEGIN
     -- lock table members in ACCESS EXCLUSIVE mode;
     -- lock table transactions in ACCESS EXCLUSIVE mode;
 
-    -- invoke limite_cliente into v_limite
-    SELECT limite_cliente(p_cliente_id) INTO v_limite;
+    -- invoke limit_cliente into v_limit
+    SELECT limit_cliente(p_cliente_id) INTO v_limit;
     
-    SELECT saldo 
-        INTO v_saldo
+    SELECT current_balance 
+        INTO v_current_balance
         FROM members
         WHERE id = p_cliente_id
         FOR UPDATE;
 
-    IF p_tipo = 'd' THEN
-        diff := p_valor * -1;            
-        IF (v_saldo + diff) < (-1 * v_limite) THEN
-            RAISE 'LIMITE_INDISPONIVEL [%, %, %]', v_saldo, diff, v_limite;
+    IF p_kind = 'd' THEN
+        diff := p_amount * -1;            
+        IF (v_current_balance + diff) < (-1 * v_limit) THEN
+            RAISE 'LIMITE_INDISPONIVEL [%, %, %]', v_current_balance, diff, v_limit;
         END IF;
     ELSE
-        diff := p_valor;
+        diff := p_amount;
     END IF;
 
     
     INSERT INTO transactions 
-                     (cliente_id,   valor,   tipo,   descricao,      realizada_em)
-            VALUES (p_cliente_id, p_valor, p_tipo, p_descricao, clock_timestamp());
+                     (cliente_id,   amount,   kind,   description,      submitted_at)
+            VALUES (p_cliente_id, p_amount, p_kind, p_description, clock_timestamp());
 
     UPDATE members 
-        SET saldo = saldo + diff 
+        SET current_balance = current_balance + diff 
         WHERE id = p_cliente_id
-        RETURNING saldo INTO v_saldo;
+        RETURNING current_balance INTO v_current_balance;
 
-    result := (v_saldo, v_limite)::transacao_result;
+    result := (v_current_balance, v_limit)::transacao_result;
     RETURN result;
 EXCEPTION
     WHEN OTHERS THEN
@@ -105,8 +105,8 @@ RETURNS json AS $$
 DECLARE
     result json;
     row_count integer;
-    v_saldo numeric;
-    v_limite numeric;
+    v_current_balance numeric;
+    v_limit numeric;
 BEGIN
     -- PERFORM pg_try_advisory_xact_lock(42);
     -- PERFORM pg_try_advisory_xact_lock(p_cliente_id);
@@ -115,8 +115,8 @@ BEGIN
     -- lock table members in ACCESS EXCLUSIVE mode;
     -- lock table transactions in ACCESS EXCLUSIVE mode;
 
-    SELECT saldo
-        INTO v_saldo
+    SELECT current_balance
+        INTO v_current_balance
         FROM members
         WHERE id = p_cliente_id;
 
@@ -124,19 +124,19 @@ BEGIN
         RAISE EXCEPTION 'CLIENTE_NAO_ENCONTRADO %', p_cliente_id;
     END IF;
 
-    SELECT limite_cliente(p_cliente_id) INTO v_limite;
+    SELECT limit_cliente(p_cliente_id) INTO v_limit;
     SELECT json_build_object(
-        'saldo', json_build_object(
-            'total', v_saldo,
+        'current_balance', json_build_object(
+            'total', v_current_balance,
             'date_balance', TO_CHAR(clock_timestamp(), 'YYYY-MM-DD HH:MI:SS.US'),
-            'limite', v_limite
+            'limit', v_limit
         ),
-        'ultimas_transactions', COALESCE((
+        'recent_transactions', COALESCE((
             SELECT json_agg(row_to_json(t)) FROM (
-                SELECT valor, tipo, descricao, TO_CHAR(realizada_em, 'YYYY-MM-DD HH:MI:SS.US') as realizada_em
+                SELECT amount, kind, description, TO_CHAR(submitted_at, 'YYYY-MM-DD HH:MI:SS.US') as submitted_at
                 FROM transactions
                 WHERE cliente_id = p_cliente_id
-                ORDER BY realizada_em DESC
+                ORDER BY submitted_at DESC
                 -- ORDER BY id DESC
                 LIMIT 10
             ) t

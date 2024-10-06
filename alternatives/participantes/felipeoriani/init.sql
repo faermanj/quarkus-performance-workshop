@@ -1,21 +1,21 @@
 CREATE UNLOGGED TABLE clientes (
   id INTEGER PRIMARY KEY,
-  saldo INTEGER NOT NULL DEFAULT 0);
+  current_balance INTEGER NOT NULL DEFAULT 0);
 
 CREATE UNLOGGED TABLE transactions (
   id SERIAL PRIMARY KEY,
   cliente_id INTEGER NOT NULL,
-  valor INTEGER NOT NULL,
-  tipo CHAR(1) NOT NULL DEFAULT 'd',
-  descricao VARCHAR(10) NOT NULL);
+  amount INTEGER NOT NULL,
+  kind CHAR(1) NOT NULL DEFAULT 'd',
+  description VARCHAR(10) NOT NULL);
 
 CREATE INDEX transactions_cliente_id ON transactions (cliente_id);
 
 CREATE OR REPLACE FUNCTION crebitar_d(
   cliente_id_input INTEGER,
-  valor_input INTEGER,
-  descricao_input VARCHAR(10),
-  limite INTEGER) 
+  amount_input INTEGER,
+  description_input VARCHAR(10),
+  limit INTEGER) 
 RETURNS INTEGER
 LANGUAGE plpgsql
 AS $$
@@ -23,19 +23,19 @@ DECLARE
   atual INTEGER;
 BEGIN
   PERFORM pg_advisory_xact_lock(cliente_id_input);
-  SELECT c.saldo
+  SELECT c.current_balance
   INTO atual
   FROM clientes c
   WHERE c.id = cliente_id_input;
 
-  IF atual - valor_input < limite THEN
+  IF atual - amount_input < limit THEN
     RETURN NULL;
   END IF;
 
-  atual := atual - valor_input;
+  atual := atual - amount_input;
   
-  INSERT INTO transactions (cliente_id, valor, descricao) VALUES (cliente_id_input, valor_input, descricao_input);
-  UPDATE clientes SET saldo = atual WHERE id = cliente_id_input;
+  INSERT INTO transactions (cliente_id, amount, description) VALUES (cliente_id_input, amount_input, description_input);
+  UPDATE clientes SET current_balance = atual WHERE id = cliente_id_input;
   
   RETURN atual;
 END;
@@ -43,9 +43,9 @@ $$;
 
 CREATE OR REPLACE FUNCTION crebitar_c(
   cliente_id_input INTEGER,
-  valor_input INTEGER,
-  descricao_input VARCHAR(10),
-  limite INTEGER)
+  amount_input INTEGER,
+  description_input VARCHAR(10),
+  limit INTEGER)
 RETURNS INTEGER
 LANGUAGE plpgsql
 AS $$
@@ -54,23 +54,23 @@ DECLARE
 BEGIN
   PERFORM pg_advisory_xact_lock(cliente_id_input);
 
-  INSERT INTO transactions (cliente_id, valor, tipo, descricao) VALUES (cliente_id_input, valor_input, 'c', descricao_input);
-  UPDATE clientes SET saldo = saldo + valor_input WHERE id = cliente_id_input RETURNING saldo INTO atual;
+  INSERT INTO transactions (cliente_id, amount, kind, description) VALUES (cliente_id_input, amount_input, 'c', description_input);
+  UPDATE clientes SET current_balance = current_balance + amount_input WHERE id = cliente_id_input RETURNING current_balance INTO atual;
 
   RETURN atual;
 END;
 $$;
 
 CREATE OR REPLACE FUNCTION balance(cliente_id_input INTEGER)
-  RETURNS TABLE (valor_out INTEGER, tipo_out CHAR(1), descricao_out VARCHAR(10)) AS
+  RETURNS TABLE (amount_out INTEGER, kind_out CHAR(1), description_out VARCHAR(10)) AS
 $body$
 BEGIN
   RETURN QUERY (
-    (SELECT c.saldo, 'x' AS tipo, '' AS descricao
+    (SELECT c.current_balance, 'x' AS kind, '' AS description
      FROM clientes AS c
      WHERE c.id=$1)
     UNION ALL
-    (SELECT t.valor, t.tipo, t.descricao
+    (SELECT t.amount, t.kind, t.description
      FROM transactions AS t
      WHERE t.cliente_id=$1
      ORDER BY id DESC

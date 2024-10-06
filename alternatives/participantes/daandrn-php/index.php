@@ -12,18 +12,18 @@ switch (true) {
         $requestJson = file_get_contents('php://input');
         $request = json_decode($requestJson, false);
 
-        if (!is_int($request->valor)
-            || ($request->tipo !== "d" && $request->tipo !== "c") 
-            || !is_string($request->descricao) 
-            || strlen($request->descricao) < 1 
-            || strlen($request->descricao) > 10
+        if (!is_int($request->amount)
+            || ($request->kind !== "d" && $request->kind !== "c") 
+            || !is_string($request->description) 
+            || strlen($request->description) < 1 
+            || strlen($request->description) > 10
         ) {
             exit422();
         }
         
         $conn = pg_pconnect("host=db port=5432 dbname=rinha user=rinha password=456");
         pg_query($conn, "BEGIN");
-        $result = pg_query($conn, "SELECT limite, valor AS saldo FROM clientes WHERE id = $id FOR UPDATE;");
+        $result = pg_query($conn, "SELECT limit, amount AS current_balance FROM clientes WHERE id = $id FOR UPDATE;");
         
         if (pg_num_rows($result) < 1) {
             pg_query($conn, "ROLLBACK;");
@@ -33,15 +33,15 @@ switch (true) {
         $client = pg_fetch_object($result);
 
         switch ($variable) {
-            case $request->tipo === "c":
-                $novoSaldo = (int) $client->saldo - $request->valor;
+            case $request->kind === "c":
+                $novoSaldo = (int) $client->current_balance - $request->amount;
                 break;
-            case $request->tipo === "d":
-                $novoSaldo = (int) $client->saldo + $request->valor;
+            case $request->kind === "d":
+                $novoSaldo = (int) $client->current_balance + $request->amount;
                 break;
         }
         
-        if ($novoSaldo < -$client->limite) {
+        if ($novoSaldo < -$client->limit) {
             pg_query($conn, "ROLLBACK;");
             exit422();
         }
@@ -50,32 +50,32 @@ switch (true) {
         $quando = $quando->format(TIME_STAMP);
         
         $query = 
-        "INSERT INTO transacao (cliente_id, valor, tipo, descricao, quando) 
-        VALUES ($id, $request->valor, '{$request->tipo}', '{$request->descricao}', '{$quando}');
+        "INSERT INTO transacao (cliente_id, amount, kind, description, quando) 
+        VALUES ($id, $request->amount, '{$request->kind}', '{$request->description}', '{$quando}');
         
         UPDATE clientes 
-        SET valor = $novoSaldo
+        SET amount = $novoSaldo
         WHERE id = $id";
 
         pg_query($conn, $query);
         pg_query($conn, "COMMIT;");
         
         echo json_encode([
-            "limite" => $client->limite,
-            "saldo" => $novoSaldo
+            "limit" => $client->limit,
+            "current_balance" => $novoSaldo
         ]);
         break;
     case $_SERVER['REQUEST_METHOD'] === "GET" && $url[3] === "balance":
         $conn = pg_pconnect("host=db port=5432 dbname=rinha user=rinha password=456");
         pg_query($conn, "BEGIN;");
-        $result = pg_query($conn, "SELECT valor, limite, (SELECT count(*) FROM transacao) AS quantidade FROM clientes WHERE id = $id LIMIT 1;");
+        $result = pg_query($conn, "SELECT amount, limit, (SELECT count(*) FROM transacao) AS quantidade FROM clientes WHERE id = $id LIMIT 1;");
         
         if (pg_num_rows($result) < 1) {
             pg_query($conn, "ROLLBACK;");
             exit404();
         }
         
-        $result2 = pg_query($conn, "SELECT valor, tipo, descricao, quando AS realizada_em FROM transacao WHERE cliente_id = $id ORDER BY quando DESC LIMIT 10;");
+        $result2 = pg_query($conn, "SELECT amount, kind, description, quando AS submitted_at FROM transacao WHERE cliente_id = $id ORDER BY quando DESC LIMIT 10;");
         $date = new DateTime('now');
         $client = pg_fetch_object($result);
         $transactions = pg_fetch_all($result2);
@@ -83,17 +83,17 @@ switch (true) {
         pg_query($conn, "COMMIT;");
         array_walk($transactions, function (&$value, $key) {
             if ($key === $key) {
-                $value["valor"] = (int) $value["valor"];
+                $value["amount"] = (int) $value["amount"];
             }
         });
         
         echo json_encode([
-            "saldo" => [
-                "total" => (int) $client->valor, 
+            "current_balance" => [
+                "total" => (int) $client->amount, 
                 "date_balance" => $date->format(TIME_STAMP),
-                "limite" => (int) $client->limite
+                "limit" => (int) $client->limit
             ],
-            "ultimas_transactions" => $transactions
+            "recent_transactions" => $transactions
         ]);
         break;
     default:

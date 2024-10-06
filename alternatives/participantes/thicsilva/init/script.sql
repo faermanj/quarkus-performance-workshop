@@ -23,18 +23,18 @@ DROP TABLE IF EXISTS `members`;
 CREATE TABLE `members` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `nome` varchar(50) DEFAULT NULL,
-  `limite` int(11) NOT NULL,
-  `saldo` int(11) NOT NULL DEFAULT 0,
+  `limit` int(11) NOT NULL,
+  `current_balance` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `members` */
 
-insert  into `members`(`id`,`nome`,`limite`,`saldo`) values (1,'o barato sai caro',100000,0);
-insert  into `members`(`id`,`nome`,`limite`,`saldo`) values (2,'zan corp ltda',80000,0);
-insert  into `members`(`id`,`nome`,`limite`,`saldo`) values (3,'les cruders',1000000,0);
-insert  into `members`(`id`,`nome`,`limite`,`saldo`) values (4,'padaria joia de cocaia',10000000,0);
-insert  into `members`(`id`,`nome`,`limite`,`saldo`) values (5,'kid mais',500000,0);
+insert  into `members`(`id`,`nome`,`limit`,`current_balance`) values (1,'o barato sai caro',100000,0);
+insert  into `members`(`id`,`nome`,`limit`,`current_balance`) values (2,'zan corp ltda',80000,0);
+insert  into `members`(`id`,`nome`,`limit`,`current_balance`) values (3,'les cruders',1000000,0);
+insert  into `members`(`id`,`nome`,`limit`,`current_balance`) values (4,'padaria joia de cocaia',10000000,0);
+insert  into `members`(`id`,`nome`,`limit`,`current_balance`) values (5,'kid mais',500000,0);
 
 /*Table structure for table `transactions` */
 
@@ -43,13 +43,13 @@ DROP TABLE IF EXISTS `transactions`;
 CREATE TABLE `transactions` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `cliente_id` int(11) NOT NULL,
-  `valor` int(11) NOT NULL,
-  `tipo` char(1) DEFAULT NULL,
-  `descricao` varchar(10) DEFAULT NULL,
-  `realizada_em` timestamp(6) NOT NULL DEFAULT current_timestamp(6) ON UPDATE current_timestamp(6),
+  `amount` int(11) NOT NULL,
+  `kind` char(1) DEFAULT NULL,
+  `description` varchar(10) DEFAULT NULL,
+  `submitted_at` timestamp(6) NOT NULL DEFAULT current_timestamp(6) ON UPDATE current_timestamp(6),
   PRIMARY KEY (`id`),
   KEY `fk_transacao_cliente` (`cliente_id`),
-  KEY `idx_realizada` (`realizada_em`),
+  KEY `idx_realizada` (`submitted_at`),
   CONSTRAINT `fk_transacao_cliente` FOREIGN KEY (`cliente_id`) REFERENCES `members` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -61,30 +61,30 @@ CREATE TABLE `transactions` (
 
 DELIMITER $$
 
-/*!50003 CREATE DEFINER=`root`@`localhost` PROCEDURE `Salvartransactions`(p_cliente_id INT, p_valor INT, p_tipo CHAR(1), p_descricao VARCHAR(10), OUT o_saldo INT, out o_limite int)
+/*!50003 CREATE DEFINER=`root`@`localhost` PROCEDURE `Salvartransactions`(p_cliente_id INT, p_amount INT, p_kind CHAR(1), p_description VARCHAR(10), OUT o_current_balance INT, out o_limit int)
 BEGIN	
 	DECLARE diff INT;
         DECLARE res INT;    
-        declare n_saldo int;    
+        declare n_current_balance int;    
         SET autocommit=0;
         SET TRANSACTION ISOLATION LEVEL READ COMMITTED;
         start transaction;
         
-        IF (p_tipo='d') THEN
-            SET diff = -p_valor;
+        IF (p_kind='d') THEN
+            SET diff = -p_amount;
         ELSE
-            SET diff = p_valor;
+            SET diff = p_amount;
         END IF;
-        SELECT saldo, limite, saldo+diff into o_saldo, o_limite, n_saldo from members where id=p_cliente_id FOR UPDATE;
-        if (n_saldo<-o_limite) then
-            SET o_saldo=-1;
-            set o_limite=-1;
+        SELECT current_balance, limit, current_balance+diff into o_current_balance, o_limit, n_current_balance from members where id=p_cliente_id FOR UPDATE;
+        if (n_current_balance<-o_limit) then
+            SET o_current_balance=-1;
+            set o_limit=-1;
             SELECT 'SALDO INDISPONIVEL' AS Msg;
             ROLLBACK;
         else        
-            UPDATE members SET saldo = n_saldo WHERE id=p_cliente_id;               
-            INSERT INTO transactions (cliente_id, valor, tipo, descricao) VALUES (p_cliente_id, p_valor, p_tipo, p_descricao);
-            SELECT saldo, limite INTO o_saldo, o_limite FROM members WHERE id=p_cliente_id;
+            UPDATE members SET current_balance = n_current_balance WHERE id=p_cliente_id;               
+            INSERT INTO transactions (cliente_id, amount, kind, description) VALUES (p_cliente_id, p_amount, p_kind, p_description);
+            SELECT current_balance, limit INTO o_current_balance, o_limit FROM members WHERE id=p_cliente_id;
             COMMIT;
         END IF;
 	END */$$

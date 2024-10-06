@@ -1,6 +1,6 @@
 CREATE UNLOGGED TABLE clientes (
 	id SERIAL PRIMARY KEY,
-	saldo INTEGER NOT NULL DEFAULT 0,
+	current_balance INTEGER NOT NULL DEFAULT 0,
     exrato jsonb NOT NULL DEFAULT '[]'::jsonb
 );
 
@@ -20,16 +20,16 @@ CREATE TYPE json_result AS (
   body json
 );
 
-CREATE OR REPLACE FUNCTION proc_transacao(p_shard INT, p_cliente_id INT, p_valor INT, p_tipo CHAR, p_descricao CHAR(10))
+CREATE OR REPLACE FUNCTION proc_transacao(p_shard INT, p_cliente_id INT, p_amount INT, p_kind CHAR, p_description CHAR(10))
 RETURNS json_result as $$
 DECLARE
     diff INT;
-    v_saldo INT;
-    n_saldo INT;
-    v_limite INT;
+    v_current_balance INT;
+    n_current_balance INT;
+    v_limit INT;
     result json_result;
 BEGIN
-    v_limite := CASE p_cliente_id
+    v_limit := CASE p_cliente_id
         WHEN 1 THEN 100000
         WHEN 2 THEN 80000
         WHEN 3 THEN 1000000
@@ -38,41 +38,41 @@ BEGIN
         ELSE -1
     END;
 
-    SELECT saldo 
-        INTO v_saldo
+    SELECT current_balance 
+        INTO v_current_balance
         FROM clientes
         WHERE id = p_cliente_id
         FOR UPDATE;
 
-    IF p_tipo = 'd' THEN
-        n_saldo := v_saldo - p_valor;
-        IF (n_saldo < (-1 * v_limite)) THEN
+    IF p_kind = 'd' THEN
+        n_current_balance := v_current_balance - p_amount;
+        IF (n_current_balance < (-1 * v_limit)) THEN
             result.body := '{"erro": "Saldo insuficiente"}';
             result.status_code := 422;
             RETURN result;
         END IF;
     ELSE
-      n_saldo := v_saldo + p_valor;
+      n_current_balance := v_current_balance + p_amount;
     END IF;
     
     INSERT INTO transactions 
-                     (cliente_id,   valor,   tipo,   descricao,      realizada_em)
-            VALUES (p_cliente_id, p_valor, p_tipo, p_descricao, now());
+                     (cliente_id,   amount,   kind,   description,      submitted_at)
+            VALUES (p_cliente_id, p_amount, p_kind, p_description, now());
 
     UPDATE clientes 
-    SET saldo = n_saldo,
+    SET current_balance = n_current_balance,
         balance = (SELECT json_build_object(
-                'saldo', json_build_object(
-                    'total', n_saldo,
+                'current_balance', json_build_object(
+                    'total', n_current_balance,
                     'date_balance', TO_CHAR(now(), 'YYYY-MM-DD HH:MI:SS.US'),
-                    'limite', v_limite
+                    'limit', v_limit
                 ),
-                'ultimas_transactions', COALESCE((
+                'recent_transactions', COALESCE((
                     SELECT json_agg(row_to_json(t)) FROM (
-                        SELECT valor, tipo, descricao
+                        SELECT amount, kind, description
                         FROM transactions
                         WHERE cliente_id = p_cliente_id
-                        ORDER BY realizada_em DESC
+                        ORDER BY submitted_at DESC
                         LIMIT 10
                     ) t
                 ), '[]')
@@ -81,8 +81,8 @@ BEGIN
 
 
     SELECT json_build_object(
-        'saldo', n_saldo,
-        'limite', v_limite
+        'current_balance', n_current_balance,
+        'limit', v_limit
     ) into result.body;
     result.status_code := 200;
     RETURN result;

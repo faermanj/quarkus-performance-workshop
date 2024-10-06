@@ -1,8 +1,8 @@
 
 CREATE TABLE public.clientes (
 	id serial NOT NULL,
-	saldo int8 NOT NULL,
-	limite int8 NOT NULL,
+	current_balance int8 NOT NULL,
+	limit int8 NOT NULL,
 	CONSTRAINT clientes_pkey PRIMARY KEY (id)
 );
 
@@ -10,8 +10,8 @@ CREATE TABLE public.clientes (
 CREATE TABLE transactions (
 	id serial NOT NULL,
 	id_cliente int8 NOT NULL,
-	tipo_transaction varchar(1) NOT NULL,
-	valor int8 NOT NULL,
+	kind_transaction varchar(1) NOT NULL,
+	amount int8 NOT NULL,
 	description varchar(10) NOT NULL,
 	created_at timestamp DEFAULT CURRENT_TIMESTAMP NULL,
 	CONSTRAINT transactions_pkey PRIMARY KEY (id)
@@ -23,16 +23,16 @@ CREATE INDEX transactions_id_cliente_idx ON public.transactions USING btree (id_
 
 -- CREATE OR REPLACE FUNCTION get_client_transactions(client_id INT8)
 -- RETURNS TABLE (
---     saldo int8,
---     limite int8,
---     valor int8,
---     tipo_transaction VARCHAR,
+--     current_balance int8,
+--     limit int8,
+--     amount int8,
+--     kind_transaction VARCHAR,
 --     description VARCHAR,
 --     created_at TIMESTAMP
 -- ) AS $$
 -- BEGIN
 --     RETURN QUERY
---     SELECT c.saldo, c.limite, t.valor, t.tipo_transaction, t.description, t.created_at
+--     SELECT c.current_balance, c.limit, t.amount, t.kind_transaction, t.description, t.created_at
 --     FROM clientes c
 --     JOIN transactions t ON t.id_cliente = c.id
 --     WHERE c.id = client_id
@@ -40,7 +40,7 @@ CREATE INDEX transactions_id_cliente_idx ON public.transactions USING btree (id_
 --     LIMIT 10;
 --     IF NOT FOUND THEN
 --         RETURN QUERY
---         SELECT c.saldo, c.limite,NULL::INT8, NULL::VARCHAR, NULL::VARCHAR, NULL::TIMESTAMP
+--         SELECT c.current_balance, c.limit,NULL::INT8, NULL::VARCHAR, NULL::VARCHAR, NULL::TIMESTAMP
 --         FROM clientes c
 --         WHERE c.id = client_id;
 --     END IF;
@@ -48,7 +48,7 @@ CREATE INDEX transactions_id_cliente_idx ON public.transactions USING btree (id_
 -- $$ LANGUAGE plpgsql;
 
 INSERT INTO
-    clientes (id, saldo, limite)
+    clientes (id, current_balance, limit)
 VALUES
     (1, 0, 100000),
     (2, 0, 80000),

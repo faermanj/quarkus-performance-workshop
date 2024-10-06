@@ -1,36 +1,36 @@
 CREATE TABLE members (
     id SERIAL PRIMARY KEY,
     nome VARCHAR(50) NOT NULL,
-    limite INTEGER NOT NULL
+    limit INTEGER NOT NULL
 );
 
 CREATE TABLE transactions (
     id SERIAL PRIMARY KEY,
     cliente_id INTEGER NOT NULL,
-    valor INTEGER NOT NULL,
-    tipo CHAR(1) NOT NULL,
-    descricao VARCHAR(10) NOT NULL,
-    realizada_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    amount INTEGER NOT NULL,
+    kind CHAR(1) NOT NULL,
+    description VARCHAR(10) NOT NULL,
+    submitted_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_members_transactions_id
         FOREIGN KEY (cliente_id) REFERENCES members(id)
 );
 
-CREATE TABLE saldos (
+CREATE TABLE current_balances (
    id SERIAL PRIMARY KEY,
    cliente_id INTEGER NOT NULL,
-   valor INTEGER NOT NULL,
-   CONSTRAINT fk_members_saldos_id
+   amount INTEGER NOT NULL,
+   CONSTRAINT fk_members_current_balances_id
        FOREIGN KEY (cliente_id) REFERENCES members(id)
 );
 
 
 CREATE INDEX idx_members_id ON members (id);
 CREATE INDEX idx_transactions_cliente_id ON transactions (cliente_id);
-CREATE INDEX idx_saldos_cliente_id ON saldos (cliente_id);
+CREATE INDEX idx_current_balances_cliente_id ON current_balances (cliente_id);
 
 BEGIN TRANSACTION;
 
-INSERT INTO members (nome, limite)
+INSERT INTO members (nome, limit)
 VALUES
     ('o barato sai caro', 1000 * 100),
     ('zan corp ltda', 800 * 100),
@@ -38,48 +38,48 @@ VALUES
     ('padaria joia de cocaia', 100000 * 100),
     ('kid mais', 5000 * 100);
 
-INSERT INTO saldos (cliente_id, valor)
+INSERT INTO current_balances (cliente_id, amount)
 SELECT id, 0 FROM members;
 
-CREATE OR REPLACE FUNCTION atualizar_saldo_transacao(
+CREATE OR REPLACE FUNCTION atualizar_current_balance_transacao(
     cliente_id_param INTEGER,
-    valor_transacao_param INTEGER,
-    tipo_transacao_param CHAR(1),
-    descricao_transacao_param VARCHAR(10) 
-) RETURNS TABLE(success BOOLEAN, new_saldo INTEGER) AS
+    amount_transacao_param INTEGER,
+    kind_transacao_param CHAR(1),
+    description_transacao_param VARCHAR(10) 
+) RETURNS TABLE(success BOOLEAN, new_current_balance INTEGER) AS
 $$
 DECLARE
-    limite_cliente INTEGER;
-    saldo_valor INTEGER;
-    novo_saldo INTEGER;
-    descricao VARCHAR(10);
+    limit_cliente INTEGER;
+    current_balance_amount INTEGER;
+    novo_current_balance INTEGER;
+    description VARCHAR(10);
 BEGIN
-    -- Obter o limite do cliente
-    SELECT limite INTO limite_cliente FROM members WHERE id = cliente_id_param; -- FOR UPDATE --POSSO ALTERAR ISSO PQ ELE NÃO PRECISA CONSULTAR ISSO
+    -- Obter o limit do cliente
+    SELECT limit INTO limit_cliente FROM members WHERE id = cliente_id_param; -- FOR UPDATE --POSSO ALTERAR ISSO PQ ELE NÃO PRECISA CONSULTAR ISSO
     
-    -- Obter o saldo atual do cliente
-    SELECT valor INTO saldo_valor FROM saldos WHERE cliente_id = cliente_id_param FOR UPDATE; -- FOR UPDATE
+    -- Obter o current_balance atual do cliente
+    SELECT amount INTO current_balance_amount FROM current_balances WHERE cliente_id = cliente_id_param FOR UPDATE; -- FOR UPDATE
     
-    -- Calcular o novo saldo com base no tipo de transação
-    IF tipo_transacao_param = 'c' THEN
-        novo_saldo := saldo_valor + valor_transacao_param;
+    -- Calcular o novo current_balance com base no kind de transação
+    IF kind_transacao_param = 'c' THEN
+        novo_current_balance := current_balance_amount + amount_transacao_param;
     ELSE
-        novo_saldo := saldo_valor - valor_transacao_param;
+        novo_current_balance := current_balance_amount - amount_transacao_param;
     END IF;
     
-    -- Verificar se o novo saldo ultrapassa o limite
-    IF (limite_cliente + novo_saldo) < 0 THEN
+    -- Verificar se o novo current_balance ultrapassa o limit
+    IF (limit_cliente + novo_current_balance) < 0 THEN
         -- Se sim, fazer rollback e retornar false
         RETURN QUERY SELECT false, null::INTEGER;
     ELSE
-        -- Se não, atualizar o saldo do cliente e inserir a transação
-        UPDATE saldos SET valor = novo_saldo WHERE cliente_id = cliente_id_param;
+        -- Se não, atualizar o current_balance do cliente e inserir a transação
+        UPDATE current_balances SET amount = novo_current_balance WHERE cliente_id = cliente_id_param;
         
-        INSERT INTO transactions (cliente_id, valor, tipo, descricao) 
-        VALUES (cliente_id_param, valor_transacao_param, tipo_transacao_param, descricao_transacao_param);
+        INSERT INTO transactions (cliente_id, amount, kind, description) 
+        VALUES (cliente_id_param, amount_transacao_param, kind_transacao_param, description_transacao_param);
 
-        -- Se bem-sucedido, retornar true e o novo saldo
-        RETURN QUERY SELECT true, novo_saldo;
+        -- Se bem-sucedido, retornar true e o novo current_balance
+        RETURN QUERY SELECT true, novo_current_balance;
     END IF;
 EXCEPTION
     WHEN OTHERS THEN
@@ -89,27 +89,27 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION ObterSaldoEtransactions(clienteId integer)
-RETURNS TABLE (saldo integer, ultimas_transactions jsonb)
+RETURNS TABLE (current_balance integer, recent_transactions jsonb)
 AS $$
 DECLARE
-    saldo_result integer;
+    current_balance_result integer;
     transactions_result jsonb;
 BEGIN
     -- Consulta de Saldo
-    SELECT valor INTO saldo_result FROM saldos WHERE cliente_id = clienteId; -- FOR UPDATE
+    SELECT amount INTO current_balance_result FROM current_balances WHERE cliente_id = clienteId; -- FOR UPDATE
 
-    SELECT jsonb_agg(jsonb_build_object('valor', t.valor, 'tipo', t.tipo, 'descricao', t.descricao, 'realizada_em', t.realizada_em))
+    SELECT jsonb_agg(jsonb_build_object('amount', t.amount, 'kind', t.kind, 'description', t.description, 'submitted_at', t.submitted_at))
 INTO transactions_result
 FROM (
-    SELECT valor, tipo, descricao, realizada_em
+    SELECT amount, kind, description, submitted_at
     FROM transactions
     WHERE cliente_id = clienteId
-    ORDER BY realizada_em DESC
+    ORDER BY submitted_at DESC
     LIMIT 10
 ) t;
 
     -- Retornar os resultados
-    RETURN QUERY SELECT saldo_result, transactions_result;
+    RETURN QUERY SELECT current_balance_result, transactions_result;
 END;
 $$
 LANGUAGE plpgsql;

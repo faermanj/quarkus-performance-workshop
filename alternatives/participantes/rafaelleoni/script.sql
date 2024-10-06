@@ -1,48 +1,48 @@
 CREATE TABLE members (
     id SERIAL PRIMARY KEY,
     nome VARCHAR(100) NOT NULL,
-    limite INT NOT NULL,
-    saldo INT NOT NULL DEFAULT 0
+    limit INT NOT NULL,
+    current_balance INT NOT NULL DEFAULT 0
 );
 
 
 CREATE TABLE transactions (
     id SERIAL PRIMARY KEY,
     id_cliente INT NOT NULL,
-    valor INT NOT NULL,
-    tipo CHAR(1) NOT NULL CHECK (tipo IN ('c', 'd')),
-    descricao VARCHAR(10),
-    realizada_em TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    amount INT NOT NULL,
+    kind CHAR(1) NOT NULL CHECK (kind IN ('c', 'd')),
+    description VARCHAR(10),
+    submitted_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (id_cliente) REFERENCES members(id)
 );
 
 
-CREATE OR REPLACE FUNCTION atualizar_saldo(id_cliente INTEGER, valor INTEGER, tipo CHAR, descricao VARCHAR)
-RETURNS TABLE (saldo INTEGER, limite INTEGER) AS $$
+CREATE OR REPLACE FUNCTION atualizar_current_balance(id_cliente INTEGER, amount INTEGER, kind CHAR, description VARCHAR)
+RETURNS TABLE (current_balance INTEGER, limit INTEGER) AS $$
 DECLARE
-    novo_saldo INTEGER;
+    novo_current_balance INTEGER;
 BEGIN
     -- Verifiar se cliente existe
-    SELECT c.saldo, c.limite INTO saldo, limite FROM members c WHERE id = id_cliente;
+    SELECT c.current_balance, c.limit INTO current_balance, limit FROM members c WHERE id = id_cliente;
     IF NOT FOUND THEN
         RAISE EXCEPTION 'CLIENTE_NAO_ENCONTRADO';
     END IF;
 
-    IF tipo = 'c' THEN
-        saldo := saldo + valor;
+    IF kind = 'c' THEN
+        current_balance := current_balance + amount;
         
-    ELSIF tipo = 'd' THEN
-        saldo := saldo - valor;
+    ELSIF kind = 'd' THEN
+        current_balance := current_balance - amount;
 
-        -- Verificar se o saldo após a transação de débito é menor que o limite
-        IF saldo < (-1 * limite) THEN
+        -- Verificar se o current_balance após a transação de débito é menor que o limit
+        IF current_balance < (-1 * limit) THEN
             RAISE EXCEPTION 'LIMITE_EXECEDIDO';
         END IF;
     END IF;
 
-    novo_saldo := saldo;
-    INSERT INTO transactions (id_cliente, valor, tipo, descricao) VALUES (id_cliente, valor, tipo, descricao);
-    UPDATE members SET saldo = novo_saldo WHERE id = id_cliente;
+    novo_current_balance := current_balance;
+    INSERT INTO transactions (id_cliente, amount, kind, description) VALUES (id_cliente, amount, kind, description);
+    UPDATE members SET current_balance = novo_current_balance WHERE id = id_cliente;
 
     RETURN NEXT;
     
@@ -52,7 +52,7 @@ $$ LANGUAGE plpgsql;
 
 
 INSERT INTO 
-    members (nome, limite)
+    members (nome, limit)
 VALUES
     ('o barato sai caro', 1000 * 100),
     ('zan corp ltda', 800 * 100),

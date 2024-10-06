@@ -1,10 +1,10 @@
 CREATE UNLOGGED TABLE clientes (
     id integer PRIMARY KEY,
-    limite integer NOT NULL,
-    saldo integer NOT NULL
+    limit integer NOT NULL,
+    current_balance integer NOT NULL
 );
 
-INSERT INTO clientes (id, saldo, limite)
+INSERT INTO clientes (id, current_balance, limit)
 VALUES
   (1, 0, 1000 * 100),
   (2, 0, 800 * 100),
@@ -15,8 +15,8 @@ VALUES
 CREATE UNLOGGED TABLE transactions (
     id SERIAL PRIMARY KEY,
     cliente_id int NOT NULL,
-    valor integer NOT NULL,
-    descricao text,
+    amount integer NOT NULL,
+    description text,
     data timestamp without time zone default (now() at time zone 'utc')
 );
 

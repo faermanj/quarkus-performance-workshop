@@ -1,15 +1,15 @@
 
-INSERT INTO clientes (nome, limite) VALUES
+INSERT INTO clientes (nome, limit) VALUES
     ('o barato sai caro', 1000 * 100),
     ('zan corp ltda', 800 * 100),
     ('les cruders', 10000 * 100),
     ('padaria joia de cocaia', 100000 * 100),
     ('kid mais', 5000 * 100);
 
-CREATE PROCEDURE proc_transacao(IN p_cliente_id INT, IN p_valor INT, IN p_tipo VARCHAR(1), IN p_descricao VARCHAR(255), OUT r_saldo INT, OUT r_limite INT)
+CREATE PROCEDURE proc_transacao(IN p_cliente_id INT, IN p_amount INT, IN p_kind VARCHAR(1), IN p_description VARCHAR(255), OUT r_current_balance INT, OUT r_limit INT)
 BEGIN
     DECLARE diff INT;
-    DECLARE n_saldo INT;
+    DECLARE n_current_balance INT;
     SET autocommit=0; 
     SET TRANSACTION ISOLATION LEVEL READ COMMITTED;
     START TRANSACTION;
@@ -19,28 +19,28 @@ BEGIN
         ROLLBACK;
     END IF;
 
-    IF p_tipo = 'd' THEN
-        SET diff = p_valor * -1;
+    IF p_kind = 'd' THEN
+        SET diff = p_amount * -1;
     ELSE
-        SET diff = p_valor;
+        SET diff = p_amount;
     END IF;
 
-    SELECT saldo, limite, saldo + diff
-        INTO r_saldo, r_limite, n_saldo
+    SELECT current_balance, limit, current_balance + diff
+        INTO r_current_balance, r_limit, n_current_balance
         FROM clientes 
         WHERE id = p_cliente_id 
         FOR UPDATE;
 
-    IF (n_saldo) < (-1 * r_limite) THEN
+    IF (n_current_balance) < (-1 * r_limit) THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'LIMITE_INDISPONIVEL';
         ROLLBACK;
     ELSE
-        UPDATE clientes SET saldo = n_saldo WHERE id = p_cliente_id;
+        UPDATE clientes SET current_balance = n_current_balance WHERE id = p_cliente_id;
         
-        INSERT INTO transactions (cliente_id, valor, tipo, descricao, realizada_em)
-            VALUES (p_cliente_id, p_valor, p_tipo, p_descricao, now(6));
+        INSERT INTO transactions (cliente_id, amount, kind, description, submitted_at)
+            VALUES (p_cliente_id, p_amount, p_kind, p_description, now(6));
 
-        SELECT n_saldo, r_limite AS resultado;
+        SELECT n_current_balance, r_limit AS resultado;
 
         COMMIT;
     END IF;
@@ -59,26 +59,26 @@ BEGIN
 
     -- Construct and return the entire JSON in a single query
     SELECT JSON_OBJECT(
-        'saldo', (
+        'current_balance', (
             SELECT JSON_OBJECT(
-                'total', saldo,
-                'limite', limite
+                'total', current_balance,
+                'limit', limit
             )
             FROM clientes
             WHERE id = p_id
         ),
-        'ultimas_transactions', (
+        'recent_transactions', (
             SELECT COALESCE(JSON_ARRAYAGG(
                 JSON_OBJECT(
-                    'valor', valor,
-                    'tipo', tipo,
-                    'descricao', descricao,
-                    'realizada_em', DATE_FORMAT(realizada_em, '%Y-%m-%dT%H:%i:%sZ')
+                    'amount', amount,
+                    'kind', kind,
+                    'description', description,
+                    'submitted_at', DATE_FORMAT(submitted_at, '%Y-%m-%dT%H:%i:%sZ')
                 )
             ), JSON_ARRAY()) 
             FROM transactions
             WHERE cliente_id = p_id
-            ORDER BY realizada_em DESC
+            ORDER BY submitted_at DESC
             LIMIT 10
         )
     ) AS balance;

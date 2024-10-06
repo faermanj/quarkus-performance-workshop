@@ -18,7 +18,7 @@
 
 ## Solução
 
-A minha abordagem para a solução proposta centra-se na eficiência e simplicidade ao utilizar uma única tabela, onde cada cliente é representado por apenas uma linha. A inovação reside na decisão de armazenar as últimas 10 transações de cada cliente em uma coluna do tipo JSON.
+A minha abordagem para a solução proposta centra-se na eficiência e simplicidade ao utilizar uma única tabela, onde cada cliente é representado por apenas uma linha. A inovação reside na decisão de armazenar as últimas 10 transações de cada cliente em uma coluna do kind JSON.
 
 Esta estratégia foi projetada para otimizar o tempo de leitura e escrita, mantendo uma complexidade constante O(k), onde "k" representa uma constante relacionada à eficiência do processo. Evitei a criação de índices e a ordenação de árvores durante a inserção, o que contribui para um desempenho mais eficiente, especialmente em operações de grande volume.
 

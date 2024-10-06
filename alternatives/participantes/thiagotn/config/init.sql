@@ -35,7 +35,7 @@ CREATE OR REPLACE FUNCTION CreateTransaction(
     IN description VARCHAR,
     IN transactionType VARCHAR
 )
-RETURNS TABLE (limite INT, saldo INT)
+RETURNS TABLE (limit INT, saldo INT)
 LANGUAGE plpgsql    
 AS $$
 DECLARE
@@ -54,7 +54,7 @@ BEGIN
         END IF;
 
         IF (actualBalance - amount) > actualLimit THEN
-            RAISE EXCEPTION 'Valor é maior que o seu saldo + limite';
+            RAISE EXCEPTION 'Valor é maior que o seu saldo + limit';
         END IF;
 
         actualBalance = actualBalance - amount;

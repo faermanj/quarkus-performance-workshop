@@ -1,22 +1,22 @@
 CREATE TABLE clientes (
     id SERIAL PRIMARY KEY,
     nome VARCHAR(255),
-    limite INT,
-    saldo INT DEFAULT 0
+    limit INT,
+    current_balance INT DEFAULT 0
 );
 
 CREATE TABLE transactions (
     id SERIAL PRIMARY KEY,
     id_cliente INT REFERENCES clientes(id),
-    tipo VARCHAR(1),
-    descricao VARCHAR(10),
-    valor INT,
-    realizada_em TIMESTAMP
+    kind VARCHAR(1),
+    description VARCHAR(10),
+    amount INT,
+    submitted_at TIMESTAMP
 );
 
 DO $$
 BEGIN
-  INSERT INTO clientes (nome, limite)
+  INSERT INTO clientes (nome, limit)
   VALUES
     ('o barato sai caro', 1000 * 100),
     ('zan corp ltda', 800 * 100),

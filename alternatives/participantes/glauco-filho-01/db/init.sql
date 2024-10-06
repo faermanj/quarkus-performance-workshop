@@ -17,7 +17,7 @@ SET client_min_messages = warning;
 CREATE TABLE public.clientes (
     id SERIAL PRIMARY KEY,  -- Coluna para o ID do cliente, usando SERIAL para autoincremento
     nome VARCHAR(22) UNIQUE,  -- Coluna para o nome do cliente, com restrição de unicidade
-    limite INTEGER,  -- Coluna para o limite de crédito do cliente
+    limit INTEGER,  -- Coluna para o limit de crédito do cliente
     montante INTEGER  -- Coluna para o montante do cliente
 );
 
@@ -25,18 +25,18 @@ CREATE TABLE public.clientes (
 CREATE TABLE public.transactions (
     id SERIAL PRIMARY KEY,  -- Coluna para o ID da transação, usando SERIAL para autoincremento
     cliente_id INTEGER REFERENCES public.clientes(id),  -- Coluna para o ID do cliente, com restrição de chave estrangeira referenciando 'clientes'
-    valor INTEGER,  -- Coluna para o valor da transação
-    realizada_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Coluna para a data e hora da transação, usando a data e hora atual como padrão
-    descricao VARCHAR(10),  -- Coluna para a descrição da transação
-    tipo CHAR(1)  -- Coluna para o tipo de transação ('c' para crédito, 'd' para débito)
+    amount INTEGER,  -- Coluna para o amount da transação
+    submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Coluna para a data e hora da transação, usando a data e hora atual como padrão
+    description VARCHAR(10),  -- Coluna para a descrição da transação
+    kind CHAR(1)  -- Coluna para o kind de transação ('c' para crédito, 'd' para débito)
 );
 
 -- Cria a função 'inserir_credito' para inserir uma transação de crédito
-CREATE OR REPLACE FUNCTION inserir_credito(cliente_id INT, valor INT, descricao VARCHAR)
-RETURNS TABLE(novo_montante INT, cliente_limite INT) AS $$
+CREATE OR REPLACE FUNCTION inserir_credito(cliente_id INT, amount INT, description VARCHAR)
+RETURNS TABLE(novo_montante INT, cliente_limit INT) AS $$
 DECLARE
     var_novo_montante INT;
-    var_cliente_limite INT;
+    var_cliente_limit INT;
 BEGIN
     -- Verifica se o cliente existe
     IF NOT EXISTS (SELECT 1 FROM public.clientes WHERE id = cliente_id) THEN
@@ -47,26 +47,26 @@ BEGIN
     PERFORM pg_advisory_xact_lock(cliente_id);
 
     -- Insere a transação de crédito
-    INSERT INTO public.transactions (cliente_id, valor, descricao, tipo)
-    VALUES (cliente_id, valor, descricao, 'c');
+    INSERT INTO public.transactions (cliente_id, amount, description, kind)
+    VALUES (cliente_id, amount, description, 'c');
 
-    -- Atualiza o saldo do cliente e retorna montante e limite
+    -- Atualiza o current_balance do cliente e retorna montante e limit
     UPDATE public.clientes
-    SET montante = montante + valor
+    SET montante = montante + amount
     WHERE id = cliente_id
-    RETURNING montante, limite INTO var_novo_montante, var_cliente_limite;
+    RETURNING montante, limit INTO var_novo_montante, var_cliente_limit;
 
-    -- Retorna os valores
-    RETURN QUERY SELECT var_novo_montante, var_cliente_limite;
+    -- Retorna os amountes
+    RETURN QUERY SELECT var_novo_montante, var_cliente_limit;
 END;
 $$ LANGUAGE plpgsql;
 
 -- Cria a função 'inserir_debito' para inserir uma transação de débito
-CREATE OR REPLACE FUNCTION inserir_debito(cliente_id INT, valor INT, descricao VARCHAR)
-RETURNS TABLE(novo_montante INT, cliente_limite INT) AS $$
+CREATE OR REPLACE FUNCTION inserir_debito(cliente_id INT, amount INT, description VARCHAR)
+RETURNS TABLE(novo_montante INT, cliente_limit INT) AS $$
 DECLARE
     var_novo_montante INT;
-    var_cliente_limite INT;
+    var_cliente_limit INT;
 BEGIN
     -- Verifica se o cliente existe
     IF NOT EXISTS (SELECT 1 FROM public.clientes WHERE id = cliente_id) THEN
@@ -76,32 +76,32 @@ BEGIN
     -- Obtém um bloqueio exclusivo para o cliente
     PERFORM pg_advisory_xact_lock(cliente_id);
 
-    -- Verifica se o cliente tem saldo suficiente
+    -- Verifica se o cliente tem current_balance suficiente
     IF NOT EXISTS (
         SELECT 1 FROM public.clientes
-        WHERE id = cliente_id AND montante - valor >= -limite
+        WHERE id = cliente_id AND montante - amount >= -limit
     ) THEN
         RAISE EXCEPTION 'NOLIMIT';
     END IF;
 
     -- Insere a transação de débito
-    INSERT INTO public.transactions (cliente_id, valor, descricao, tipo)
-    VALUES (cliente_id, valor, descricao, 'd'); -- Note o valor negativo
+    INSERT INTO public.transactions (cliente_id, amount, description, kind)
+    VALUES (cliente_id, amount, description, 'd'); -- Note o amount negativo
 
-    -- Atualiza o saldo do cliente e retorna montante e limite
+    -- Atualiza o current_balance do cliente e retorna montante e limit
     UPDATE public.clientes
-    SET montante = montante - valor
+    SET montante = montante - amount
     WHERE id = cliente_id
-    RETURNING montante, limite INTO var_novo_montante, var_cliente_limite;
+    RETURNING montante, limit INTO var_novo_montante, var_cliente_limit;
 
-    -- Retorna os valores
-    RETURN QUERY SELECT var_novo_montante, var_cliente_limite;
+    -- Retorna os amountes
+    RETURN QUERY SELECT var_novo_montante, var_cliente_limit;
 END;
 $$ LANGUAGE plpgsql;
 
--- Cria a função 'obter_ultimas_transactions' para obter as últimas transações de um cliente
-CREATE OR REPLACE FUNCTION obter_ultimas_transactions(var_cliente_id INT)
-RETURNS TABLE(valor INT, tipo CHAR, descricao VARCHAR, realizada_em TIMESTAMP, montante INT, limite INT) AS $$
+-- Cria a função 'obter_recent_transactions' para obter as últimas transações de um cliente
+CREATE OR REPLACE FUNCTION obter_recent_transactions(var_cliente_id INT)
+RETURNS TABLE(amount INT, kind CHAR, description VARCHAR, submitted_at TIMESTAMP, montante INT, limit INT) AS $$
 BEGIN
     -- Verifica se o cliente existe
     IF NOT EXISTS (SELECT 1 FROM public.clientes WHERE id = var_cliente_id) THEN
@@ -113,7 +113,7 @@ BEGIN
 
     -- Retorna as últimas transações do cliente
     RETURN QUERY 
-    SELECT t.valor, t.tipo, t.descricao, t.realizada_em, c.montante, c.limite
+    SELECT t.amount, t.kind, t.description, t.submitted_at, c.montante, c.limit
     FROM public.transactions t
     JOIN public.clientes c ON t.cliente_id = c.id
     WHERE t.cliente_id = var_cliente_id
@@ -124,12 +124,12 @@ $$ LANGUAGE plpgsql;
 
 -- Cria índices para otimizar consultas na tabela 'transactions'
 CREATE INDEX idx_transactions_cliente_id ON public.transactions(cliente_id);
-CREATE INDEX idx_transactions_realizada_em ON public.transactions(realizada_em);
+CREATE INDEX idx_transactions_submitted_at ON public.transactions(submitted_at);
 
 -- Insere dados iniciais na tabela 'clientes'
 DO $$
 BEGIN
-  INSERT INTO public.clientes (nome, limite, montante)
+  INSERT INTO public.clientes (nome, limit, montante)
   VALUES
     ('o barato sai caro', 1000 * 100, 0),
     ('zan corp ltda', 800 * 100, 0),

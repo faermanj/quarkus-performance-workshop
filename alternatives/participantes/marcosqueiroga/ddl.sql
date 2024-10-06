@@ -1,15 +1,15 @@
 CREATE UNLOGGED TABLE public.clientes (
 	id SERIAL PRIMARY KEY NOT NULL,
 	nome VARCHAR(25) NOT NULL,
-	limite INT NOT NULL,
-	saldo INT NOT NULL
+	limit INT NOT NULL,
+	current_balance INT NOT NULL
 );
 
 CREATE UNLOGGED TABLE public.transactions (
 	id SERIAL PRIMARY KEY NOT NULL,
-	valor INT NOT NULL,
-	descricao VARCHAR(10) NOT NULL,
-	realizada_em TIMESTAMP NOT NULL,
+	amount INT NOT NULL,
+	description VARCHAR(10) NOT NULL,
+	submitted_at TIMESTAMP NOT NULL,
 	id_cliente INT NOT NULL
 );
 
@@ -20,40 +20,40 @@ CREATE INDEX ix_transactions_id_cliente ON public.transactions
 
 CREATE OR REPLACE FUNCTION public.insere_transacao(
   IN id_cliente INT,
-  IN valor INT,
-  IN descricao VARCHAR(10)
+  IN amount INT,
+  IN description VARCHAR(10)
 ) RETURNS RECORD AS $$
 DECLARE rec_cliente RECORD;
 BEGIN
-  SELECT limite, saldo FROM public.clientes
+  SELECT limit, current_balance FROM public.clientes
     INTO rec_cliente
   WHERE id = id_cliente
   FOR UPDATE;
 
-  IF rec_cliente.limite IS NULL THEN
+  IF rec_cliente.limit IS NULL THEN
     SELECT -1 INTO rec_cliente;
 	RETURN rec_cliente;
   END IF;
 
-  IF (valor < 0) AND (rec_cliente.saldo + rec_cliente.limite + valor) < 0 THEN
+  IF (amount < 0) AND (rec_cliente.current_balance + rec_cliente.limit + amount) < 0 THEN
     SELECT -2 INTO rec_cliente;
 	RETURN rec_cliente;
   END IF;
 
-  INSERT INTO public.transactions (valor, descricao, realizada_em, id_cliente)
-                         VALUES (valor, descricao, now(), id_cliente);
+  INSERT INTO public.transactions (amount, description, submitted_at, id_cliente)
+                         VALUES (amount, description, now(), id_cliente);
 
   UPDATE public.clientes
-    SET saldo = saldo + valor
+    SET current_balance = current_balance + amount
     WHERE id = id_cliente
-    RETURNING limite, saldo
+    RETURNING limit, current_balance
     INTO rec_cliente;
 
   RETURN rec_cliente;
 END;$$ LANGUAGE plpgsql;
 
 
-INSERT INTO public.clientes (nome, limite, saldo)
+INSERT INTO public.clientes (nome, limit, current_balance)
   VALUES
     ('o barato sai caro', 1000 * 100, 0),
     ('zan corp ltda', 800 * 100, 0),

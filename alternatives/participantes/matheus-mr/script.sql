@@ -71,8 +71,8 @@ BEGIN
     PERFORM pg_advisory_unlock(p_client_id);
 
     result := jsonb_build_object(
-        'limite', current_debit_limit,
-        'saldo', new_balance
+        'limit', current_debit_limit,
+        'current_balance', new_balance
     );
 
 	RETURN result;
@@ -94,7 +94,7 @@ BEGIN
     PERFORM pg_advisory_xact_lock(p_client_id);
 
     select jsonb_build_object(
-        'limite', debit_limit,
+        'limit', debit_limit,
 		'total', balance,
         'date_balance', localtimestamp
     )
@@ -109,10 +109,10 @@ BEGIN
     SELECT coalesce(
 		jsonb_agg(
 			jsonb_build_object(
-				'valor', amount,
-            	'tipo', type,
-            	'descricao', description,
-            	'realizada_em', timestamp
+				'amount', amount,
+            	'kind', type,
+            	'description', description,
+            	'submitted_at', timestamp
         	)
     	),
 		'[]'::jsonb
@@ -129,8 +129,8 @@ BEGIN
     PERFORM pg_advisory_unlock(p_client_id);
 
     combined_result := jsonb_build_object(
-		'saldo', client_json,
-		'ultimas_transactions', transactions_json
+		'current_balance', client_json,
+		'recent_transactions', transactions_json
 	);
 
     RETURN combined_result;

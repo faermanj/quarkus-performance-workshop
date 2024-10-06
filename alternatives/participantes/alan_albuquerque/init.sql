@@ -1,8 +1,8 @@
 ﻿CREATE TABLE clientes
 (
     id     SERIAL,
-    saldo  INTEGER     NOT NULL,
-    limite INTEGER     NOT NULL
+    current_balance  INTEGER     NOT NULL,
+    limit INTEGER     NOT NULL
 );
 CREATE INDEX ON clientes USING HASH(id);
 
@@ -10,17 +10,17 @@ CREATE UNLOGGED TABLE transactions
 (
     id           SERIAL,
     cliente_id   INTEGER     NOT NULL,
-    valor        INTEGER     NOT NULL,
-    tipo         CHAR(1)     NOT NULL,
-    descricao    VARCHAR(10) NOT NULL,
-    realizada_em TIMESTAMP   NOT NULL DEFAULT NOW()
+    amount        INTEGER     NOT NULL,
+    kind         CHAR(1)     NOT NULL,
+    description    VARCHAR(10) NOT NULL,
+    submitted_at TIMESTAMP   NOT NULL DEFAULT NOW()
 );
 CREATE INDEX ON transactions (id DESC);
 CREATE INDEX ON transactions (cliente_id);
 DO
 $$
     BEGIN
-        INSERT INTO clientes (limite, saldo)
+        INSERT INTO clientes (limit, current_balance)
         VALUES (1000 * 100, 0),
                (800 * 100, 0),
                (10000 * 100, 0),
@@ -35,14 +35,14 @@ $$
 DECLARE
     balance int4;
 BEGIN
-    SELECT saldo, limite INTO balance, climit FROM clientes WHERE id = cid FOR UPDATE;
+    SELECT current_balance, limit INTO balance, climit FROM clientes WHERE id = cid FOR UPDATE;
     newBalance = balance - value;
     IF -newBalance > climit THEN
         climit = -1;
         RETURN;
     END IF;
-    UPDATE clientes SET saldo = newBalance WHERE id = cid;
-    INSERT INTO transactions (cliente_id, valor, tipo, descricao) VALUES (cid, value, type, description);
+    UPDATE clientes SET current_balance = newBalance WHERE id = cid;
+    INSERT INTO transactions (cliente_id, amount, kind, description) VALUES (cid, value, type, description);
 END;
 $$
 LANGUAGE plpgsql;
@@ -54,9 +54,9 @@ $$
 DECLARE
     balance int4;
 BEGIN
-    SELECT saldo, limite INTO balance, climit FROM clientes WHERE id = cid FOR UPDATE;
+    SELECT current_balance, limit INTO balance, climit FROM clientes WHERE id = cid FOR UPDATE;
     newBalance = balance + value;
-    UPDATE clientes SET saldo = newBalance WHERE id = cid;
-    INSERT INTO transactions (cliente_id, valor, tipo, descricao) VALUES (cid, value, type, description);
+    UPDATE clientes SET current_balance = newBalance WHERE id = cid;
+    INSERT INTO transactions (cliente_id, amount, kind, description) VALUES (cid, value, type, description);
 END;
 $$LANGUAGE plpgsql;

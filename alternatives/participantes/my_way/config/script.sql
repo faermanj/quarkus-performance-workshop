@@ -1,22 +1,22 @@
 CREATE TABLE if not exists customers(
   id SERIAL PRIMARY KEY,
   nome varchar(50) NOT NULL,
-  limite INTEGER NOT NULL,
-  saldo INTEGER NOT NULL
+  limit INTEGER NOT NULL,
+  current_balance INTEGER NOT NULL
 );
 
 CREATE TABLE if not exists transactions(
   id SERIAL PRIMARY KEY,
   customer_id INTEGER NOT NULL,
-  valor INTEGER NOT NULL,
-  tipo varchar(1) NOT NULL,
-  descricao varchar (10) NOT NULL,
-  realizada_em TIMESTAMP NOT NULL DEFAULT NOW(),
+  amount INTEGER NOT NULL,
+  kind varchar(1) NOT NULL,
+  description varchar (10) NOT NULL,
+  submitted_at TIMESTAMP NOT NULL DEFAULT NOW(),
   CONSTRAINT fk_customers_transactions_id 
     FOREIGN KEY (customer_id) REFERENCES customers(id)
 );
 
-INSERT INTO customers (nome, limite, saldo)
+INSERT INTO customers (nome, limit, current_balance)
 VALUES
   ('o barato sai caro', 1000 * 100, 0),
   ('zan corp ltda', 800 * 100, 0),

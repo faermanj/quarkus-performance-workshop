@@ -1,32 +1,32 @@
 CREATE UNLOGGED TABLE clientes (
     id SERIAL PRIMARY KEY,
     nome VARCHAR(50) NOT NULL,
-    limite INTEGER NOT NULL
+    limit INTEGER NOT NULL
 );
 
 CREATE UNLOGGED TABLE transactions (
     id SERIAL PRIMARY KEY,
     id_cliente INTEGER NOT NULL,
-    valor INTEGER NOT NULL,
-    tipo CHAR(1) NOT NULL,
-    descricao VARCHAR(10) NOT NULL,
+    amount INTEGER NOT NULL,
+    kind CHAR(1) NOT NULL,
+    description VARCHAR(10) NOT NULL,
     data_transacao TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     CONSTRAINT fk_clientes_transactions_id
         FOREIGN KEY (id_cliente) REFERENCES clientes(id)
 );
 
-CREATE UNLOGGED TABLE saldos (
+CREATE UNLOGGED TABLE current_balances (
     id SERIAL NOT NULL,
     id_cliente INTEGER NOT NULL,
-    valor INTEGER NOT NULL,
-    CONSTRAINT fk_clientes_saldos_id
+    amount INTEGER NOT NULL,
+    CONSTRAINT fk_clientes_current_balances_id
         FOREIGN KEY (id_cliente) REFERENCES clientes(id),
     PRIMARY KEY (id, id_cliente)
 );
 
 DO $$
 BEGIN
-    INSERT INTO clientes (nome, limite)
+    INSERT INTO clientes (nome, limit)
     VALUES
         ('Ivo Matias', 1000 * 100),
         ('Electra Costa', 800 * 100),
@@ -34,72 +34,72 @@ BEGIN
         ('Carmelina Vaz', 100000 * 100),
         ('Marco Vilar', 5000 * 100);
 
-    INSERT INTO saldos (id_cliente, valor)
+    INSERT INTO current_balances (id_cliente, amount)
         SELECT id, 0 FROM clientes;
 END;
 $$;
 
 CREATE OR REPLACE FUNCTION debito (
     id_cliente_tx INT,
-    valor_tx INT,
-    descricao_tx VARCHAR(10)
+    amount_tx INT,
+    description_tx VARCHAR(10)
 )
 RETURNS TABLE (
-    novo_saldo INT,
-    limite INT,
+    novo_current_balance INT,
+    limit INT,
     com_erro BOOL,
     mensagem VARCHAR(20)
 )
 LANGUAGE plpgsql
 AS $$
 DECLARE
-    saldo_atual INT;
-    limite_atual INT;
+    current_balance_atual INT;
+    limit_atual INT;
 BEGIN
     PERFORM pg_advisory_xact_lock(id_cliente_tx);
     SELECT
-        c.limite,
-        COALESCE(s.valor, 0)
+        c.limit,
+        COALESCE(s.amount, 0)
     INTO
-        limite_atual,
-        saldo_atual
+        limit_atual,
+        current_balance_atual
     FROM
         clientes c
-        LEFT JOIN saldos s
+        LEFT JOIN current_balances s
             ON c.id = s.id_cliente
     WHERE
         c.id = id_cliente_tx;
 
-    IF saldo_atual - valor_tx >= limite_atual * -1 THEN
+    IF current_balance_atual - amount_tx >= limit_atual * -1 THEN
         INSERT INTO transactions
         VALUES
-            (DEFAULT, id_cliente_tx, valor_tx, 'd', descricao_tx, NOW());
+            (DEFAULT, id_cliente_tx, amount_tx, 'd', description_tx, NOW());
 
-        UPDATE saldos
+        UPDATE current_balances
         SET
-            valor = valor - valor_tx
+            amount = amount - amount_tx
         WHERE
             id_cliente = id_cliente_tx;
 
         RETURN QUERY
             SELECT
-                valor,
-                limite_atual,
+                amount,
+                limit_atual,
                 FALSE,
                 'OK'::VARCHAR(20)
             FROM
-                saldos
+                current_balances
             WHERE
                 id_cliente = id_cliente_tx;
     ELSE
         RETURN QUERY
             SELECT
-                valor,
-                limite_atual,
+                amount,
+                limit_atual,
                 TRUE,
-                'saldo insuficiente'::VARCHAR(20)
+                'current_balance insuficiente'::VARCHAR(20)
             FROM
-                saldos
+                current_balances
             WHERE
                 id_cliente = id_cliente_tx;
     END IF;
@@ -108,40 +108,40 @@ $$;
 
 CREATE OR REPLACE FUNCTION credito (
     id_cliente_tx INT,
-    valor_tx INT,
-    descricao_tx VARCHAR(20)
+    amount_tx INT,
+    description_tx VARCHAR(20)
 )
 RETURNS TABLE (
-    novo_saldo INT,
-    limite INT,
+    novo_current_balance INT,
+    limit INT,
     com_erro BOOL,
     mensagem VARCHAR(20)
 )
 LANGUAGE plpgsql
 AS $$
 DECLARE
-    limite_atual INT;
+    limit_atual INT;
 BEGIN
     PERFORM pg_advisory_xact_lock(id_cliente_tx);
 
-    SELECT c.limite
-    INTO limite_atual
+    SELECT c.limit
+    INTO limit_atual
     FROM clientes c
     WHERE
         c.id = id_cliente_tx;
         
     INSERT INTO transactions
     VALUES
-        (DEFAULT, id_cliente_tx, valor_tx, 'c', descricao_tx, NOW());
+        (DEFAULT, id_cliente_tx, amount_tx, 'c', description_tx, NOW());
 
     RETURN QUERY
-        UPDATE saldos
+        UPDATE current_balances
         SET
-            valor = valor + valor_tx
+            amount = amount + amount_tx
         WHERE
-            saldos.id_cliente = id_cliente_tx
+            current_balances.id_cliente = id_cliente_tx
         RETURNING
-            valor, limite_atual, FALSE, 'OK'::VARCHAR(20);
+            amount, limit_atual, FALSE, 'OK'::VARCHAR(20);
 END;
 $$;
 
@@ -150,9 +150,9 @@ RETURNS void
 LANGUAGE plpgsql
 AS $$
 BEGIN
-    UPDATE saldos
+    UPDATE current_balances
     SET
-        valor = 0;
+        amount = 0;
 
     TRUNCATE TABLE transactions;
 END;
@@ -168,10 +168,10 @@ LANGUAGE SQL
 AS $$
 SELECT
 	json_build_object(
-		'valor', tx.valor,
-		'tipo', tx.tipo,
-		'descricao', tx.descricao,
-		'realizada_em', tx.data_transacao
+		'amount', tx.amount,
+		'kind', tx.kind,
+		'description', tx.description,
+		'submitted_at', tx.data_transacao
 	)
 FROM
 	transactions tx

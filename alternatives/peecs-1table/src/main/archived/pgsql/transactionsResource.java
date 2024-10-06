@@ -30,23 +30,23 @@ public class transactionsResource {
         Log.tracef("Transacao recebida: %s %s ", id, t);
 
         // TODO Uma validação por vez ou múltiplas validations conjuntas ???
-        var valorNumber = (Number) t.get("valor");
-        if (valorNumber == null
-                || !Integer.class.equals(valorNumber.getClass())) {
+        var amountNumber = (Number) t.get("amount");
+        if (amountNumber == null
+                || !Integer.class.equals(amountNumber.getClass())) {
             return Response.status(422).entity("Valor invalido").build();
         }
-        Integer valor = valorNumber.intValue();
+        Integer amount = amountNumber.intValue();
 
-        var tipo = (String) t.get("tipo");
-        if (tipo == null
-                || !("c".equals(tipo) || "d".equals(tipo))) {
+        var kind = (String) t.get("kind");
+        if (kind == null
+                || !("c".equals(kind) || "d".equals(kind))) {
             return Response.status(422).entity("Tipo invalido").build();
         }
 
-        var descricao = (String) t.get("descricao");
-        if (descricao == null
-                || descricao.isEmpty()
-                || descricao.length() > 10) {
+        var description = (String) t.get("description");
+        if (description == null
+                || description.isEmpty()
+                || description.length() > 10) {
             return Response.status(422).entity("Descricao invalida").build();
         }
 
@@ -55,22 +55,22 @@ public class transactionsResource {
         try (var conn = ds.getConnection();
                 var stmt = conn.prepareStatement(query);) { // TODO cache statement?
             stmt.setInt(1, id);
-            stmt.setInt(2, valor);
-            stmt.setString(3, tipo);
-            stmt.setString(4, descricao);
+            stmt.setInt(2, amount);
+            stmt.setString(3, kind);
+            stmt.setString(4, description);
             stmt.execute();
             try (var rs = stmt.getResultSet()) {
                 if (rs.next()) {
-                    Integer saldo = rs.getInt("saldo");
-                    Integer limite = rs.getInt("limite");
+                    Integer current_balance = rs.getInt("current_balance");
+                    Integer limit = rs.getInt("limit");
 
-                    if (saldo < -1 * limite) {
-                        Log.error("*** LIMITE ULTRAPASSADO " + saldo + " / " + limite);
+                    if (current_balance < -1 * limit) {
+                        Log.error("*** LIMITE ULTRAPASSADO " + current_balance + " / " + limit);
                         Log.error(t);
                     }
 
-                    var body = Map.of("limite", limite,
-                            "saldo", saldo);
+                    var body = Map.of("limit", limit,
+                            "current_balance", current_balance);
                     stmt.close();
                     return Response.ok(body).build();
                 } else {

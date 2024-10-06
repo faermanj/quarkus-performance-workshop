@@ -1,11 +1,11 @@
 CREATE UNLOGGED TABLE cliente
 (
     id     INT PRIMARY KEY,
-    limites INT NOT NULL,
-    saldos  INT NOT NULL
+    limits INT NOT NULL,
+    current_balances  INT NOT NULL
 );
 
-INSERT INTO cliente (id, limites, saldos)
+INSERT INTO cliente (id, limits, current_balances)
 VALUES (1, 100000, 0),
        (2, 80000, 0),
        (3, 1000000, 0),
@@ -23,16 +23,16 @@ CREATE UNLOGGED TABLE TRANSACAO
 );
 
 CREATE INDEX idx_transacao_id_cliente ON transacao (id_cliente);
-CREATE INDEX idx_transacao_id_cliente_realizada_em ON transacao (id_cliente, realizada_em DESC);
+CREATE INDEX idx_transacao_id_cliente_submitted_at ON transacao (id_cliente, submitted_at DESC);
 
 
 CREATE OR REPLACE FUNCTION efetuar_transacao(
 clienteIdParam int,
-tipoParam varchar(1),
-valorParam int,
-descricaoParam varchar(10)
+kindParam varchar(1),
+amountParam int,
+descriptionParam varchar(10)
 )
-RETURNS TABLE (saldo int, limite int) AS $$
+RETURNS TABLE (current_balance int, limit int) AS $$
 DECLARE
 cliente cliente%rowtype;
 novoSaldo
@@ -44,16 +44,16 @@ PERFORM
 * FROM cliente where id = clienteIdParam FOR
 UPDATE;
 IF
-tipoParam = 'd' THEN
-novoSaldo := valorParam * -1;
+kindParam = 'd' THEN
+novoSaldo := amountParam * -1;
 ELSE
-novoSaldo := valorParam;
+novoSaldo := amountParam;
 END IF;
 
 UPDATE cliente
-SET saldos = saldos + novoSaldo
+SET current_balances = current_balances + novoSaldo
 WHERE id = clienteIdParam
-  AND (novoSaldo > 0 OR limites * -1 <= saldos + novoSaldo) RETURNING *
+  AND (novoSaldo > 0 OR limits * -1 <= current_balances + novoSaldo) RETURNING *
 INTO cliente;
 
 GET DIAGNOSTICS numeroLinhasAfetadas = ROW_COUNT;
@@ -63,11 +63,11 @@ numeroLinhasAfetadas = 0 THEN
 RAISE EXCEPTION '';
 END IF;
 
-INSERT INTO transacao (id_cliente, valor, tipo, descricao, realizada_em)
-VALUES (clienteIdParam, valorParam, tipoParam, descricaoParam, current_timestamp);
+INSERT INTO transacao (id_cliente, amount, kind, description, submitted_at)
+VALUES (clienteIdParam, amountParam, kindParam, descriptionParam, current_timestamp);
 
 
-RETURN QUERY SELECT cliente.saldos AS saldo, cliente.limites AS limite;
+RETURN QUERY SELECT cliente.current_balances AS current_balance, cliente.limits AS limit;
 END;
 $$
 LANGUAGE plpgsql;

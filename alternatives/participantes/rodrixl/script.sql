@@ -3,22 +3,22 @@
     CREATE UNLOGGED TABLE IF NOT EXISTS cliente (
         id SERIAL PRIMARY KEY NOT NULL,
         nome VARCHAR(50) NOT NULL,
-        limite INTEGER NOT NULL,
-        saldo INTEGER NOT NULL
+        limit INTEGER NOT NULL,
+        current_balance INTEGER NOT NULL
     );
 
     DROP TABLE IF EXISTS transaction;
     CREATE UNLOGGED TABLE IF NOT EXISTS transaction (
         id SERIAL PRIMARY KEY NOT NULL,
-        valor INTEGER NOT NULL,
-        tipo CHAR(1) NOT NULL,
-        descricao VARCHAR(10) NOT NULL,
-        realizada_em TIMESTAMPTZ NOT NULL,
+        amount INTEGER NOT NULL,
+        kind CHAR(1) NOT NULL,
+        description VARCHAR(10) NOT NULL,
+        submitted_at TIMESTAMPTZ NOT NULL,
         cliente_id INTEGER NOT NULL
         );
 
-    -- Inserção de valores iniciais na tabela members
-    INSERT INTO cliente (nome, limite, saldo)
+    -- Inserção de amountes iniciais na tabela members
+    INSERT INTO cliente (nome, limit, current_balance)
     VALUES
         ('Cliente1', 100000, 0),
         ('Cliente2', 80000, 0),

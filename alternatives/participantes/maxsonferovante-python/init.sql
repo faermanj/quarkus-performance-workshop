@@ -2,15 +2,15 @@
 
 CREATE UNLOGGED TABLE IF NOT EXISTS members (
    id SMALLINT PRIMARY KEY NOT NULL,
-   limite INTEGER NOT NULL,
-   saldo INTEGER NOT NULL,
-   ultimas_transactions JSONB not null default '[]'::jsonb,
-   CONSTRAINT limite_minimo CHECK (saldo > limite)
+   limit INTEGER NOT NULL,
+   current_balance INTEGER NOT NULL,
+   recent_transactions JSONB not null default '[]'::jsonb,
+   CONSTRAINT limit_minimo CHECK (current_balance > limit)
 );
 
 -- insert members
 
-INSERT INTO members (id, limite, saldo)
+INSERT INTO members (id, limit, current_balance)
 VALUES
     (1, -100000,0),
     (2, -80000,0),
@@ -22,17 +22,17 @@ VALUES
 CREATE OR REPLACE FUNCTION get_client(p_client_id SMALLINT)
 RETURNS JSONB AS $$
 DECLARE
-   saldo_result JSONB;
+   current_balance_result JSONB;
 BEGIN
    SELECT jsonb_build_object(
-      'saldo', jsonb_build_object(
-         'total', c.saldo,
+      'current_balance', jsonb_build_object(
+         'total', c.current_balance,
          'date_balance', current_timestamp,
-         'limite', ABS(c.limite)
+         'limit', ABS(c.limit)
       ),
-      'ultimas_transactions', c.ultimas_transactions
+      'recent_transactions', c.recent_transactions
    )
-   INTO saldo_result
+   INTO current_balance_result
    FROM members c
    WHERE c.id = p_client_id;
 
@@ -40,7 +40,7 @@ BEGIN
       RAISE EXCEPTION 'cliente_not_found';
    END IF;
 
-   RETURN saldo_result;
+   RETURN current_balance_result;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -48,20 +48,20 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION add_transaction(client_id INTEGER, transaction JSONB)
 RETURNS JSONB AS $$
 DECLARE
-   novosaldo INTEGER;
+   novocurrent_balance INTEGER;
    cliente RECORD;
 BEGIN
-   IF transaction ->> 'tipo' = 'c' THEN
-      novosaldo := (transaction ->> 'valor')::INTEGER;
-   ELSIF transaction ->> 'tipo' = 'd' THEN
-      novosaldo := -(transaction ->> 'valor')::INTEGER;      
+   IF transaction ->> 'kind' = 'c' THEN
+      novocurrent_balance := (transaction ->> 'amount')::INTEGER;
+   ELSIF transaction ->> 'kind' = 'd' THEN
+      novocurrent_balance := -(transaction ->> 'amount')::INTEGER;      
 
    END IF;
 
    UPDATE members
       SET
-         saldo = saldo + novosaldo,
-         ultimas_transactions = jsonb_path_query_array(jsonb_insert(ultimas_transactions,'{0}', transaction), '$[0 to 9]')
+         current_balance = current_balance + novocurrent_balance,
+         recent_transactions = jsonb_path_query_array(jsonb_insert(recent_transactions,'{0}', transaction), '$[0 to 9]')
       WHERE id = client_id
       RETURNING * INTO cliente;
 
@@ -69,7 +69,7 @@ BEGIN
       RAISE EXCEPTION 'cliente_not_found';
    END IF;
 
-   RETURN jsonb_build_object('limite', ABS(cliente.limite), 'saldo', cliente.saldo);
+   RETURN jsonb_build_object('limit', ABS(cliente.limit), 'current_balance', cliente.current_balance);
 
 END;
 $$ LANGUAGE plpgsql;

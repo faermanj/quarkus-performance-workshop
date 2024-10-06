@@ -6,32 +6,32 @@ database.createCollection("clientes");
 database.clientes.insertMany([
     {
       "_id": 1,
-      "limite": 100000,
+      "limit": 100000,
       "saldo": 0,
-      "ultimas_transactions": []
+      "recent_transactions": []
     },
     {
       "_id": 2,
-      "limite": 80000,
+      "limit": 80000,
       "saldo": 0,
-      "ultimas_transactions": []
+      "recent_transactions": []
     },
     {
       "_id": 3,
-      "limite": 1000000,
+      "limit": 1000000,
       "saldo": 0,
-      "ultimas_transactions": []
+      "recent_transactions": []
     },
     {
       "_id": 4,
-      "limite": 10000000,
+      "limit": 10000000,
       "saldo": 0,
-      "ultimas_transactions": []
+      "recent_transactions": []
     },
     {
       "_id": 5,
-      "limite": 500000,
+      "limit": 500000,
       "saldo": 0,
-      "ultimas_transactions": []
+      "recent_transactions": []
     }
 ]);

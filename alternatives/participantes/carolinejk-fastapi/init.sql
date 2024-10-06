@@ -2,11 +2,11 @@ BEGIN;
 
 CREATE TABLE clientes (
   id SERIAL PRIMARY KEY,
-  limite INTEGER,
+  limit INTEGER,
   saldo INTEGER
 );
 
-INSERT INTO clientes (id, limite, saldo)
+INSERT INTO clientes (id, limit, saldo)
 VALUES
   (1, 100000, 0),
   (2, 80000, 0),

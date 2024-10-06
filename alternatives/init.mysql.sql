@@ -3,22 +3,22 @@
 CREATE TABLE clientes (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(255) NOT NULL,
-    limite INT NOT NULL,
-    saldo INT NOT NULL DEFAULT 0
+    limit INT NOT NULL,
+    current_balance INT NOT NULL DEFAULT 0
 );
 
 CREATE TABLE transactions (
     id INT AUTO_INCREMENT PRIMARY KEY,
     cliente_id INT NOT NULL,
-    valor INT NOT NULL,
-    tipo CHAR(1) NOT NULL,
-    descricao VARCHAR(255) NOT NULL,
-    realizada_em DATETIME NOT NULL DEFAULT now(),
+    amount INT NOT NULL,
+    kind CHAR(1) NOT NULL,
+    description VARCHAR(255) NOT NULL,
+    submitted_at DATETIME NOT NULL DEFAULT now(),
     FOREIGN KEY (cliente_id) REFERENCES clientes(id)
 );
 
 -- Insert initial data into clientes
-INSERT INTO clientes (nome, limite) VALUES
+INSERT INTO clientes (nome, limit) VALUES
     ('o barato sai caro', 1000 * 100),
     ('zan corp ltda', 800 * 100),
     ('les cruders', 10000 * 100),
@@ -27,11 +27,11 @@ INSERT INTO clientes (nome, limite) VALUES
 
 
 -- Procedure for transactions
-CREATE PROCEDURE proc_transacao(IN p_cliente_id INT, IN p_valor INT, IN p_tipo VARCHAR(1), IN p_descricao VARCHAR(255), OUT r_saldo INT, OUT r_limite INT)
+CREATE PROCEDURE proc_transacao(IN p_cliente_id INT, IN p_amount INT, IN p_kind VARCHAR(1), IN p_description VARCHAR(255), OUT r_current_balance INT, OUT r_limit INT)
 BEGIN
     DECLARE count INT;
     DECLARE diff INT;
-    DECLARE n_saldo INT;
+    DECLARE n_current_balance INT;
     
     SELECT COUNT(*) into count 
         FROM clientes
@@ -43,32 +43,32 @@ BEGIN
     END IF;
 
     -- Determine transaction effect
-    IF p_tipo = 'd' THEN
-        SET diff = p_valor * -1;
+    IF p_kind = 'd' THEN
+        SET diff = p_amount * -1;
     ELSE
-        SET diff = p_valor;
+        SET diff = p_amount;
     END IF;
 
     -- Lock the clientes row
-    SELECT saldo, limite, r_saldo + diff
-        INTO r_saldo, r_limite, n_saldo
+    SELECT current_balance, limit, r_current_balance + diff
+        INTO r_current_balance, r_limit, n_current_balance
         FROM clientes 
         WHERE id = p_cliente_id 
         FOR UPDATE;
 
     -- Check if the new balance would exceed the limit
-    IF (n_saldo) < (-1 * r_limite) THEN
+    IF (n_current_balance) < (-1 * r_limit) THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'LIMITE_INDISPONIVEL';
         ROLLBACK;
     ELSE
-        -- Update clientes saldo
-        UPDATE clientes SET saldo = n_saldo WHERE id = p_cliente_id;
+        -- Update clientes current_balance
+        UPDATE clientes SET current_balance = n_current_balance WHERE id = p_cliente_id;
         
         -- Insert into transactions
-        INSERT INTO transactions (cliente_id, valor, tipo, descricao, realizada_em)
-            VALUES (p_cliente_id, p_valor, p_tipo, p_descricao, now(6));
+        INSERT INTO transactions (cliente_id, amount, kind, description, submitted_at)
+            VALUES (p_cliente_id, p_amount, p_kind, p_description, now(6));
 
-        SELECT n_saldo, r_limite AS resultado;
+        SELECT n_current_balance, r_limit AS resultado;
     END IF;
 END;
 
@@ -82,26 +82,26 @@ BEGIN
 
     -- Construct and return the entire JSON in a single query
     SELECT JSON_OBJECT(
-        'saldo', (
+        'current_balance', (
             SELECT JSON_OBJECT(
-                'total', saldo,
-                'limite', limite
+                'total', current_balance,
+                'limit', limit
             )
             FROM clientes
             WHERE id = p_id
         ),
-        'ultimas_transactions', (
+        'recent_transactions', (
             SELECT COALESCE(JSON_ARRAYAGG(
                 JSON_OBJECT(
-                    'valor', valor,
-                    'tipo', tipo,
-                    'descricao', descricao,
-                    'realizada_em', DATE_FORMAT(realizada_em, '%Y-%m-%dT%H:%i:%sZ')
+                    'amount', amount,
+                    'kind', kind,
+                    'description', description,
+                    'submitted_at', DATE_FORMAT(submitted_at, '%Y-%m-%dT%H:%i:%sZ')
                 )
             ), JSON_ARRAY()) 
             FROM transactions
             WHERE cliente_id = p_id
-            ORDER BY realizada_em DESC
+            ORDER BY submitted_at DESC
             LIMIT 10
         )
     ) AS balance;

@@ -1,26 +1,26 @@
 CREATE TABLE clientes (
   id SERIAL PRIMARY KEY,
   nome VARCHAR (50) NOT NULL,
-  limite INTEGER NOT NULL
+  limit INTEGER NOT NULL
 );
 
 CREATE TABLE carteiras (
    id SERIAL PRIMARY KEY,
    cliente_id INTEGER NOT NULL,
-   valor INTEGER NOT NULL,
-   ultimas_transactions json[] NULL
+   amount INTEGER NOT NULL,
+   recent_transactions json[] NULL
 );
 
 DO $$
 BEGIN
-INSERT INTO clientes (nome, limite)
+INSERT INTO clientes (nome, limit)
 VALUES
     ('cliente 1', 1000 * 100),
     ('cliente 2', 800 * 100),
     ('cliente 3', 10000 * 100),
     ('cliente 4', 100000 * 100),
     ('cliente 5', 5000 * 100);
-INSERT INTO carteiras(cliente_id, valor)
+INSERT INTO carteiras(cliente_id, amount)
 SELECT id, 0 FROM clientes;
 END;
 $$;

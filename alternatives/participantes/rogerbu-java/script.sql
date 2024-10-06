@@ -1,7 +1,7 @@
 create table clients
 (
     id     bigserial not null,
-    limite bigint,
+    limit bigint,
     saldo  bigint,
     primary key (id)
 );
@@ -24,7 +24,7 @@ create index if not exists transactions_order_date on transactions using btree (
 DO
 $$
 BEGIN
-insert into clients(id, limite, saldo)
+insert into clients(id, limit, saldo)
 values (1,   1000 * 100, 0),
        (2,    800 * 100, 0),
        (3,  10000 * 100, 0),

@@ -1,23 +1,23 @@
 CREATE TABLE clients (
 	id SERIAL PRIMARY KEY,
-	limite INTEGER NOT NULL,
-    saldo INTEGER NOT NULL
+	limit INTEGER NOT NULL,
+    current_balance INTEGER NOT NULL
 );
 
 CREATE TABLE transactions (
 	id SERIAL PRIMARY KEY,
 	client_id INTEGER NOT NULL,
-	valor INTEGER NOT NULL,
-	tipo CHAR(1) NOT NULL,
-	descricao VARCHAR(10) NOT NULL,
-	realizada_em TIMESTAMP NOT NULL DEFAULT NOW(),
+	amount INTEGER NOT NULL,
+	kind CHAR(1) NOT NULL,
+	description VARCHAR(10) NOT NULL,
+	submitted_at TIMESTAMP NOT NULL DEFAULT NOW(),
 	CONSTRAINT fk_clients
 		FOREIGN KEY (client_id) REFERENCES clients(id)
 );
 
 DO $$
 BEGIN
-    INSERT INTO clients(id, limite, saldo) 
+    INSERT INTO clients(id, limit, current_balance) 
     VALUES 
         (1,100000,0),
         (2,80000,0),
@@ -27,7 +27,7 @@ BEGIN
 END; 
 $$;
 
-CREATE OR REPLACE FUNCTION funcoes(cliente_id int, valor_d int, descricao VARCHAR(10), tipo VARCHAR(1))
+CREATE OR REPLACE FUNCTION funcoes(cliente_id int, amount_d int, description VARCHAR(10), kind VARCHAR(1))
     RETURNS int 
     LANGUAGE plpgsql
     as
@@ -39,24 +39,24 @@ CREATE OR REPLACE FUNCTION funcoes(cliente_id int, valor_d int, descricao VARCHA
     BEGIN 
         PERFORM pg_advisory_xact_lock(cliente_id);
         SELECT
-            limite,
-            saldo
+            limit,
+            current_balance
         INTO
             l_atual,
             s_atual
         FROM clients WHERE id = cliente_id;
 
-        IF tipo = 'd' THEN
-            IF s_atual - valor_d >= l_atual * -1 THEN
-                INSERT INTO transactions(client_Id,valor,tipo,descricao) VALUES (cliente_id,valor_d,'d',descricao);
-                UPDATE clients SET saldo = s_atual - valor_d WHERE id = cliente_id;
+        IF kind = 'd' THEN
+            IF s_atual - amount_d >= l_atual * -1 THEN
+                INSERT INTO transactions(client_Id,amount,kind,description) VALUES (cliente_id,amount_d,'d',description);
+                UPDATE clients SET current_balance = s_atual - amount_d WHERE id = cliente_id;
                 RETURN 1;
             ELSE
                 RETURN 0;
             END IF;
         ELSE
-            INSERT INTO transactions(client_Id,valor,tipo,descricao) VALUES (cliente_id,valor_d,'c',descricao);
-            UPDATE clients SET saldo = s_atual + valor_d WHERE id = cliente_id;
+            INSERT INTO transactions(client_Id,amount,kind,description) VALUES (cliente_id,amount_d,'c',description);
+            UPDATE clients SET current_balance = s_atual + amount_d WHERE id = cliente_id;
             RETURN 1;
         END IF;
     END;

@@ -3,7 +3,7 @@ services:
 
   api01:
     network_mode: host
-    image: ${REGISTRY_USERNAME:-faermanj}/peecs:${PEECS_VERSION:-0.0.1}
+    image: ${REGISTRY_USERNAME:-faermanj}/peecs:${PEECS_VERSION:-0.1.0}
 #    build: ./peecs
     hostname: api01
     container_name: api01
@@ -19,9 +19,10 @@ services:
       - QUARKUS_HTTP_PORT=9001
       - QUARKUS_BANNER_ENABLED=false
       - QUARKUS_HTTP_IDLE_TIMEOUT=45
+      - QUARKUS_VERTX_MAX_EVENT_LOOP_EXECUTE_TIME=10S
       - QUARKUS_DATASOURCE_REACTIVE_URL=postgresql://127.0.0.1:5400/rinha
       - QUARKUS_DATASOURCE_REACTIVE_CACHE_PREPARED_STATEMENTS=true
-      - QUARKUS_DATASOURCE_REACTIVE_MAX_SIZE=20
+      - QUARKUS_DATASOURCE_REACTIVE_MAX_SIZE=40
       - QUARKUS_DATASOURCE_USERNAME=rinha
       - QUARKUS_DATASOURCE_PASSWORD=123
       - QUARKUS_MICROMETER_ENABLED=false
@@ -48,7 +49,7 @@ services:
 
   api02:
     network_mode: host
-    image: ${REGISTRY_USERNAME:-faermanj}/peecs:${PEECS_VERSION:-0.0.1}
+    image: ${REGISTRY_USERNAME:-faermanj}/peecs:${PEECS_VERSION:-0.1.0}
 #    build: ./peecs
     hostname: api02
     container_name: api02
@@ -64,9 +65,10 @@ services:
       - QUARKUS_HTTP_PORT=9002
       - QUARKUS_BANNER_ENABLED=false
       - QUARKUS_HTTP_IDLE_TIMEOUT=45
+      - QUARKUS_VERTX_MAX_EVENT_LOOP_EXECUTE_TIME=10S
       - QUARKUS_DATASOURCE_REACTIVE_URL=postgresql://127.0.0.1:5400/rinha
       - QUARKUS_DATASOURCE_REACTIVE_CACHE_PREPARED_STATEMENTS=true
-      - QUARKUS_DATASOURCE_REACTIVE_MAX_SIZE=20
+      - QUARKUS_DATASOURCE_REACTIVE_MAX_SIZE=40
       - QUARKUS_DATASOURCE_USERNAME=rinha
       - QUARKUS_DATASOURCE_PASSWORD=123
       - QUARKUS_MICROMETER_ENABLED=false
@@ -135,7 +137,7 @@ services:
 #              do \
 #                echo -n \. \$i; \
 #                curl -s http://127.0.0.1:9999/members/333/balance > /dev/null  & \
-#                curl -s -H 'Content-Type: application/json' -d '{\"valor\": 0, \"tipo\": \"d\", \"descricao\": \"warmup\"}' http://127.0.0.1:9999/members/333/transactions > /dev/null  & \
+#                curl -s -H 'Content-Type: application/json' -d '{\"amount\": 0, \"kind\": \"d\", \"description\": \"warmup\"}' http://127.0.0.1:9999/members/333/transactions > /dev/null  & \
 #              done; 
 #              wait; 
 #              echo 'warmup done';"

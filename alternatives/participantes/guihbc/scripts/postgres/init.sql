@@ -1,33 +1,33 @@
 CREATE UNLOGGED TABLE IF NOT EXISTS clientes (
 	id SERIAL PRIMARY KEY,
 	nome VARCHAR(50) NOT NULL,
-	limite INTEGER NOT NULL
+	limit INTEGER NOT NULL
 );
 
 CREATE UNLOGGED TABLE IF NOT EXISTS transactions (
 	id SERIAL PRIMARY KEY,
 	cliente_id INTEGER NOT NULL,
-	valor INTEGER NOT NULL,
-	tipo CHAR(1) NOT NULL,
-	descricao VARCHAR(10) NOT NULL,
-	realizada_em TIMESTAMP NOT NULL DEFAULT NOW(),
+	amount INTEGER NOT NULL,
+	kind CHAR(1) NOT NULL,
+	description VARCHAR(10) NOT NULL,
+	submitted_at TIMESTAMP NOT NULL DEFAULT NOW(),
 	
   CONSTRAINT fk_clientes_transactions_id
 		FOREIGN KEY (cliente_id) REFERENCES clientes(id)
 );
 
-CREATE UNLOGGED TABLE IF NOT EXISTS saldos (
+CREATE UNLOGGED TABLE IF NOT EXISTS current_balances (
 	id SERIAL PRIMARY KEY,
 	cliente_id INTEGER NOT NULL,
-	valor INTEGER NOT NULL,
+	amount INTEGER NOT NULL,
 	
-  CONSTRAINT fk_clientes_saldos_id
+  CONSTRAINT fk_clientes_current_balances_id
 		FOREIGN KEY (cliente_id) REFERENCES clientes(id)
 );
 
 DO $$
 BEGIN
-	INSERT INTO clientes (nome, limite)
+	INSERT INTO clientes (nome, limit)
 	VALUES
 		('Guilherme', 1000 * 100),
 		('Yasmim', 800 * 100),
@@ -35,9 +35,9 @@ BEGIN
 		('Maria', 100000 * 100),
 		('Aparecida', 5000 * 100);
 	
-	INSERT INTO saldos (cliente_id, valor)
+	INSERT INTO current_balances (cliente_id, amount)
 		SELECT id, 0 FROM clientes;
 END;
 $$;
 
-CREATE INDEX idx_saldos_valor ON saldos (valor);
+CREATE INDEX idx_current_balances_amount ON current_balances (amount);

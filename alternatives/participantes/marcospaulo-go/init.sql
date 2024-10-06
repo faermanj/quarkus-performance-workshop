@@ -1,93 +1,93 @@
 CREATE UNLOGGED TABLE clientes
 (
     id     INT PRIMARY KEY,
-    limite INTEGER NOT NULL,
-    saldo  INTEGER NOT NULL DEFAULT 0
+    limit INTEGER NOT NULL,
+    current_balance  INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE UNLOGGED TABLE transactions
 (
     id           SERIAL PRIMARY KEY,
     cliente_id   INTEGER     NOT NULL,
-    valor        INTEGER     NOT NULL,
-    tipo         CHAR(1)     NOT NULL,
-    descricao    VARCHAR(10) NOT NULL,
-    realizada_em TIMESTAMP   NOT NULL DEFAULT NOW(),
+    amount        INTEGER     NOT NULL,
+    kind         CHAR(1)     NOT NULL,
+    description    VARCHAR(10) NOT NULL,
+    submitted_at TIMESTAMP   NOT NULL DEFAULT NOW(),
     CONSTRAINT fk_transactions_clientes_id
         FOREIGN KEY (cliente_id) REFERENCES clientes (id)
 );
 
 CREATE INDEX idx_transactions_cliente_id ON transactions (cliente_id);
 
-CREATE INDEX idx_transactions_cliente_id_realizada_em ON transactions (cliente_id, realizada_em desc);
+CREATE INDEX idx_transactions_cliente_id_submitted_at ON transactions (cliente_id, submitted_at desc);
 
-CREATE INDEX idx_transactions_realizada_em ON transactions (realizada_em desc);
+CREATE INDEX idx_transactions_submitted_at ON transactions (submitted_at desc);
 
 
-CREATE OR REPLACE FUNCTION creditar(cliente_id_p int, valor_p integer, descricao_p varchar(10))
+CREATE OR REPLACE FUNCTION creditar(cliente_id_p int, amount_p integer, description_p varchar(10))
     RETURNS TABLE
             (
-                saldo_r  integer,
-                limite_r integer
+                current_balance_r  integer,
+                limit_r integer
             )
 AS
 $$
 DECLARE
-    saldo_atual  INTEGER;
-    limite_atual INTEGER;
-    novo_saldo   INTEGER;
+    current_balance_atual  INTEGER;
+    limit_atual INTEGER;
+    novo_current_balance   INTEGER;
 BEGIN
 
     PERFORM pg_advisory_xact_lock(cliente_id_p);
 
-    SELECT saldo, limite INTO saldo_atual, limite_atual FROM clientes WHERE id = cliente_id_p;
+    SELECT current_balance, limit INTO current_balance_atual, limit_atual FROM clientes WHERE id = cliente_id_p;
 
-    INSERT INTO transactions (cliente_id, valor, tipo, descricao, realizada_em)
-    VALUES (cliente_id_p, valor_p, 'c', descricao_p, now());
+    INSERT INTO transactions (cliente_id, amount, kind, description, submitted_at)
+    VALUES (cliente_id_p, amount_p, 'c', description_p, now());
 
-    novo_saldo := saldo_atual + valor_p;
+    novo_current_balance := current_balance_atual + amount_p;
 
-    UPDATE clientes SET saldo = novo_saldo WHERE id = cliente_id_p;
+    UPDATE clientes SET current_balance = novo_current_balance WHERE id = cliente_id_p;
 
-    return query select novo_saldo, limite_atual;
+    return query select novo_current_balance, limit_atual;
 
 END;
 $$ LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE FUNCTION debitar(cliente_id_p int, valor_p integer, descricao_p varchar(10))
+CREATE OR REPLACE FUNCTION debitar(cliente_id_p int, amount_p integer, description_p varchar(10))
     RETURNS TABLE
             (
-                saldo_r  integer,
-                limite_r integer,
+                current_balance_r  integer,
+                limit_r integer,
                 status_r integer
             )
 AS
 $$
 DECLARE
-    saldo_atual  INTEGER;
-    limite_atual INTEGER;
-    novo_saldo   INTEGER;
+    current_balance_atual  INTEGER;
+    limit_atual INTEGER;
+    novo_current_balance   INTEGER;
 BEGIN
 
 
     PERFORM pg_advisory_xact_lock(cliente_id_p);
 
-    SELECT limite, saldo INTO limite_atual, saldo_atual FROM clientes WHERE id = cliente_id_p;
+    SELECT limit, current_balance INTO limit_atual, current_balance_atual FROM clientes WHERE id = cliente_id_p;
 
-    IF (saldo_atual - valor_p < limite_atual * -1) THEN
+    IF (current_balance_atual - amount_p < limit_atual * -1) THEN
         return query select 0, 0, 1;
-        --RAISE EXCEPTION 'Valor ultrapassa o limite+saldo';
+        --RAISE EXCEPTION 'Valor ultrapassa o limit+current_balance';
     ELSE
 
-        INSERT INTO transactions (cliente_id, valor, tipo, descricao, realizada_em)
-        VALUES (cliente_id_p, valor_p, 'd', descricao_p, now());
+        INSERT INTO transactions (cliente_id, amount, kind, description, submitted_at)
+        VALUES (cliente_id_p, amount_p, 'd', description_p, now());
 
-        novo_saldo := saldo_atual - valor_p;
+        novo_current_balance := current_balance_atual - amount_p;
 
-        UPDATE clientes SET saldo = novo_saldo WHERE id = cliente_id_p;
+        UPDATE clientes SET current_balance = novo_current_balance WHERE id = cliente_id_p;
     
-        return query select novo_saldo, limite_atual, 0;
+        return query select novo_current_balance, limit_atual, 0;
 
     END IF;
 
@@ -106,7 +106,7 @@ BEGIN
     DELETE
     FROM transactions
     WHERE cliente_id = NEW.cliente_id
-      AND id NOT IN (SELECT id FROM transactions WHERE cliente_id = NEW.cliente_id ORDER BY realizada_em DESC LIMIT 10);
+      AND id NOT IN (SELECT id FROM transactions WHERE cliente_id = NEW.cliente_id ORDER BY submitted_at DESC LIMIT 10);
 
     IF found THEN
         GET DIAGNOSTICS row_count = ROW_COUNT;
@@ -129,7 +129,7 @@ EXECUTE FUNCTION limpar_transactions();
 DO
 $$
     BEGIN
-        INSERT INTO clientes (id, limite)
+        INSERT INTO clientes (id, limit)
         VALUES (1, 100000),
                (2, 80000),
                (3, 1000000),

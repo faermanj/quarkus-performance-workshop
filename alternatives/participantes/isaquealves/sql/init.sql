@@ -26,14 +26,14 @@ CREATE OR REPLACE VIEW account_statement AS
     SELECT s.client_id, jsonb_pretty(jsonb_agg(json_data)) acc_statement FROM
         (SELECT
             c.id as client_id, json_build_object(
-                'saldo', json_build_object(
+                'current_balance', json_build_object(
                     'total', c.amount,
-                    'limite', c."limit",
+                    'limit', c."limit",
                     'date_balance', now()
                     ),
-                'ultimas_transactions', COALESCE(
+                'recent_transactions', COALESCE(
                     (SELECT json_agg(row_to_json(t)) FROM (
-                        SELECT amount as "valor", nature as "tipo", op_description as "descricao", TO_CHAR(created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as realizada_em
+                        SELECT amount as "amount", nature as "kind", op_description as "description", TO_CHAR(created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as submitted_at
                         FROM operation op
                         WHERE op.client_id = c.id
                         ORDER BY created_at DESC

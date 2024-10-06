@@ -1,7 +1,7 @@
 version: "3.8"
 services:
 
-## limites
+## limits
 ## cpus 1.5
 ## memory 550MB
 

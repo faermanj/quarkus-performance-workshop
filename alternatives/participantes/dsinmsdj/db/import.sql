@@ -1,20 +1,20 @@
 CREATE UNLOGGED TABLE cliente (
 	id_cliente SERIAL primary key,
-    limite integer not null,
-	saldo integer not null
+    limit integer not null,
+	current_balance integer not null
 );
 
 CREATE UNLOGGED TABLE transacao (
-	realizada_em timestamp not null default now(),
+	submitted_at timestamp not null default now(),
 	id_cliente integer not null references cliente (id_cliente),
-	valor integer not null,
-	tipo char(1) not null,
-	descricao varchar(10) not null
+	amount integer not null,
+	kind char(1) not null,
+	description varchar(10) not null
 );
 
-CREATE INDEX idx_realizos_em ON transacao (realizada_em);
+CREATE INDEX idx_realizos_em ON transacao (submitted_at);
 
-INSERT INTO cliente (id_cliente, limite, saldo) VALUES
+INSERT INTO cliente (id_cliente, limit, current_balance) VALUES
 (1, 100000, 0),
 (2, 80000, 0),
 (3, 1000000, 0),

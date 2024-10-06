@@ -44,13 +44,13 @@ public class CachedServlet extends HttpServlet {
     private static final String EXTRATO_QUERY = "select * from proc_balance(?)";
     private static final String TRANSACAO_QUERY = "select * from proc_transacao(?, ?, ?, ?, ?)";
     private static final String WARMUP_QUERY = "select 1+1;";
-    private static final String valorPattern = "\"valor\":\\s*(\\d+(\\.\\d+)?)";
-    private static final String tipoPattern = "\"tipo\":\\s*\"([^\"]*)\"";
-    private static final String descricaoPattern = "\"descricao\":\\s*(?:\"([^\"]*)\"|null)";
+    private static final String amountPattern = "\"amount\":\\s*(\\d+(\\.\\d+)?)";
+    private static final String kindPattern = "\"kind\":\\s*\"([^\"]*)\"";
+    private static final String descriptionPattern = "\"description\":\\s*(?:\"([^\"]*)\"|null)";
 
-    private static final Pattern pValor = Pattern.compile(valorPattern);
-    private static final Pattern pTipo = Pattern.compile(tipoPattern);
-    private static final Pattern pDescricao = Pattern.compile(descricaoPattern);
+    private static final Pattern pValor = Pattern.compile(amountPattern);
+    private static final Pattern pTipo = Pattern.compile(kindPattern);
+    private static final Pattern pDescricao = Pattern.compile(descriptionPattern);
 
     @Inject
     DataSource ds;
@@ -205,8 +205,8 @@ public class CachedServlet extends HttpServlet {
             Log.warnf("[%s] %s", sc, msg);
     }
 
-    // curl -v -X POST -H "Content-Type: application/json" -d '{"valor": 100,
-    // "tipo": "c", "descricao": "Deposito"}'
+    // curl -v -X POST -H "Content-Type: application/json" -d '{"amount": 100,
+    // "kind": "c", "description": "Deposito"}'
     // http:///localhost:9999/clientes/1/transactions
     @Override
     public synchronized void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -233,46 +233,46 @@ public class CachedServlet extends HttpServlet {
         Matcher mDescricao = pDescricao.matcher(json);
 
         if (mValor.find() && mTipo.find() && mDescricao.find()) {
-            // Os valores foram extraídos com sucesso
-            String valor = mValor.group(1);
-            String tipo = mTipo.group(1);
-            String descricao = mDescricao.group(1);
+            // Os amountes foram extraídos com sucesso
+            String amount = mValor.group(1);
+            String kind = mTipo.group(1);
+            String description = mDescricao.group(1);
 
-            // Agora você pode usar os valores extraídos para processar a transação
+            // Agora você pode usar os amountes extraídos para processar a transação
             // Este é um exemplo de como você pode prosseguir, ajuste de acordo com sua
             // lógica de negócios
-            postTransacao(id, valor, tipo, descricao, resp);
+            postTransacao(id, amount, kind, description, resp);
         } else {
             sendError(resp, 422, "Corpo da requisição JSON inválido ou incompleto.");
         }
         return;
     }
 
-    private void postTransacao(Integer id, String valorNumber, String tipo, String descricao, HttpServletResponse resp)
+    private void postTransacao(Integer id, String amountNumber, String kind, String description, HttpServletResponse resp)
             throws IOException {
         // Validate and process the transaction as in the original resource
-        if (valorNumber == null || valorNumber.contains(".")) {
+        if (amountNumber == null || amountNumber.contains(".")) {
             if (resp != null)
                 sendError(resp, 422, "Valor invalido");
             return;
         }
 
-        Integer valor = null;
+        Integer amount = null;
         try {
-            valor = Integer.parseInt((String) valorNumber);
+            amount = Integer.parseInt((String) amountNumber);
         } catch (NumberFormatException e) {
             if (resp != null)
                 sendError(resp, 422, "Valor invalido");
             return;
         }
 
-        if (tipo == null || !("c".equals(tipo) || "d".equals(tipo))) {
+        if (kind == null || !("c".equals(kind) || "d".equals(kind))) {
             if (resp != null)
                 sendError(resp, 422, "Tipo invalido");
             return;
         }
 
-        if (descricao == null || descricao.isEmpty() || descricao.length() > 10 || "null".equals(descricao)) {
+        if (description == null || description.isEmpty() || description.length() > 10 || "null".equals(description)) {
             if (resp != null)
                 sendError(resp, 422, "Descricao invalida");
             return;
@@ -283,7 +283,7 @@ public class CachedServlet extends HttpServlet {
             tm.begin();
             acache.lock(id);
             var cliente = loadCliente(id);
-            cliente = cliente.transacao(valor, tipo, descricao);
+            cliente = cliente.transacao(amount, kind, description);
             cache.put(id, cliente);
             if (resp != null){
                 resp.setStatus(cliente.status);
@@ -308,7 +308,7 @@ public class CachedServlet extends HttpServlet {
     private Cliente loadCliente(Integer id) {
         var cliente = cache.get(id);
         if (cliente == null){
-            cliente = Cliente.of(shard, id, "Cliente "+id, 0, Cliente.limiteOf(id), 200, new PriorityQueue<>(Transacao.comparator));
+            cliente = Cliente.of(shard, id, "Cliente "+id, 0, Cliente.limitOf(id), 200, new PriorityQueue<>(Transacao.comparator));
         }
         return cliente;
     }

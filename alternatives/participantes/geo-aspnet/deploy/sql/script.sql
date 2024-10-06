@@ -28,29 +28,29 @@ CREATE UNLOGGED TABLE transactions (
 CREATE INDEX idx_transactions_cliente_id ON transactions (Cliente_Id);
 
 
-CREATE OR REPLACE FUNCTION InserirTransacao(cliente_id INTEGER, valor INTEGER, tipo CHAR, descricao TEXT)
-RETURNS TABLE (limite INTEGER, saldo INTEGER) AS $$
+CREATE OR REPLACE FUNCTION InserirTransacao(cliente_id INTEGER, amount INTEGER, kind CHAR, description TEXT)
+RETURNS TABLE (limit INTEGER, current_balance INTEGER) AS $$
 DECLARE
-    current_limite INTEGER;
-    current_saldo INTEGER;
+    current_limit INTEGER;
+    current_current_balance INTEGER;
 BEGIN    
-    SELECT clientes.limite, clientes.saldo INTO current_limite, current_saldo FROM clientes WHERE id = cliente_id FOR UPDATE;
+    SELECT clientes.limit, clientes.current_balance INTO current_limit, current_current_balance FROM clientes WHERE id = cliente_id FOR UPDATE;
 
-    IF tipo = 'c' THEN
-        current_saldo := current_saldo + valor;
+    IF kind = 'c' THEN
+        current_current_balance := current_current_balance + amount;
     ELSE
-        current_saldo := current_saldo - valor;
+        current_current_balance := current_current_balance - amount;
     END IF;
 
-    IF current_saldo < 0 AND ABS(current_saldo) > current_limite THEN
+    IF current_current_balance < 0 AND ABS(current_current_balance) > current_limit THEN
         RETURN;
     ELSE    
         INSERT INTO transactions (Cliente_Id, Valor, Tipo, Descricao, Realizada_Em)
-        VALUES (cliente_id, valor, tipo, descricao, CURRENT_TIMESTAMP);
+        VALUES (cliente_id, amount, kind, description, CURRENT_TIMESTAMP);
 
-        UPDATE Clientes SET Saldo = current_saldo WHERE Id = cliente_id;
+        UPDATE Clientes SET Saldo = current_current_balance WHERE Id = cliente_id;
 
-        RETURN QUERY SELECT current_limite, current_saldo;
+        RETURN QUERY SELECT current_limit, current_current_balance;
     END IF;
 END;
 $$ LANGUAGE plpgsql;

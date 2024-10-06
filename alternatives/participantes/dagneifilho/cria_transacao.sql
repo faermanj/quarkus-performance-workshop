@@ -1,22 +1,22 @@
 CREATE OR REPLACE FUNCTION realizar_transacao(
     p_id int,
-    p_valor int,
-    p_tipo char,
-    p_descricao text,
+    p_amount int,
+    p_kind char,
+    p_description text,
     p_realizadaEm timestamp
 ) RETURNS RECORD AS $$
 DECLARE 
-  limite int;
-  saldo int;
-  novo_saldo int;
-  novo_limite int;
+  limit int;
+  current_balance int;
+  novo_current_balance int;
+  novo_limit int;
   resultado RECORD;
 BEGIN 
   -- Travar a tabela "Clientes" em modo exclusivo de linha
   LOCK TABLE "Clientes" IN ROW EXCLUSIVE MODE;
   
   -- Selecionar e travar a linha específica para atualização
-  SELECT "Limite", "Saldo" INTO limite, saldo 
+  SELECT "Limite", "Saldo" INTO limit, current_balance 
   FROM "Clientes" c 
   WHERE "Id" = p_id 
   FOR UPDATE;
@@ -24,23 +24,23 @@ BEGIN
     RAISE EXCEPTION 'cliente nao encontrado';
   END IF;
 
-  -- Atualizar o saldo com base no tipo
-  IF (p_tipo = 'd') THEN
-  	IF ((-p_valor + saldo) < -limite) THEN 
-    	RAISE EXCEPTION 'limite insuficiente';
+  -- Atualizar o current_balance com base no kind
+  IF (p_kind = 'd') THEN
+  	IF ((-p_amount + current_balance) < -limit) THEN 
+    	RAISE EXCEPTION 'limit insuficiente';
  	END IF;
-    UPDATE "Clientes" SET "Saldo" = saldo - p_valor WHERE "Id" = p_id	
-    RETURNING "Saldo" AS novo_saldo, "Limite" AS novo_limite INTO novo_saldo, novo_limite;
+    UPDATE "Clientes" SET "Saldo" = current_balance - p_amount WHERE "Id" = p_id	
+    RETURNING "Saldo" AS novo_current_balance, "Limite" AS novo_limit INTO novo_current_balance, novo_limit;
   ELSE
-    UPDATE "Clientes" SET "Saldo" = saldo + p_valor WHERE "Id" = p_id
-    RETURNING "Saldo" AS novo_saldo, "Limite" AS novo_limite INTO novo_saldo, novo_limite;
+    UPDATE "Clientes" SET "Saldo" = current_balance + p_amount WHERE "Id" = p_id
+    RETURNING "Saldo" AS novo_current_balance, "Limite" AS novo_limit INTO novo_current_balance, novo_limit;
   END IF;
 
   -- Inserir na tabela de transações
   INSERT INTO "transactions" ("Tipo", "Valor", "Descricao", "RealizadaEm", "ClienteId") 
-  VALUES (p_tipo, p_valor, p_descricao, p_realizadaEm, p_id);
+  VALUES (p_kind, p_amount, p_description, p_realizadaEm, p_id);
 
-  -- Retornar um record com os valores atualizados
-  resultado := (novo_saldo, novo_limite);
+  -- Retornar um record com os amountes atualizados
+  resultado := (novo_current_balance, novo_limit);
   RETURN resultado;
 END $$ LANGUAGE plpgsql;

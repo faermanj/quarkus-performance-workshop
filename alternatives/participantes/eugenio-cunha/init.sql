@@ -79,19 +79,19 @@ DECLARE
     v_result JSON;
 BEGIN
     SELECT jsonb_build_object(
-        'saldo', jsonb_build_object(
-            'limite', c.limit,
+        'current_balance', jsonb_build_object(
+            'limit', c.limit,
             'total', c.balance,
             'date_balance', CURRENT_TIMESTAMP
         ),
-        'ultimas_transactions', (
+        'recent_transactions', (
             SELECT jsonb_agg(to_jsonb(transaction_by_client))
             FROM (
                 SELECT
-                    t.amount AS valor,
-                    t.type AS tipo,
-                    t.description AS descricao,
-                    t.created_at AS realizada_em
+                    t.amount AS amount,
+                    t.type AS kind,
+                    t.description AS description,
+                    t.created_at AS submitted_at
                 FROM client_transaction AS t
                 WHERE t.client_id = p_id
                 ORDER BY t.created_at DESC

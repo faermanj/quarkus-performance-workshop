@@ -1,63 +1,63 @@
 CREATE UNLOGGED TABLE clientes (
 	id SERIAL PRIMARY KEY,
 	nome VARCHAR(50) NOT NULL,
-	limite INTEGER NOT NULL
+	limit INTEGER NOT NULL
 );
 
 CREATE UNLOGGED TABLE transactions (
 	id SERIAL PRIMARY KEY,
 	cliente_id INTEGER NOT NULL,
-	valor INTEGER NOT NULL,
-	tipo CHAR(1) NOT NULL,
-	descricao VARCHAR(10) NOT NULL,
-	realizada_em TIMESTAMP NOT NULL DEFAULT NOW(),
+	amount INTEGER NOT NULL,
+	kind CHAR(1) NOT NULL,
+	description VARCHAR(10) NOT NULL,
+	submitted_at TIMESTAMP NOT NULL DEFAULT NOW(),
 	CONSTRAINT fk_clientes_transactions_id
 		FOREIGN KEY (cliente_id) REFERENCES clientes(id)
 );
 
 CREATE TABLE transactions1 (
 id SERIAL PRIMARY KEY,
-    saldo INTEGER NOT NULL,
-	valor INTEGER NOT NULL,
-	tipo CHAR(1) NOT NULL,
-	descricao VARCHAR(10) NOT NULL,
-	realizada_em TIMESTAMP NOT NULL DEFAULT NOW()
+    current_balance INTEGER NOT NULL,
+	amount INTEGER NOT NULL,
+	kind CHAR(1) NOT NULL,
+	description VARCHAR(10) NOT NULL,
+	submitted_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 CREATE TABLE transactions2 (
 id SERIAL PRIMARY KEY,
-    saldo INTEGER NOT NULL,
-	valor INTEGER NOT NULL,
-	tipo CHAR(1) NOT NULL,
-	descricao VARCHAR(10) NOT NULL,
-	realizada_em TIMESTAMP NOT NULL DEFAULT NOW()
+    current_balance INTEGER NOT NULL,
+	amount INTEGER NOT NULL,
+	kind CHAR(1) NOT NULL,
+	description VARCHAR(10) NOT NULL,
+	submitted_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 CREATE TABLE transactions3 (
 id SERIAL PRIMARY KEY,
-    saldo INTEGER NOT NULL,
-	valor INTEGER NOT NULL,
-	tipo CHAR(1) NOT NULL,
-	descricao VARCHAR(10) NOT NULL,
-	realizada_em TIMESTAMP NOT NULL DEFAULT NOW()
+    current_balance INTEGER NOT NULL,
+	amount INTEGER NOT NULL,
+	kind CHAR(1) NOT NULL,
+	description VARCHAR(10) NOT NULL,
+	submitted_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 CREATE TABLE transactions4 (
 id SERIAL PRIMARY KEY,
-    saldo INTEGER NOT NULL,
-	valor INTEGER NOT NULL,
-	tipo CHAR(1) NOT NULL,
-	descricao VARCHAR(10) NOT NULL,
-	realizada_em TIMESTAMP NOT NULL DEFAULT NOW()
+    current_balance INTEGER NOT NULL,
+	amount INTEGER NOT NULL,
+	kind CHAR(1) NOT NULL,
+	description VARCHAR(10) NOT NULL,
+	submitted_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 CREATE TABLE transactions5 (
 id SERIAL PRIMARY KEY,
-    saldo INTEGER NOT NULL,
-	valor INTEGER NOT NULL,
-	tipo CHAR(1) NOT NULL,
-	descricao VARCHAR(10) NOT NULL,
-	realizada_em TIMESTAMP NOT NULL DEFAULT NOW()
+    current_balance INTEGER NOT NULL,
+	amount INTEGER NOT NULL,
+	kind CHAR(1) NOT NULL,
+	description VARCHAR(10) NOT NULL,
+	submitted_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
-CREATE UNLOGGED TABLE saldos (
+CREATE UNLOGGED TABLE current_balances (
 	id INTEGER PRIMARY KEY,
-	valor INTEGER NOT NULL
+	amount INTEGER NOT NULL
 );
 
 CREATE OR REPLACE FUNCTION balance1()
@@ -65,7 +65,7 @@ RETURNS TABLE (a INTEGER, b INTEGER, c character(1), d VARCHAR, e TIMESTAMP)
 LANGUAGE plpgsql
 AS $$
 BEGIN
-    RETURN QUERY SELECT saldo a, valor b, tipo c, descricao d, realizada_em e FROM transactions1 order by id desc limit 10;
+    RETURN QUERY SELECT current_balance a, amount b, kind c, description d, submitted_at e FROM transactions1 order by id desc limit 10;
 END;
 $$;
 
@@ -74,7 +74,7 @@ RETURNS TABLE (a INTEGER, b INTEGER, c character(1), d VARCHAR, e TIMESTAMP)
 LANGUAGE plpgsql
 AS $$
 BEGIN
-    RETURN QUERY SELECT saldo a, valor b, tipo c, descricao d, realizada_em e FROM transactions2 order by id desc limit 10;
+    RETURN QUERY SELECT current_balance a, amount b, kind c, description d, submitted_at e FROM transactions2 order by id desc limit 10;
 END;
 $$;
 
@@ -83,7 +83,7 @@ RETURNS TABLE (a INTEGER, b INTEGER, c character(1), d VARCHAR, e TIMESTAMP)
 LANGUAGE plpgsql
 AS $$
 BEGIN
-    RETURN QUERY SELECT saldo a, valor b, tipo c, descricao d, realizada_em e FROM transactions3 order by id desc limit 10;
+    RETURN QUERY SELECT current_balance a, amount b, kind c, description d, submitted_at e FROM transactions3 order by id desc limit 10;
 END;
 $$;
 
@@ -92,7 +92,7 @@ RETURNS TABLE (a INTEGER, b INTEGER, c character(1), d VARCHAR, e TIMESTAMP)
 LANGUAGE plpgsql
 AS $$
 BEGIN
-    RETURN QUERY SELECT saldo a, valor b, tipo c, descricao d, realizada_em e FROM transactions4 order by id desc limit 10;
+    RETURN QUERY SELECT current_balance a, amount b, kind c, description d, submitted_at e FROM transactions4 order by id desc limit 10;
 END;
 $$;
 
@@ -101,7 +101,7 @@ RETURNS TABLE (a INTEGER, b INTEGER, c character(1), d VARCHAR, e TIMESTAMP)
 LANGUAGE plpgsql
 AS $$
 BEGIN
-    RETURN QUERY SELECT saldo a, valor b, tipo c, descricao d, realizada_em e FROM transactions5 order by id desc limit 10;
+    RETURN QUERY SELECT current_balance a, amount b, kind c, description d, submitted_at e FROM transactions5 order by id desc limit 10;
 END;
 $$;
 
@@ -112,8 +112,8 @@ AS $$
 BEGIN
 	PERFORM pg_advisory_xact_lock(1);
 
-	UPDATE saldos SET valor = valor + aa WHERE id = 1 RETURNING valor into cc;
-	INSERT INTO transactions1(saldo, valor, tipo, descricao, realizada_em) VALUES (cc, aa, 'c', b, now());
+	UPDATE current_balances SET amount = amount + aa WHERE id = 1 RETURNING amount into cc;
+	INSERT INTO transactions1(current_balance, amount, kind, description, submitted_at) VALUES (cc, aa, 'c', b, now());
 
 	RETURN QUERY SELECT cc;
 END;
@@ -126,8 +126,8 @@ AS $$
 BEGIN
 	PERFORM pg_advisory_xact_lock(2);
 
-	UPDATE saldos SET valor = valor + aa WHERE id = 2 RETURNING valor into cc;
-	INSERT INTO transactions2(saldo, valor, tipo, descricao, realizada_em) VALUES (cc, aa, 'c', b, now());
+	UPDATE current_balances SET amount = amount + aa WHERE id = 2 RETURNING amount into cc;
+	INSERT INTO transactions2(current_balance, amount, kind, description, submitted_at) VALUES (cc, aa, 'c', b, now());
 
 	RETURN QUERY SELECT cc;
 END;
@@ -140,8 +140,8 @@ AS $$
 BEGIN
 	PERFORM pg_advisory_xact_lock(3);
 
-	UPDATE saldos SET valor = valor + aa WHERE id = 3 RETURNING valor into cc;
-	INSERT INTO transactions3(saldo, valor, tipo, descricao, realizada_em) VALUES (cc, aa, 'c', b, now());
+	UPDATE current_balances SET amount = amount + aa WHERE id = 3 RETURNING amount into cc;
+	INSERT INTO transactions3(current_balance, amount, kind, description, submitted_at) VALUES (cc, aa, 'c', b, now());
 
 	RETURN QUERY SELECT cc;
 END;
@@ -154,8 +154,8 @@ AS $$
 BEGIN
 	PERFORM pg_advisory_xact_lock(4);
 
-	UPDATE saldos SET valor = valor + aa WHERE id = 4 RETURNING valor into cc;
-	INSERT INTO transactions4(saldo, valor, tipo, descricao, realizada_em) VALUES (cc, aa, 'c', b, now());
+	UPDATE current_balances SET amount = amount + aa WHERE id = 4 RETURNING amount into cc;
+	INSERT INTO transactions4(current_balance, amount, kind, description, submitted_at) VALUES (cc, aa, 'c', b, now());
 
 	RETURN QUERY SELECT cc;
 END;
@@ -168,8 +168,8 @@ AS $$
 BEGIN
 	PERFORM pg_advisory_xact_lock(5);
 
-	UPDATE saldos SET valor = valor + aa WHERE id = 5 RETURNING valor into cc;
-	INSERT INTO transactions5(saldo, valor, tipo, descricao, realizada_em) VALUES (cc, aa, 'c', b, now());
+	UPDATE current_balances SET amount = amount + aa WHERE id = 5 RETURNING amount into cc;
+	INSERT INTO transactions5(current_balance, amount, kind, description, submitted_at) VALUES (cc, aa, 'c', b, now());
 
 	RETURN QUERY SELECT cc;
 END;
@@ -182,9 +182,9 @@ AS $$
 BEGIN
 	PERFORM pg_advisory_xact_lock(1);
 
-	UPDATE saldos SET valor = valor - aa WHERE id = 1 AND (valor - aa) >= (c * -1) RETURNING valor into dd;
+	UPDATE current_balances SET amount = amount - aa WHERE id = 1 AND (amount - aa) >= (c * -1) RETURNING amount into dd;
 	IF FOUND THEN
-		INSERT INTO transactions1(saldo, valor, tipo, descricao, realizada_em) VALUES (dd, aa, 'd', b, now());
+		INSERT INTO transactions1(current_balance, amount, kind, description, submitted_at) VALUES (dd, aa, 'd', b, now());
 	ELSE
 		dd := NULL;
 	END IF;
@@ -200,9 +200,9 @@ AS $$
 BEGIN
 	PERFORM pg_advisory_xact_lock(2);
 
-	UPDATE saldos SET valor = valor - aa WHERE id = 2 AND (valor - aa) >= (c * -1) RETURNING valor into dd;
+	UPDATE current_balances SET amount = amount - aa WHERE id = 2 AND (amount - aa) >= (c * -1) RETURNING amount into dd;
 	IF FOUND THEN
-		INSERT INTO transactions2(saldo, valor, tipo, descricao, realizada_em) VALUES (dd, aa, 'd', b, now());
+		INSERT INTO transactions2(current_balance, amount, kind, description, submitted_at) VALUES (dd, aa, 'd', b, now());
 	ELSE
 		dd := NULL;
 	END IF;
@@ -218,9 +218,9 @@ AS $$
 BEGIN
 	PERFORM pg_advisory_xact_lock(3);
 
-	UPDATE saldos SET valor = valor - aa WHERE id = 3 AND (valor - aa) >= (c * -1) RETURNING valor into dd;
+	UPDATE current_balances SET amount = amount - aa WHERE id = 3 AND (amount - aa) >= (c * -1) RETURNING amount into dd;
 	IF FOUND THEN
-		INSERT INTO transactions3(saldo, valor, tipo, descricao, realizada_em) VALUES (dd, aa, 'd', b, now());
+		INSERT INTO transactions3(current_balance, amount, kind, description, submitted_at) VALUES (dd, aa, 'd', b, now());
 	ELSE
 		dd := NULL;
 	END IF;
@@ -236,9 +236,9 @@ AS $$
 BEGIN
 	PERFORM pg_advisory_xact_lock(4);
 
-	UPDATE saldos SET valor = valor - aa WHERE id = 4 AND (valor - aa) >= (c * -1) RETURNING valor into dd;
+	UPDATE current_balances SET amount = amount - aa WHERE id = 4 AND (amount - aa) >= (c * -1) RETURNING amount into dd;
 	IF FOUND THEN
-		INSERT INTO transactions4(saldo, valor, tipo, descricao, realizada_em) VALUES (dd, aa, 'd', b, now());
+		INSERT INTO transactions4(current_balance, amount, kind, description, submitted_at) VALUES (dd, aa, 'd', b, now());
 	ELSE
 		dd := NULL;
 	END IF;
@@ -254,9 +254,9 @@ AS $$
 BEGIN
 	PERFORM pg_advisory_xact_lock(5);
 
-	UPDATE saldos SET valor = valor - aa WHERE id = 5 AND (valor - aa) >= (c * -1) RETURNING valor into dd;
+	UPDATE current_balances SET amount = amount - aa WHERE id = 5 AND (amount - aa) >= (c * -1) RETURNING amount into dd;
 	IF FOUND THEN
-		INSERT INTO transactions5(saldo, valor, tipo, descricao, realizada_em) VALUES (dd, aa, 'd', b, now());
+		INSERT INTO transactions5(current_balance, amount, kind, description, submitted_at) VALUES (dd, aa, 'd', b, now());
 	ELSE
 		dd := NULL;
 	END IF;
@@ -267,7 +267,7 @@ $$;
 
 DO $$
 BEGIN
-	INSERT INTO clientes (nome, limite)
+	INSERT INTO clientes (nome, limit)
 	VALUES
 		('o barato sai caro', 1000 * 100),
 		('zan corp ltda', 800 * 100),
@@ -275,14 +275,14 @@ BEGIN
 		('padaria joia de cocaia', 100000 * 100),
 		('kid mais', 5000 * 100);
 
-	INSERT INTO saldos (id, valor)
+	INSERT INTO current_balances (id, amount)
 		SELECT id, 0 FROM clientes;
 
---insert into public.transactions1(saldo, valor, tipo, descricao, realizada_em) values (0, 0, 'i', 'inicio', now());
---insert into public.transactions2(saldo, valor, tipo, descricao, realizada_em) values (0, 0, 'i', 'inicio', now());
---insert into public.transactions3(saldo, valor, tipo, descricao, realizada_em) values (0, 0, 'i', 'inicio', now());
---insert into public.transactions4(saldo, valor, tipo, descricao, realizada_em) values (0, 0, 'i', 'inicio', now());
---insert into public.transactions5(saldo, valor, tipo, descricao, realizada_em) values (0, 0, 'i', 'inicio', now());
+--insert into public.transactions1(current_balance, amount, kind, description, submitted_at) values (0, 0, 'i', 'inicio', now());
+--insert into public.transactions2(current_balance, amount, kind, description, submitted_at) values (0, 0, 'i', 'inicio', now());
+--insert into public.transactions3(current_balance, amount, kind, description, submitted_at) values (0, 0, 'i', 'inicio', now());
+--insert into public.transactions4(current_balance, amount, kind, description, submitted_at) values (0, 0, 'i', 'inicio', now());
+--insert into public.transactions5(current_balance, amount, kind, description, submitted_at) values (0, 0, 'i', 'inicio', now());
 
 END;
 $$;

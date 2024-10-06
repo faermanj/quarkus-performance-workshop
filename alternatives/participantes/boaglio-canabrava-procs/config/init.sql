@@ -91,8 +91,8 @@ BEGIN
 
     RETURN (
         SELECT json_build_object(
-            'limite', accounts.limit_amount,
-            'saldo', balances.amount
+            'limit', accounts.limit_amount,
+            'current_balance', balances.amount
         )
         FROM accounts
         LEFT JOIN balances ON balances.account_id = accounts.id
@@ -109,20 +109,20 @@ $$
 DECLARE
     statement_json JSON;
 BEGIN
-    SELECT json_build_object('saldo', json_build_object(
+    SELECT json_build_object('current_balance', json_build_object(
         'total', balances.amount,
         'date_balance', NOW()::date,
-        'limite', accounts.limit_amount,
-        'ultimas_transactions',
+        'limit', accounts.limit_amount,
+        'recent_transactions',
             CASE
                 WHEN COUNT(transactions) = 0 THEN '[]'
                 ELSE
                     json_agg(
                         json_build_object(
-                            'valor', transactions.amount,
-                            'tipo', transactions.transaction_type,
-                            'descricao', transactions.description,
-                            'realizada_em', TO_CHAR(transactions.date, 'YYYY-MM-DD HH:MI:SS.US')
+                            'amount', transactions.amount,
+                            'kind', transactions.transaction_type,
+                            'description', transactions.description,
+                            'submitted_at', TO_CHAR(transactions.date, 'YYYY-MM-DD HH:MI:SS.US')
                         )
                     )
             END

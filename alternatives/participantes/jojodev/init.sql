@@ -1,29 +1,29 @@
 CREATE UNLOGGED TABLE clientes (
     id SERIAL PRIMARY KEY,
     nome VARCHAR(50) NOT NULL,
-    limite INT NOT NULL
+    limit INT NOT NULL
 );
 
-CREATE UNLOGGED TABLE saldos(
+CREATE UNLOGGED TABLE current_balances(
 	id SERIAL PRIMARY KEY,
 	cliente_id INTEGER NOT NULL,
-	valor INTEGER NOT NULL,
+	amount INTEGER NOT NULL,
 	FOREIGN KEY (cliente_id) REFERENCES clientes(id)
 );
 
 CREATE UNLOGGED TABLE transactions (
     id SERIAL PRIMARY KEY,
-    valor INT NOT NULL,
-    tipo CHAR(1) CHECK (tipo IN ('c', 'd')) NOT NULL,
-    descricao VARCHAR(10) NOT NULL,
-    realizada_em TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    amount INT NOT NULL,
+    kind CHAR(1) CHECK (kind IN ('c', 'd')) NOT NULL,
+    description VARCHAR(10) NOT NULL,
+    submitted_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     cliente_id INT,
     FOREIGN KEY (cliente_id) REFERENCES clientes(id)
 );
 
 DO $$
 BEGIN
-	INSERT INTO clientes (nome, limite)
+	INSERT INTO clientes (nome, limit)
 	VALUES
 		('o barato sai caro', 1000 * 100),
 		('zan corp ltda', 800 * 100),
@@ -31,7 +31,7 @@ BEGIN
 		('padaria joia de cocaia', 100000 * 100),
 		('kid mais', 5000 * 100);
 	
-	INSERT INTO saldos (cliente_id, valor)
+	INSERT INTO current_balances (cliente_id, amount)
 		SELECT id, 0 FROM clientes;
 END;
 $$;

@@ -55,7 +55,7 @@ ARG MVN_XOPTS="-fn -B -ntp -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.tra
 RUN bash -c ". $HOME/.sdkman/bin/sdkman-init.sh \
     && mvn $MVN_XOPTS install"
 
-## Link
+## Link ????
 # jdeps --ignore-missing-deps --multi-release=21 --list-deps peecs-0.0.1-runner.jar
 ARG JAVA_MODULES="java.base,java.compiler,java.desktop,java.logging,java.management,java.naming,java.rmi,java.security.sasl,java.sql,java.transaction.xa,java.xml,jdk.compiler,jdk.compiler,jdk.unsupported,org.graalvm.nativeimage,org.graalvm.word"
 RUN bash -c ". $HOME/.sdkman/bin/sdkman-init.sh \
@@ -91,5 +91,6 @@ COPY --from=build --chown=$USERNAME $CP_FROM $CP_TO
 EXPOSE 9990
 
 # ARG JAVA_XARGS="-XX:+UseSerialGC -XX:InitialRAMPercentage=95.0"
-ARG JAVA_XARGS="-XX:+UseZGC -XX:InitialRAMPercentage=90.0  -XX:MaxRAMPercentage=95.0"
+# ARG JAVA_XARGS="-XX:+UseZGC -XX:InitialRAMPercentage=90.0  -XX:MaxRAMPercentage=95.0"
+ARG JAVA_XARGS=""
 ENTRYPOINT /home/container-user/quarkus-app/target/jre/bin/java $JAVA_XARGS -jar /home/container-user/quarkus-app/target/peecs-runner.jar 

@@ -50,7 +50,7 @@ BEGIN
     INSERT INTO transactions (client_id, value, type, description)
     VALUES (_id, _value, _type, _description);
 
-    RETURN format('{"limite": %s, "saldo": %s}', _limit, _balance);
+    RETURN format('{"limit": %s, "current_balance": %s}', _limit, _balance);
 END;
 $$ LANGUAGE plpgsql;
 
@@ -61,7 +61,7 @@ DECLARE
     last_transactions JSON;
 BEGIN
     SELECT format(
-        '{"total": %s, "limite": %s, "date_balance": "%s"}',
+        '{"total": %s, "limit": %s, "date_balance": "%s"}',
         balance, limit_, CURRENT_TIMESTAMP::TIMESTAMP
     )
     INTO _balance FROM clients WHERE id = _id;
@@ -72,7 +72,7 @@ BEGIN
 
     SELECT json_agg(
         format(
-            '{"valor": %s, "tipo": "%s", "descricao": "%s", "realizada_em": "%s"}',
+            '{"amount": %s, "kind": "%s", "description": "%s", "submitted_at": "%s"}',
             value, type, description, created_at
         )::JSON
     )
@@ -83,7 +83,7 @@ BEGIN
     );
 
     RETURN json_build_object(
-        'saldo', _balance, 'ultimas_transactions', last_transactions
+        'current_balance', _balance, 'recent_transactions', last_transactions
     );
 END;
 $$ LANGUAGE plpgsql;

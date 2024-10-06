@@ -1,4 +1,4 @@
-INSERT INTO members(id, nome, limite, saldo) 
+INSERT INTO members(id, nome, limit, saldo) 
 VALUES
 (1, 'João',100000, 0),
 (2, 'Maria', 80000, 0),

@@ -1,21 +1,21 @@
 CREATE TABLE IF NOT EXISTS clientes (
 	cliente_id BIGSERIAL PRIMARY KEY,
 	nome VARCHAR(50),
-	limite INT DEFAULT 0,
-	saldo INT DEFAULT 0
+	limit INT DEFAULT 0,
+	current_balance INT DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS transactions (
 	transactions_id BIGSERIAL PRIMARY KEY,
 	cliente_id INT,
-	valor INT,
-	tipo VARCHAR(1),
-	descricao VARCHAR(10),
-	realizada_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	amount INT,
+	kind VARCHAR(1),
+	description VARCHAR(10),
+	submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	FOREIGN KEY (cliente_id) REFERENCES clientes(cliente_id)
 );
 
-INSERT INTO clientes (nome, limite) VALUES
+INSERT INTO clientes (nome, limit) VALUES
   	('o barato sai caro', 1000 * 100),
   	('zan corp ltda', 800 * 100),
   	('les cruders', 10000 * 100),

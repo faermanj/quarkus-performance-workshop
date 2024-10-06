@@ -1,31 +1,31 @@
 CREATE UNLOGGED TABLE clientes (
 	id SERIAL PRIMARY KEY,
 	nome VARCHAR(50) NOT NULL,
-	limite INTEGER NOT NULL
+	limit INTEGER NOT NULL
 );
 
 CREATE UNLOGGED TABLE transactions (
 	id SERIAL PRIMARY KEY,
 	cliente_id INTEGER NOT NULL,
-	valor INTEGER NOT NULL,
-	tipo CHAR(1) NOT NULL,
-	descricao VARCHAR(10) NOT NULL,
-	realizada_em TIMESTAMP NOT NULL DEFAULT NOW(),
+	amount INTEGER NOT NULL,
+	kind CHAR(1) NOT NULL,
+	description VARCHAR(10) NOT NULL,
+	submitted_at TIMESTAMP NOT NULL DEFAULT NOW(),
 	CONSTRAINT fk_clientes_transactions_id
 		FOREIGN KEY (cliente_id) REFERENCES clientes(id)
 );
 
-CREATE UNLOGGED TABLE saldos (
+CREATE UNLOGGED TABLE current_balances (
 	id SERIAL PRIMARY KEY,
 	cliente_id INTEGER NOT NULL,
-	valor INTEGER NOT NULL,
-	CONSTRAINT fk_clientes_saldos_id
+	amount INTEGER NOT NULL,
+	CONSTRAINT fk_clientes_current_balances_id
 		FOREIGN KEY (cliente_id) REFERENCES clientes(id)
 );
 
 DO $$
 BEGIN
-INSERT INTO clientes (nome, limite)
+INSERT INTO clientes (nome, limit)
 VALUES
     ('o barato sai caro', 1000 * 100),
     ('zan corp ltda', 800 * 100),
@@ -33,59 +33,59 @@ VALUES
     ('padaria joia de cocaia', 100000 * 100),
     ('kid mais', 5000 * 100);
 
-INSERT INTO saldos (cliente_id, valor)
+INSERT INTO current_balances (cliente_id, amount)
 SELECT id, 0 FROM clientes;
 END;
 $$;
 
 CREATE OR REPLACE FUNCTION debitar(
 	cliente_id_tx INT,
-	valor_tx INT,
-	descricao_tx VARCHAR(10))
+	amount_tx INT,
+	description_tx VARCHAR(10))
 RETURNS TABLE (
-	novo_saldo INT,
+	novo_current_balance INT,
 	possui_erro BOOL,
 	mensagem VARCHAR(20))
 LANGUAGE plpgsql
 AS $$
 DECLARE
-saldo_atual int;
-	limite_atual int;
+current_balance_atual int;
+	limit_atual int;
 BEGIN
 	PERFORM pg_advisory_xact_lock(cliente_id_tx);
 SELECT
-    c.limite,
-    COALESCE(s.valor, 0)
+    c.limit,
+    COALESCE(s.amount, 0)
 INTO
-    limite_atual,
-    saldo_atual
+    limit_atual,
+    current_balance_atual
 FROM clientes c
-         LEFT JOIN saldos s
+         LEFT JOIN current_balances s
                    ON c.id = s.cliente_id
 WHERE c.id = cliente_id_tx;
 
-IF saldo_atual - valor_tx >= limite_atual * -1 THEN
+IF current_balance_atual - amount_tx >= limit_atual * -1 THEN
 		INSERT INTO transactions
-			VALUES(DEFAULT, cliente_id_tx, valor_tx, 'd', descricao_tx, NOW());
+			VALUES(DEFAULT, cliente_id_tx, amount_tx, 'd', description_tx, NOW());
 
-UPDATE saldos
-SET valor = valor - valor_tx
+UPDATE current_balances
+SET amount = amount - amount_tx
 WHERE cliente_id = cliente_id_tx;
 
 RETURN QUERY
 SELECT
-    valor,
+    amount,
     FALSE,
     'ok'::VARCHAR(20)
-FROM saldos
+FROM current_balances
 WHERE cliente_id = cliente_id_tx;
 ELSE
 		RETURN QUERY
 SELECT
-    valor,
+    amount,
     TRUE,
-    'saldo insuficente'::VARCHAR(20)
-FROM saldos
+    'current_balance insuficente'::VARCHAR(20)
+FROM current_balances
 WHERE cliente_id = cliente_id_tx;
 END IF;
 END;
@@ -93,10 +93,10 @@ $$;
 
 CREATE OR REPLACE FUNCTION creditar(
 	cliente_id_tx INT,
-	valor_tx INT,
-	descricao_tx VARCHAR(10))
+	amount_tx INT,
+	description_tx VARCHAR(10))
 RETURNS TABLE (
-	novo_saldo INT,
+	novo_current_balance INT,
 	possui_erro BOOL,
 	mensagem VARCHAR(20))
 LANGUAGE plpgsql
@@ -105,12 +105,12 @@ BEGIN
 	PERFORM pg_advisory_xact_lock(cliente_id_tx);
 
 INSERT INTO transactions
-VALUES(DEFAULT, cliente_id_tx, valor_tx, 'c', descricao_tx, NOW());
+VALUES(DEFAULT, cliente_id_tx, amount_tx, 'c', description_tx, NOW());
 
 RETURN QUERY
-UPDATE saldos
-SET valor = valor + valor_tx
+UPDATE current_balances
+SET amount = amount + amount_tx
 WHERE cliente_id = cliente_id_tx
-    RETURNING valor, FALSE, 'ok'::VARCHAR(20);
+    RETURNING amount, FALSE, 'ok'::VARCHAR(20);
 END;
 $$;

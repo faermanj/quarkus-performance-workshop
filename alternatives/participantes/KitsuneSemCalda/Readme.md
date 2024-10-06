@@ -25,9 +25,9 @@ Ela oferece uma variedade de funcionalidades, incluindo associações (tem um, t
 
 Ela implementa a interface http.Handler, portanto, é compatível com o http.ServeMux padrão. 
 
-As solicitações podem ser correspondidas com base no host da URL, caminho, prefixo do caminho, esquemas, valores de cabeçalho e consulta, métodos HTTP ou usando correspondentes personalizados. 
+As solicitações podem ser correspondidas com base no host da URL, caminho, prefixo do caminho, esquemas, amountes de cabeçalho e consulta, métodos HTTP ou usando correspondentes personalizados. 
 
-Os hosts da URL, caminhos e valores de consulta podem ter variáveis com uma expressão regular opcional.
+Os hosts da URL, caminhos e amountes de consulta podem ter variáveis com uma expressão regular opcional.
 
 As URLs registradas podem ser construídas, ou “invertidas”, o que ajuda a manter referências aos recursos.
 

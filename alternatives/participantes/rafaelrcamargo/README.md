@@ -4,7 +4,7 @@
 
 Talvez a submissão mais simples de todas, ela não faz um A a mais que o pedido, uma stack feita inteiramente para a rinha, é... é bem isso. INTEIRAMENTE para a rinha. E quando falo isso nem exagero.
 
-O ponto de partida foi o banco de dados, com a ideia de criar um banco específico para o desafio que não saía da minha cabeça. Em poucos dias, com um protótipo funcionando, não havia mais volta. Quem desenvolve um banco, cria um servidor HTTP, e quem cria um servidor HTTP, implementa um load balancer.
+O ponto de partida foi o banco de dados, com a ideia de criar um banco específico para o desafio que não saía da minha cabeça. Em poucos dias, com um protókind funcionando, não havia mais volta. Quem desenvolve um banco, cria um servidor HTTP, e quem cria um servidor HTTP, implementa um load balancer.
 
 E assim se foram horas das minhas últimas semanas, mas o resultado é **incrivelmente interessante** para qualquer um querendo entender mais sobre **bancos de dados, TCP e UDP, e programação em "baixo" nível em Rust.** E quando digo isso, não é um exagero; a maioria do código, após o parse do JSON, _utiliza apenas bytes_ para evitar [alocações desnecessárias e cópias em memória](https://preview.redd.it/b53rkfcszl761.png?auto=webp&s=e8e64a15689286b2ffbd8d596db50bc95953d209).
 
@@ -22,11 +22,11 @@ E assim se foram horas das minhas últimas semanas, mas o resultado é **incrive
 
 O load balancer é um servidor TCP que aceita conexões de members e as distribui entre os servidores HTTP disponíveis usando um algoritmo de `round-robin`. Ele vai aceitar 16 conexões simultâneas, e é capaz de distribuir as requisições de forma otimista, ou seja, _sem esperar a resposta do servidor HTTP_ para encaminhar a próxima requisição.
 
-Vale ressaltar que o algoritmo de `round-robin` é feito da forma mais _BigBrain_ que existe, usando um `AtomicBool`, um valor que pode ser lido e escrito de forma segura **por múltiplas threads** e que calha de ser exatamente o que precisamos para fazer o `round-robin` entre 2 servidores.
+Vale ressaltar que o algoritmo de `round-robin` é feito da forma mais _BigBrain_ que existe, usando um `AtomicBool`, um amount que pode ser lido e escrito de forma segura **por múltiplas threads** e que calha de ser exatamente o que precisamos para fazer o `round-robin` entre 2 servidores.
 
 ## Sobre servidor HTTP
 
-O servidor HTTP é um listener TCP que aceita até 4 conexões simultâneas, o servidor aproveita a vantagem de ser feito para este exato caso de uso e é capaz de **ler apenas 1 byte para determinar o tipo de requisição**, mais 1 byte para o ID e **somente quando necessário encontrar o body e desserializar o JSON**. Dessa forma, _o request em si nunca precisa ser totalmente serializado em memória_, economizando tempo e recursos.
+O servidor HTTP é um listener TCP que aceita até 4 conexões simultâneas, o servidor aproveita a vantagem de ser feito para este exato caso de uso e é capaz de **ler apenas 1 byte para determinar o kind de requisição**, mais 1 byte para o ID e **somente quando necessário encontrar o body e desserializar o JSON**. Dessa forma, _o request em si nunca precisa ser totalmente serializado em memória_, economizando tempo e recursos.
 
 ## Sobre banco de dados
 
@@ -46,7 +46,7 @@ docker-compose up
 
 > [!IMPORTANT]
 >
-> Se você ainda é iniciante em Rust e está pensando em usar esse código como referencia, por favor, [prossiga com cuidado](https://preview.redd.it/1qso2ve8eza41.jpg?auto=webp&s=a86448cf247e24795e974fab23ff0243b9b81abc). Este código usa de diversas tecnicas que seriam **incrievelmente inseguras** em um ambiente de produção, como o uso de `unsafe` e `transmute` para manipular memória. Além disso, o código não é testado e não possui nenhum tipo de garantia de funcionamento. **(Mas é incrivelmente divertido de ler, eu prometo!)**
+> Se você ainda é iniciante em Rust e está pensando em usar esse código como referencia, por favor, [prossiga com cuidado](https://preview.redd.it/1qso2ve8eza41.jpg?auto=webp&s=a86448cf247e24795e974fab23ff0243b9b81abc). Este código usa de diversas tecnicas que seriam **incrievelmente inseguras** em um ambiente de produção, como o uso de `unsafe` e `transmute` para manipular memória. Além disso, o código não é testado e não possui nenhum kind de garantia de funcionamento. **(Mas é incrivelmente divertido de ler, eu prometo!)**
 
 Fora isso, espero que você se divirta tanto lendo o código quanto eu me diverti escrevendo. E, se você tiver alguma dúvida, não hesite em me chamar no Twitter, caso queira entender como ou por que algo foi feito de uma forma específica ou me xingar por ter feito algo de forma tão irresponsável. 😃
 

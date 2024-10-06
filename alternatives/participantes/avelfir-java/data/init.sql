@@ -1,17 +1,17 @@
 CREATE TABLE IF NOT EXISTS clientes (
 	id SERIAL PRIMARY KEY,
 	nome VARCHAR(50) NOT NULL,
-    limite INT DEFAULT 0 NOT NULL,
-    saldo INT DEFAULT 0 NOT NULL
+    limit INT DEFAULT 0 NOT NULL,
+    current_balance INT DEFAULT 0 NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS transactions (
 	id SERIAL PRIMARY KEY,
     id_cliente INT,
-    valor INT DEFAULT 0 NOT NULL,
-	tipo int NOT NULL,
-	descricao VARCHAR(10) NOT NULL,
-	realizada_em TIMESTAMP NOT NULL,
+    amount INT DEFAULT 0 NOT NULL,
+	kind int NOT NULL,
+	description VARCHAR(10) NOT NULL,
+	submitted_at TIMESTAMP NOT NULL,
 	CONSTRAINT fk_clientes_transactions_id
 		FOREIGN KEY (id_cliente) REFERENCES clientes(id)
 );
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS transactions (
 
 DO $$
 BEGIN
-INSERT INTO clientes (nome, limite)
+INSERT INTO clientes (nome, limit)
 VALUES
     ('diablo', 1000 * 100),
     ('baldurs gate', 800 * 100),

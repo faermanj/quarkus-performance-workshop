@@ -1,18 +1,18 @@
 CREATE UNLOGGED TABLE customer
 (
     id SERIAL PRIMARY KEY,
-    limite BIGINT NOT NULL,
-    saldo  BIGINT NOT NULL
+    limit BIGINT NOT NULL,
+    current_balance  BIGINT NOT NULL
 );
 
 CREATE UNLOGGED TABLE transaction
 (
     id SERIAL PRIMARY KEY,
     customer_id  INT     NOT NULL,
-    valor        BIGINT     NOT NULL,
-    tipo         CHAR(1)     NOT NULL,
-    descricao    VARCHAR(10) NOT NULL,
-    realizada_em TIMESTAMP   NOT NULL DEFAULT NOW(),
+    amount        BIGINT     NOT NULL,
+    kind         CHAR(1)     NOT NULL,
+    description    VARCHAR(10) NOT NULL,
+    submitted_at TIMESTAMP   NOT NULL DEFAULT NOW(),
     CONSTRAINT fk_customer_id
         FOREIGN KEY (customer_id) REFERENCES customer (id)
 );
@@ -20,7 +20,7 @@ CREATE UNLOGGED TABLE transaction
 
 BEGIN;
 
-INSERT INTO customer(id, limite, saldo)
+INSERT INTO customer(id, limit, current_balance)
 VALUES (1, 100000, 0),
        (2, 80000, 0),
        (3, 1000000, 0),

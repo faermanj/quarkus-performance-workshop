@@ -10,22 +10,22 @@ CREATE TABLESPACE tablespace7 location '/var/lib/postgresql/tablespaces/tablespa
 
 CREATE TABLE if not exists cliente (
     id      int not null primary key,
-    limite  int not null,
-    saldo   int not null, CHECK ( saldo + limite >= 0 )
+    limit  int not null,
+    current_balance   int not null, CHECK ( current_balance + limit >= 0 )
 );
 
-insert into cliente (id, limite, saldo) values (1, 100000, 0);
-insert into cliente (id, limite, saldo) values (2, 80000, 0);
-insert into cliente (id, limite, saldo) values (3, 1000000, 0);
-insert into cliente (id, limite, saldo) values (4, 10000000, 0);
-insert into cliente (id, limite, saldo) values (5, 500000, 0);
+insert into cliente (id, limit, current_balance) values (1, 100000, 0);
+insert into cliente (id, limit, current_balance) values (2, 80000, 0);
+insert into cliente (id, limit, current_balance) values (3, 1000000, 0);
+insert into cliente (id, limit, current_balance) values (4, 10000000, 0);
+insert into cliente (id, limit, current_balance) values (5, 500000, 0);
 
 CREATE TABLE if not exists transacao(
     id          serial not null,
     cliente_id  int not null,
     operacao    char(1) not null,
-    valor       int not null,
-    descricao   varchar(10) not null,
+    amount       int not null,
+    description   varchar(10) not null,
     criacao     timestamp with time zone not null DEFAULT NOW()
 ) PARTITION BY HASH(cliente_id) tablespace cliente;
 

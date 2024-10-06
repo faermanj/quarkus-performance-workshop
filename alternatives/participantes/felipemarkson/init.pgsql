@@ -1,21 +1,21 @@
 CREATE UNLOGGED TABLE clientes (
     id SERIAL PRIMARY KEY,
-    limite INTEGER NOT NULL,
-    saldo INTEGER NOT NULL CHECK(saldo >= -limite)
+    limit INTEGER NOT NULL,
+    current_balance INTEGER NOT NULL CHECK(current_balance >= -limit)
 );
 
 CREATE UNLOGGED TABLE transactions (
     id SERIAL PRIMARY KEY,
     cliente_id INTEGER NOT NULL REFERENCES clientes(id),
-    valor INTEGER NOT NULL,
-    tipo CHAR(1) NOT NULL,
-    descricao VARCHAR(10) NOT NULL,
-    realizada_em TIMESTAMP NOT NULL DEFAULT NOW()
+    amount INTEGER NOT NULL,
+    kind CHAR(1) NOT NULL,
+    description VARCHAR(10) NOT NULL,
+    submitted_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 DO $$
 BEGIN
-    INSERT INTO clientes (limite, saldo)
+    INSERT INTO clientes (limit, current_balance)
     VALUES
         (1000   * 100, 0),
         (800    * 100, 0),
@@ -28,8 +28,8 @@ $$;
 
 CREATE OR REPLACE FUNCTION push_credito(
     cliente_id_in INTEGER,
-    valor_in INTEGER,
-    descricao_in VARCHAR(10)
+    amount_in INTEGER,
+    description_in VARCHAR(10)
 )
 RETURNS json
 LANGUAGE plpgsql
@@ -38,16 +38,16 @@ DECLARE
   ret json;
 BEGIN
     WITH rw AS (
-        UPDATE clientes SET saldo = saldo + valor_in
+        UPDATE clientes SET current_balance = current_balance + amount_in
         WHERE id = cliente_id_in
-        RETURNING limite, saldo
+        RETURNING limit, current_balance
     ) SELECT to_json(rw) FROM rw INTO ret;
 
     IF NOT FOUND THEN RETURN NULL;
     END IF;
 
-    INSERT INTO transactions(cliente_id, valor, tipo, descricao)
-    VALUES (cliente_id_in, valor_in, 'c' ,descricao_in);
+    INSERT INTO transactions(cliente_id, amount, kind, description)
+    VALUES (cliente_id_in, amount_in, 'c' ,description_in);
 
     RETURN ret;
 END
@@ -55,8 +55,8 @@ $$;
 
 CREATE OR REPLACE FUNCTION push_debito(
     cliente_id_in int,
-    valor_in int,
-    descricao_in varchar(10)
+    amount_in int,
+    description_in varchar(10)
 )
 RETURNS json
 LANGUAGE plpgsql
@@ -65,16 +65,16 @@ DECLARE
   ret json;
 BEGIN
     WITH rw AS (
-        UPDATE clientes SET saldo = saldo - valor_in
+        UPDATE clientes SET current_balance = current_balance - amount_in
         WHERE id = cliente_id_in
-        RETURNING limite, saldo
+        RETURNING limit, current_balance
     ) SELECT to_json(rw) FROM rw INTO ret;
 
     IF NOT FOUND THEN RETURN NULL;
     END IF;
 
-    INSERT INTO transactions(cliente_id, valor, tipo, descricao)
-    VALUES (cliente_id_in, valor_in, 'd' ,descricao_in);
+    INSERT INTO transactions(cliente_id, amount, kind, description)
+    VALUES (cliente_id_in, amount_in, 'd' ,description_in);
     
     RETURN ret;
 
@@ -94,16 +94,16 @@ DECLARE
   ret json;
 BEGIN
     SELECT json_build_object (
-        'saldo', (
+        'current_balance', (
             SELECT to_json(sld) FROM (
-                SELECT saldo AS total, LOCALTIMESTAMP AS date_balance, limite
+                SELECT current_balance AS total, LOCALTIMESTAMP AS date_balance, limit
                 FROM clientes WHERE clientes.id = cliente_id_in LIMIT 1
             ) sld
         ),
-        'ultimas_transactions',(
+        'recent_transactions',(
             SELECT coalesce(json_agg(tr), '[]'::json) FROM (
-                SELECT valor, tipo, descricao, realizada_em FROM transactions
-                WHERE cliente_id = cliente_id_in ORDER BY realizada_em DESC LIMIT 10
+                SELECT amount, kind, description, submitted_at FROM transactions
+                WHERE cliente_id = cliente_id_in ORDER BY submitted_at DESC LIMIT 10
             ) tr
         )
     ) INTO ret;

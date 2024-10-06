@@ -1,8 +1,8 @@
 CREATE UNLOGGED TABLE IF NOT EXISTS clientes (
   "id" INTEGER PRIMARY KEY NOT NULL,
   "saldo" INTEGER NOT NULL,
-  "limite" INTEGER NOT NULL,
-  "ultimas_transactions" JSONB NOT NULL DEFAULT '[]'::JSONB
+  "limit" INTEGER NOT NULL,
+  "recent_transactions" JSONB NOT NULL DEFAULT '[]'::JSONB
 );
 DELETE FROM clientes;
 INSERT INTO clientes VALUES(1,0,100000,'[]');

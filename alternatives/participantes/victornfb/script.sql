@@ -4,22 +4,22 @@ DROP TABLE IF EXISTS Account;
 
 CREATE TABLE Account (
   id SERIAL PRIMARY KEY,
-  limite INTEGER NOT NULL DEFAULT 0,
-  saldo INTEGER NOT NULL DEFAULT 0
+  limit INTEGER NOT NULL DEFAULT 0,
+  current_balance INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE TABLE Transaction (
   id SERIAL PRIMARY KEY,
   account_id INTEGER REFERENCES Account(id),
-  valor INTEGER NOT NULL,
-  tipo CHAR(1) NOT NULL,
-  descricao VARCHAR(10) NOT NULL,
-  realizada_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+  amount INTEGER NOT NULL,
+  kind CHAR(1) NOT NULL,
+  description VARCHAR(10) NOT NULL,
+  submitted_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_transaction_accountId_createdAt ON Transaction (account_id, realizada_em DESC);
+CREATE INDEX idx_transaction_accountId_createdAt ON Transaction (account_id, submitted_at DESC);
 
-INSERT INTO Account (id, limite)
+INSERT INTO Account (id, limit)
 VALUES
   (1, 100000),
   (2, 80000),

@@ -33,7 +33,7 @@ $$
             user_id     bigint
         );
 
--- Inserção de valores iniciais na tabela clientes
+-- Inserção de amountes iniciais na tabela clientes
         INSERT INTO users (id, balance, "limit") VALUES (1, 0, -100000);
         INSERT INTO users (id, balance, "limit") VALUES (2, 0, -80000);
         INSERT INTO users (id, balance, "limit") VALUES (3, 0, -1000000);

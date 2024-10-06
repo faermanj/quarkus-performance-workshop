@@ -1,31 +1,31 @@
 CREATE TABLE members (
 	id SERIAL PRIMARY KEY,
 	nome VARCHAR(50) NOT NULL,
-	limite INTEGER NOT NULL
+	limit INTEGER NOT NULL
 );
 
 CREATE TABLE transactions (
 	id SERIAL PRIMARY KEY,
 	cliente_id INTEGER NOT NULL,
-	valor INTEGER NOT NULL,
-	tipo CHAR(1) NOT NULL,
-	descricao VARCHAR(10) NOT NULL,
-	realizada_em TIMESTAMP NOT NULL DEFAULT NOW(),
+	amount INTEGER NOT NULL,
+	kind CHAR(1) NOT NULL,
+	description VARCHAR(10) NOT NULL,
+	submitted_at TIMESTAMP NOT NULL DEFAULT NOW(),
 	CONSTRAINT fk_members_transactions_id
 		FOREIGN KEY (cliente_id) REFERENCES members(id)
 );
 
-CREATE TABLE saldos (
+CREATE TABLE current_balances (
 	id SERIAL PRIMARY KEY,
 	cliente_id INTEGER NOT NULL,
-	valor INTEGER NOT NULL,
-	CONSTRAINT fk_members_saldos_id
+	amount INTEGER NOT NULL,
+	CONSTRAINT fk_members_current_balances_id
 		FOREIGN KEY (cliente_id) REFERENCES members(id)
 );
 
 DO $$
 BEGIN
-	INSERT INTO members (nome, limite)
+	INSERT INTO members (nome, limit)
 	VALUES
 		('o barato sai caro', 1000 * 100),
 		('zan corp ltda', 800 * 100),
@@ -33,32 +33,32 @@ BEGIN
 		('padaria joia de cocaia', 100000 * 100),
 		('kid mais', 5000 * 100);
 	
-	INSERT INTO saldos (cliente_id, valor)
+	INSERT INTO current_balances (cliente_id, amount)
 		SELECT id, 0 FROM members;
 END;
 $$;
 
 
 --  SERÁ SE DA CERTO?
--- create or replace function atualiza_saldo() returns trigger as $$
+-- create or replace function atualiza_current_balance() returns trigger as $$
 -- declare 
--- 	saldo_ INTEGER;
--- 	limite_ INTEGER;
+-- 	current_balance_ INTEGER;
+-- 	limit_ INTEGER;
 
 -- begin
 
--- 	SELECT valor into saldo_, limite into limite_ FROM saldos, members WHERE saldos.cliente_id = new.cliente_id and members.id = new.cliente_id FOR UPDATE;
+-- 	SELECT amount into current_balance_, limit into limit_ FROM current_balances, members WHERE current_balances.cliente_id = new.cliente_id and members.id = new.cliente_id FOR UPDATE;
 
--- 	if (new.tipo = 'c') then
--- 		update saldos set valor = saldo_ + new.valor where cliente_id = new.cliente_id;
+-- 	if (new.kind = 'c') then
+-- 		update current_balances set amount = current_balance_ + new.amount where cliente_id = new.cliente_id;
 -- 	else
--- 		update saldos set valor = saldo_ - new.valor where cliente_id = new.cliente_id;
+-- 		update current_balances set amount = current_balance_ - new.amount where cliente_id = new.cliente_id;
 -- 	end if;
 
--- 	return new.valor;
+-- 	return new.amount;
 -- end;
 
 -- $$ language plpgsql;
 
 
--- create trigger atualiza_saldo before insert on transactions for each row execute procedure atualiza_saldo();
+-- create trigger atualiza_current_balance before insert on transactions for each row execute procedure atualiza_current_balance();

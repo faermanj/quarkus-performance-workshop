@@ -4,7 +4,7 @@
 
 #### [GRAVAÇÃO DA LIVE AQUI](https://www.youtube.com/watch?v=2OonGBGcl5k)
 
-A Rinha de Backend é um desafio que tem como principal objetivo compartilhar conhecimento em formato de desafio! Esta é a segunda edição. A data limite para enviar sua submissão é **10 de Março de 2024 às 23:59:59** e em **14 de Março de 2024 às 19:00** os resultados serão anunciados [numa live](https://www.youtube.com/watch?v=2OonGBGcl5k) no YouTube.
+A Rinha de Backend é um desafio que tem como principal objetivo compartilhar conhecimento em formato de desafio! Esta é a segunda edição. A data limit para enviar sua submissão é **10 de Março de 2024 às 23:59:59** e em **14 de Março de 2024 às 19:00** os resultados serão anunciados [numa live](https://www.youtube.com/watch?v=2OonGBGcl5k) no YouTube.
 
 O principal assunto dessa Rinha trata de controle de concorrência com o tema credits e debits (crébitos) e foi inspirado pelos colegas [@lucascs](https://twitter.com/lucascs) e [@kmyokoyama](https://twitter.com/kmyokoyama), [nesse](https://twitter.com/lucascs/status/1744014270331769000) e [nesse](https://twitter.com/kmyokoyama/status/1744018208082760133) comentário [dessa](https://twitter.com/zanfranceschi/status/1743876243815059738) tweet.
 
@@ -21,16 +21,16 @@ Para participar você precisa desenvolver uma API HTTP com os seguintes endpoint
 `POST /members/[id]/transactions`
 ```json
 {
-    "valor": 1000,
-    "tipo" : "c",
-    "descricao" : "descricao"
+    "amount": 1000,
+    "kind" : "c",
+    "description" : "description"
 }
 ```
 Onde
 - `[id]` (na URL) deve ser um número inteiro representando a identificação do cliente.
-- `valor` deve ser um número inteiro positivo que representa centavos (não vamos trabalhar com frações de centavos). Por exemplo, R$ 10 são 1000 centavos.
-- `tipo` deve ser apenas `c` para crédito ou `d` para débito.
-- `descricao` deve ser uma string de 1 a 10 caracteres.
+- `amount` deve ser um número inteiro positivo que representa centavos (não vamos trabalhar com frações de centavos). Por exemplo, R$ 10 são 1000 centavos.
+- `kind` deve ser apenas `c` para crédito ou `d` para débito.
+- `description` deve ser uma string de 1 a 10 caracteres.
 
 Todos os campos são obrigatórios.
 
@@ -39,20 +39,20 @@ Todos os campos são obrigatórios.
 `HTTP 200 OK`
 ```json
 {
-    "limite" : 100000,
-    "saldo" : -9098
+    "limit" : 100000,
+    "current_balance" : -9098
 }
 ```
 Onde
-- `limite` deve ser o limite cadastrado do cliente.
-- `saldo` deve ser o novo saldo após a conclusão da transação.
+- `limit` deve ser o limit cadastrado do cliente.
+- `current_balance` deve ser o novo current_balance após a conclusão da transação.
 
 *Obrigatoriamente, o http status code de requisições para transações bem sucedidas deve ser 200!*
 
 **Regras**
-Uma transação de débito **nunca** pode deixar o saldo do cliente menor que seu limite disponível. Por exemplo, um cliente com limite de 1000 (R\$ 10) nunca deverá ter o saldo menor que -1000 (R\$ -10). Nesse caso, um saldo de -1001 ou menor significa inconsistência na Rinha de Backend!
+Uma transação de débito **nunca** pode deixar o current_balance do cliente menor que seu limit disponível. Por exemplo, um cliente com limit de 1000 (R\$ 10) nunca deverá ter o current_balance menor que -1000 (R\$ -10). Nesse caso, um current_balance de -1001 ou menor significa inconsistência na Rinha de Backend!
 
-Se uma requisição para débito for deixar o saldo inconsistente, a API deve retornar HTTP Status Code 422 sem completar a transação! O corpo da resposta nesse caso não será testado e você pode escolher como o representar. HTTP 422 também deve ser retornado caso os campos do payload estejam fora das especificações como, por exemplo, uma string maior do que 10 caracteres para o campo `descricao` ou algo diferente de `c` ou `d` para o campo `tipo`. Se para o campo `valor` um número não inteiro for especificado, você poderá retornar HTTP 422 ou 400. 
+Se uma requisição para débito for deixar o current_balance inconsistente, a API deve retornar HTTP Status Code 422 sem completar a transação! O corpo da resposta nesse caso não será testado e você pode escolher como o representar. HTTP 422 também deve ser retornado caso os campos do payload estejam fora das especificações como, por exemplo, uma string maior do que 10 caracteres para o campo `description` ou algo diferente de `c` ou `d` para o campo `kind`. Se para o campo `amount` um número não inteiro for especificado, você poderá retornar HTTP 422 ou 400. 
 
 Se o atributo `[id]` da URL for de uma identificação não existente de cliente, a API deve retornar HTTP Status Code 404. O corpo da resposta nesse caso não será testado e você pode escolher como o representar. Se a API retornar algo como HTTP 200 informando que o cliente não foi encontrado no corpo da resposta ou HTTP 204 sem corpo, ficarei extremamente deprimido e a Rinha será cancelada para sempre.
 
@@ -69,46 +69,46 @@ Onde
 `HTTP 200 OK`
 ```json
 {
-  "saldo": {
+  "current_balance": {
     "total": -9098,
     "date_balance": "2024-01-17T02:34:41.217753Z",
-    "limite": 100000
+    "limit": 100000
   },
-  "ultimas_transactions": [
+  "recent_transactions": [
     {
-      "valor": 10,
-      "tipo": "c",
-      "descricao": "descricao",
-      "realizada_em": "2024-01-17T02:34:38.543030Z"
+      "amount": 10,
+      "kind": "c",
+      "description": "description",
+      "submitted_at": "2024-01-17T02:34:38.543030Z"
     },
     {
-      "valor": 90000,
-      "tipo": "d",
-      "descricao": "descricao",
-      "realizada_em": "2024-01-17T02:34:38.543030Z"
+      "amount": 90000,
+      "kind": "d",
+      "description": "description",
+      "submitted_at": "2024-01-17T02:34:38.543030Z"
     }
   ]
 }
 ```
 Onde
-- `saldo`
-    - `total` deve ser o saldo total atual do cliente (não apenas das últimas transações seguintes exibidas).
+- `current_balance`
+    - `total` deve ser o current_balance total atual do cliente (não apenas das últimas transações seguintes exibidas).
     - `date_balance` deve ser a data/hora da consulta do balance.
-    - `limite` deve ser o limite cadastrado do cliente.
-- `ultimas_transactions` é uma lista ordenada por data/hora das transações de forma decrescente contendo até as 10 últimas transações com o seguinte:
-    - `valor` deve ser o valor da transação.
-    - `tipo` deve ser `c` para crédito e `d` para débito.
-    - `descricao` deve ser a descrição informada durante a transação.
-    - `realizada_em` deve ser a data/hora da realização da transação.
+    - `limit` deve ser o limit cadastrado do cliente.
+- `recent_transactions` é uma lista ordenada por data/hora das transações de forma decrescente contendo até as 10 últimas transações com o seguinte:
+    - `amount` deve ser o amount da transação.
+    - `kind` deve ser `c` para crédito e `d` para débito.
+    - `description` deve ser a descrição informada durante a transação.
+    - `submitted_at` deve ser a data/hora da realização da transação.
 
 **Regras**
 Se o atributo `[id]` da URL for de uma identificação não existente de cliente, a API deve retornar HTTP Status Code 404. O corpo da resposta nesse caso não será testado e você pode escolher como o representar. Já sabe o que acontece se sua API retornar algo na faixa 2XX, né? Agradecido.
 
 
 ## Cadastro Inicial de members
-Para haver ênfase em concorrência durante o teste, poucos members devem ser cadastrados e testados. Por isso, apenas cinco members, com os seguintes IDs, limites e saldos iniciais, devem ser previamente cadastrados para o teste – isso é imprescindível!
+Para haver ênfase em concorrência durante o teste, poucos members devem ser cadastrados e testados. Por isso, apenas cinco members, com os seguintes IDs, limits e current_balances iniciais, devem ser previamente cadastrados para o teste – isso é imprescindível!
 
-| id | limite | saldo inicial
+| id | limit | current_balance inicial
 | - | - | -
 | 1 | 100000 | 0
 | 2 | 80000 | 0
@@ -122,7 +122,7 @@ Obs.: Não cadastre um cliente com o ID 6 especificamente, pois parte do teste �
 ## Como Fazer e Entregar?
 Assim como na Rinha de Backend anterior, você precisará conteinerizar sua API e outros componentes usados no formato de *docker-compose*, obedecer às [restrições de recursos de CPU e memória](#restricoes), [configuração mínima arquitetural](#arquitetura), e estrutura de artefatos e processo de entrega (o que, onde e quando suas coisas precisam ser entregues).
 
-Você pode fazer a submissão de forma individual, dupla de 2, dupla de 3 ou até dupla de 50 pessoas. Não tem limite. E você e/ou seu grupo pode fazer mais de uma submissão desde que a API seja diferente. 
+Você pode fazer a submissão de forma individual, dupla de 2, dupla de 3 ou até dupla de 50 pessoas. Não tem limit. E você e/ou seu grupo pode fazer mais de uma submissão desde que a API seja diferente. 
 
 ### Artefato, Processo e Data Limite de Entrega
 Para participar, basta fazer um pull request neste repositório incluindo um subdiretório em [participantes](./participantes) com os seguintes arquivos:
@@ -151,9 +151,9 @@ Um exemplo de submissão/pull request da Ana, poderia ter os seguintes arquivos:
 |  |  ├─ README.md
 ```
 
-A data/hora limite para fazer pull requests para sua submissão é até `2024-03-10T23:59:59-03:00`. Após esse dia/hora, qualquer pull request será automaticamente rejeitado.
+A data/hora limit para fazer pull requests para sua submissão é até `2024-03-10T23:59:59-03:00`. Após esse dia/hora, qualquer pull request será automaticamente rejeitado.
 
-Note que você poderá fazer quantos pull requests desejar até essa data/hora limite!
+Note que você poderá fazer quantos pull requests desejar até essa data/hora limit!
 
 ### <a name="arquitetura">Arquitetura Mínima da API</a>
 Por "API" aqui, me refiro a todos os serviços envolvidos para que o serviço que atenderá às requisições HTTP funcione, tais como o load balancer, banco de dados e servidor HTTP.
@@ -174,10 +174,10 @@ flowchart TD
     end
 ```
 
-**Nota**: Você pode usar componentes adicionais se quiser. Mas lembre-se de que as restrições de CPU e memória devem obedecer a regra de que a soma dos limites (que devem ser declarados para todos os serviços) não poderá ultrapassar 1.5 unidades de CPU e 550MB de memória! Use o bom senso e boa fé, não adicione um banco relacional e um Redis, por exemplo, e use apenas o Redis como armazenamento – afinal, a Rinha é apenas uma brincadeira que fomenta o aprendizado e não a competição desleal.
+**Nota**: Você pode usar componentes adicionais se quiser. Mas lembre-se de que as restrições de CPU e memória devem obedecer a regra de que a soma dos limits (que devem ser declarados para todos os serviços) não poderá ultrapassar 1.5 unidades de CPU e 550MB de memória! Use o bom senso e boa fé, não adicione um banco relacional e um Redis, por exemplo, e use apenas o Redis como armazenamento – afinal, a Rinha é apenas uma brincadeira que fomenta o aprendizado e não a competição desleal.
 
 ### <a name="restricoes">Restrições de CPU/Memória</a>
-Dentro do seu arquivo docker-compose.yml, você deverá limitar todos os serviços para que a soma deles não ultrapasse os seguintes limites:
+Dentro do seu arquivo docker-compose.yml, você deverá limitar todos os serviços para que a soma deles não ultrapasse os seguintes limits:
 - `deploy.resources.limits.cpu` 1.5 – uma unidade e meia de CPU distribuída entre todos os seus serviços
 - `deploy.resources.limits.memory` 550MB – 550 mega bytes de memória distribuídos entre todos os seus serviços
 
@@ -271,7 +271,7 @@ services:
     deploy:
       resources:
         limits:
-          # Note que a soma de todos os limites dos serviços
+          # Note que a soma de todos os limits dos serviços
           # aqui declarados é de 1.5 unidades de CPU e 550MB
           # de memória. A distribuição feita aqui é apenas
           # um exemplo – distribua como quiser.
@@ -298,7 +298,7 @@ CREATE TABLE...
 
 DO $$
 BEGIN
-  INSERT INTO members (nome, limite)
+  INSERT INTO members (nome, limit)
   VALUES
     ('o barato sai caro', 1000 * 100),
     ('zan corp ltda', 800 * 100),
@@ -373,7 +373,7 @@ Na edição anterior da Rinha, o teste começava poucos segundos após a subida 
 
 #### Nota importante sobre o teste escrito!
 
-A simulação contém um teste de lógica de saldo/limite que extrapola o que é comumente feito em testes de performance. O escrevi assim apenas por causa da natureza da Rinha de Backend. Evite fazer esse tipo de coisa em testes de performance, pois não é uma prática recomendada normalmente. Testes de lógica devem ficar junto ao código fonte em formato de testes de unidade ou integração!
+A simulação contém um teste de lógica de current_balance/limit que extrapola o que é comumente feito em testes de performance. O escrevi assim apenas por causa da natureza da Rinha de Backend. Evite fazer esse kind de coisa em testes de performance, pois não é uma prática recomendada normalmente. Testes de lógica devem ficar junto ao código fonte em formato de testes de unidade ou integração!
 
 
 ## Critérios para Vencer A Rinha de Backend

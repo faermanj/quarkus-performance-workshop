@@ -1,21 +1,21 @@
 CREATE TABLE members(
   id INT PRIMARY KEY,
-  limite DECIMAL(10,0),
-  saldo DECIMAL(10,0)
+  limit DECIMAL(10,0),
+  current_balance DECIMAL(10,0)
 );
 
 CREATE TABLE transactions (
   id SERIAL PRIMARY KEY,
   cliente_id INT,
-  valor DECIMAL(10,0),
-  tipo char(1),
-  descricao varchar(10),
-  realizada_em timestamp default now(),
+  amount DECIMAL(10,0),
+  kind char(1),
+  description varchar(10),
+  submitted_at timestamp default now(),
   FOREIGN KEY (cliente_id) REFERENCES members(id)
 );
 
 CREATE INDEX idx_transactions_members_id ON transactions (cliente_id);
-CREATE INDEX idx_transactions_realizada_em ON transactions (realizada_em);
+CREATE INDEX idx_transactions_submitted_at ON transactions (submitted_at);
 
 
 INSERT INTO members VALUES (1, 100000, 0),

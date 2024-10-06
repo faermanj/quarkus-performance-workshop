@@ -68,7 +68,7 @@ begin
         -- Check if the transaction value exceeds the customer's limit    
         IF ABS(customer_balance) > customer_limit THEN
             error_code = 2;
-            error_description = 'Transação excede o limite do cliente';
+            error_description = 'Transação excede o limit do cliente';
             RETURN QUERY SELECT customer_limit, customer_balance, error_code, error_description;
             RETURN; -- exit 
         END IF; 

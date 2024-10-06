@@ -1,7 +1,7 @@
 delete from transactions;
 delete from clientes;
 
-INSERT INTO clientes (id, saldo, limite)
+INSERT INTO clientes (id, current_balance, limit)
 VALUES 
     (1, 0, -100000),
     (2, 0, -80000),
@@ -11,40 +11,40 @@ VALUES
 
 CREATE OR REPLACE FUNCTION CriarTransacao(
     IN idcliente integer,
-    IN tipo char(1),
-    IN valor integer,
-    IN descricao varchar(10),
+    IN kind char(1),
+    IN amount integer,
+    IN description varchar(10),
     OUT status integer,
-    OUT saldo_novo integer,
-    OUT limite_novo integer
+    OUT current_balance_novo integer,
+    OUT limit_novo integer
 ) AS $$
 DECLARE
     cliente_record clientes%rowtype;    
-  valor_com_sinal integer;
+  amount_com_sinal integer;
 BEGIN
     SELECT * FROM clientes INTO cliente_record WHERE id = idcliente;
 
     IF not found THEN --cliente não encontrado
         status := -1;
-        saldo_novo := 0;
-        limite_novo := 0;
+        current_balance_novo := 0;
+        limit_novo := 0;
         RETURN;
     END IF;
     raise notice'Criando transacao para cliente %.', idcliente;
-    INSERT INTO transactions (tipo, valor, descricao, realizada_em, idcliente)
-    VALUES (tipo, valor, descricao, CURRENT_TIMESTAMP, idcliente);
+    INSERT INTO transactions (kind, amount, description, submitted_at, idcliente)
+    VALUES (kind, amount, description, CURRENT_TIMESTAMP, idcliente);
 
-    select valor * (case when tipo = 'd' then -1 else 1 end) into valor_com_sinal;    
+    select amount * (case when kind = 'd' then -1 else 1 end) into amount_com_sinal;    
 
     UPDATE clientes
-    SET saldo = saldo + valor_com_sinal
-    WHERE id = idcliente AND (valor_com_sinal > 0 OR saldo + valor_com_sinal >= limite)
-    RETURNING saldo, -limite INTO saldo_novo, limite_novo;
+    SET current_balance = current_balance + amount_com_sinal
+    WHERE id = idcliente AND (amount_com_sinal > 0 OR current_balance + amount_com_sinal >= limit)
+    RETURNING current_balance, -limit INTO current_balance_novo, limit_novo;
   
-    IF limite_novo IS NULL THEN --sem limite
+    IF limit_novo IS NULL THEN --sem limit
         status := -2;
-        saldo_novo := 0;
-        limite_novo := 0;
+        current_balance_novo := 0;
+        limit_novo := 0;
         RETURN;
     END IF;
   

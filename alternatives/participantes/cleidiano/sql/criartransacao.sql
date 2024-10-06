@@ -1,8 +1,8 @@
 CREATE
     OR REPLACE FUNCTION criartransacao(
     IN idcliente integer,
-    IN valor integer,
-    IN descricao varchar(10)
+    IN amount integer,
+    IN description varchar(10)
 ) RETURNS RECORD AS
 $$
 DECLARE
@@ -17,14 +17,14 @@ BEGIN
         RETURN ret;
     END IF;
 
-    UPDATE cliente SET saldo = saldo + valor
-    WHERE id = idcliente AND (valor > 0 OR saldo + valor >= limite)
-    RETURNING saldo, limite INTO ret;
+    UPDATE cliente SET current_balance = current_balance + amount
+    WHERE id = idcliente AND (amount > 0 OR current_balance + amount >= limit)
+    RETURNING current_balance, limit INTO ret;
     raise notice 'Ret: %', ret;
-    IF ret.limite is NOT NULL THEN
+    IF ret.limit is NOT NULL THEN
         --raise notice'Criando transacao para cliente %.', idcliente;
-        INSERT INTO transacao (valor, descricao, realizadaem, idcliente)
-        VALUES (valor, descricao, now() at time zone 'utc', idcliente);
+        INSERT INTO transacao (amount, description, realizadaem, idcliente)
+        VALUES (amount, description, now() at time zone 'utc', idcliente);
     ELSE
         --raise notice'Id do Cliente % não encontrado.', idcliente;
         select -2, cast(null as integer) into ret;

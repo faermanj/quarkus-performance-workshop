@@ -91,7 +91,7 @@ services:
     deploy:
       resources:
         limits:
-          # Note que a soma de todos os limites dos serviços
+          # Note que a soma de todos os limits dos serviços
           # aqui declarados é de 1.5 unidades de CPU e 550MB
           # de memória. A distribuição feita aqui é apenas
           # um exemplo – distribua como quiser.

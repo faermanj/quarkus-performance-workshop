@@ -1,5 +1,5 @@
 INSERT INTO
-    members (id, limite)
+    members (id, limit)
 VALUES
     (1, 1000 * 100),
     (2, 800 * 100),

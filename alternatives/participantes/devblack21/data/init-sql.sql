@@ -3,16 +3,16 @@ DROP TABLE IF EXISTS clientes;
 
 CREATE UNLOGGED TABLE clientes (
     id     SMALLSERIAL PRIMARY KEY,
-    limite INT NOT NULL,
-    saldo  BIGINT NOT NULL DEFAULT 0
+    limit INT NOT NULL,
+    current_balance  BIGINT NOT NULL DEFAULT 0
 );
 
 CREATE UNLOGGED TABLE transactions (
    id           SERIAL PRIMARY KEY,
    cliente_id   SMALLINT NOT NULL,
-   valor        BIGINT NOT NULL,
-   tipo         CHAR(1) NOT NULL,
-   descricao    TEXT NOT NULL,
+   amount        BIGINT NOT NULL,
+   kind         CHAR(1) NOT NULL,
+   description    TEXT NOT NULL,
    data_hora TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()::timestamp,
    CONSTRAINT fk_transacao_cliente FOREIGN KEY (cliente_id) REFERENCES clientes (id)
 );
@@ -21,7 +21,7 @@ CREATE INDEX ON transactions (cliente_id, data_hora DESC);
 CREATE UNIQUE INDEX ON clientes (id);
 
 
-INSERT INTO clientes(id, limite, saldo) VALUES 
+INSERT INTO clientes(id, limit, current_balance) VALUES 
 (1, 100000, 0),
 (2, 80000, 0),
 (3, 1000000, 0),
@@ -31,37 +31,37 @@ INSERT INTO clientes(id, limite, saldo) VALUES
 
 CREATE OR REPLACE FUNCTION public.envio_transacao(
     id_cliente INT,
-    descricao TEXT,
-    tipo TEXT,
-    valor BIGINT
+    description TEXT,
+    kind TEXT,
+    amount BIGINT
 ) RETURNS JSON AS
 $$
 DECLARE
-    saldoAtual BIGINT;
+    current_balanceAtual BIGINT;
     novoSaldo BIGINT;
     id_c INT;
     l INT;
 BEGIN
     SELECT id INTO id_c FROM clientes WHERE id = id_cliente;
-    SELECT saldo INTO saldoAtual FROM clientes WHERE id = id_cliente FOR UPDATE;
-    SELECT limite INTO l FROM clientes WHERE id = id_cliente;
+    SELECT current_balance INTO current_balanceAtual FROM clientes WHERE id = id_cliente FOR UPDATE;
+    SELECT limit INTO l FROM clientes WHERE id = id_cliente;
 
     IF id_c ISNULL THEN
         RETURN id_c;
     END IF;
 
-    IF tipo = 'c' THEN
-        novoSaldo := saldoAtual + valor;
+    IF kind = 'c' THEN
+        novoSaldo := current_balanceAtual + amount;
     ELSE
-        novoSaldo := saldoAtual - valor;
+        novoSaldo := current_balanceAtual - amount;
     END IF;
    
     IF novoSaldo >= -l THEN
-        UPDATE clientes SET saldo = novoSaldo WHERE id = id_cliente;
-        INSERT INTO transactions(cliente_id, valor, tipo, descricao) VALUES (id_cliente, valor, tipo, descricao);
-        RETURN json_build_object('id', id_cliente, 'limite', l, 'saldo', novoSaldo);
+        UPDATE clientes SET current_balance = novoSaldo WHERE id = id_cliente;
+        INSERT INTO transactions(cliente_id, amount, kind, description) VALUES (id_cliente, amount, kind, description);
+        RETURN json_build_object('id', id_cliente, 'limit', l, 'current_balance', novoSaldo);
     ELSE
-        RAISE EXCEPTION 'O cliente não tem limite para executar essa transação.'; 
+        RAISE EXCEPTION 'O cliente não tem limit para executar essa transação.'; 
     END IF;
 END;
 $$ LANGUAGE plpgsql;
@@ -88,7 +88,7 @@ BEGIN
 			    LIMIT 10 FOR UPDATE
 			 ) AS transactions_by_user;
 		
-		RETURN json_build_object('saldo', cliente, 'transactions', transactions);
+		RETURN json_build_object('current_balance', cliente, 'transactions', transactions);
     END IF;
 END;
 $$ LANGUAGE plpgsql;

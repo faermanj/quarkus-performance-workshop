@@ -36,7 +36,7 @@ services:
       - NEO4J_server_memory_heap_max__size=130m
 
     # infelizmente neo4j não suporta configuração de recursos via container, (descoberto as 21h do dia 10/03) :(
-    # fiz os cálculos apróximados da heap para limitar até 400MB de memória, que seria o valor configurado do limite, espero que aceitem 
+    # fiz os cálculos apróximados da heap para limitar até 400MB de memória, que seria o amount configurado do limit, espero que aceitem 
 
     deploy:
       resources:

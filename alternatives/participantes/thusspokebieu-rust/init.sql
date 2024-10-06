@@ -1,8 +1,8 @@
 
 CREATE UNLOGGED TABLE IF NOT EXISTS members (
 	id SERIAL PRIMARY KEY,
-	limite INTEGER NOT NULL,
-  saldo INTEGER NOT NULL 
+	limit INTEGER NOT NULL,
+  current_balance INTEGER NOT NULL 
 );
 
 CREATE INDEX IF NOT EXISTS idx_members ON members USING btree(id);
@@ -10,10 +10,10 @@ CREATE INDEX IF NOT EXISTS idx_members ON members USING btree(id);
 CREATE UNLOGGED TABLE IF NOT EXISTS transactions (
 	id SERIAL PRIMARY KEY,
 	cliente_id INTEGER NOT NULL,
-	valor INTEGER NOT NULL,
-	tipo CHAR NOT NULL,
-	descricao VARCHAR(10) NOT NULL,
-	realizada_em TIMESTAMP NOT NULL DEFAULT NOW(),
+	amount INTEGER NOT NULL,
+	kind CHAR NOT NULL,
+	description VARCHAR(10) NOT NULL,
+	submitted_at TIMESTAMP NOT NULL DEFAULT NOW(),
 	CONSTRAINT fk_members_transactions_id
 		FOREIGN KEY (cliente_id) REFERENCES members(id)
     ON DELETE CASCADE
@@ -24,7 +24,7 @@ CREATE INDEX IF NOT EXISTS idx_transactions_cliente_id ON transactions USING btr
 DO $$
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM members) THEN
-        INSERT INTO members (limite, saldo)
+        INSERT INTO members (limit, current_balance)
         VALUES
             (1000 * 100, 0),
             (800 * 100, 0),
@@ -40,17 +40,17 @@ $$;
 CREATE OR REPLACE FUNCTION balance(_cliente_id INTEGER)
 RETURNS JSON AS $$
 DECLARE
-    saldo JSON;
-    ultimas_transactions JSON;
+    current_balance JSON;
+    recent_transactions JSON;
 BEGIN
     SELECT
         json_build_object(
-            'total', c.saldo,
+            'total', c.current_balance,
             'date_balance', NOW(),
-            'limite', c.limite
+            'limit', c.limit
         )
     INTO
-        saldo
+        current_balance
     FROM
         members c
     WHERE
@@ -63,21 +63,21 @@ BEGIN
     SELECT
         CASE
             WHEN COUNT(*) > 0 THEN json_agg(json_build_object(
-                'valor', t.valor,
-                'tipo', t.tipo,
-                'descricao', t.descricao,
-                'realizada_em', t.realizada_em
+                'amount', t.amount,
+                'kind', t.kind,
+                'description', t.description,
+                'submitted_at', t.submitted_at
             ))
             ELSE '[]'::JSON
         END
     INTO
-        ultimas_transactions
+        recent_transactions
     FROM (
         SELECT
-            valor,
-            tipo,
-            descricao,
-            realizada_em
+            amount,
+            kind,
+            description,
+            submitted_at
         FROM
             transactions
         WHERE
@@ -88,8 +88,8 @@ BEGIN
     ) t;
 
     RETURN json_build_object(
-        'saldo', saldo,
-        'ultimas_transactions', ultimas_transactions
+        'current_balance', current_balance,
+        'recent_transactions', recent_transactions
     );
 END;
 $$ LANGUAGE plpgsql;
@@ -97,33 +97,33 @@ $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION transacao(
     _cliente_id INTEGER,
-    _valor INTEGER,
-    _tipo CHAR,
-    _descricao VARCHAR(10),
+    _amount INTEGER,
+    _kind CHAR,
+    _description VARCHAR(10),
     OUT codigo_erro SMALLINT,
     OUT resultado JSON
 )
 RETURNS record AS
 $$
 BEGIN
-        IF _tipo = 'c' THEN
+        IF _kind = 'c' THEN
             UPDATE members 
-            SET saldo = saldo + _valor 
+            SET current_balance = current_balance + _amount 
             WHERE id = _cliente_id 
-            RETURNING json_build_object('limite', limite, 'saldo', saldo) INTO resultado;
-            INSERT INTO transactions(cliente_id, valor, tipo, descricao)
-            VALUES (_cliente_id, _valor, _tipo, _descricao);
+            RETURNING json_build_object('limit', limit, 'current_balance', current_balance) INTO resultado;
+            INSERT INTO transactions(cliente_id, amount, kind, description)
+            VALUES (_cliente_id, _amount, _kind, _description);
             codigo_erro := 0;
             RETURN;
-        ELSIF _tipo = 'd' THEN
+        ELSIF _kind = 'd' THEN
             UPDATE members
-            SET saldo = saldo - _valor
-            WHERE id = _cliente_id AND saldo - _valor > -limite
-            RETURNING json_build_object('limite', limite, 'saldo', saldo) INTO resultado;
+            SET current_balance = current_balance - _amount
+            WHERE id = _cliente_id AND current_balance - _amount > -limit
+            RETURNING json_build_object('limit', limit, 'current_balance', current_balance) INTO resultado;
             
             IF FOUND THEN 
-              INSERT INTO transactions(cliente_id, valor, tipo, descricao)
-              VALUES (_cliente_id, _valor, _tipo, _descricao);
+              INSERT INTO transactions(cliente_id, amount, kind, description)
+              VALUES (_cliente_id, _amount, _kind, _description);
               codigo_erro := 0;
             ELSE 
               codigo_erro := 2;

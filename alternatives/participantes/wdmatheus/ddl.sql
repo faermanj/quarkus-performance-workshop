@@ -14,19 +14,19 @@ create unlogged table public.members
 (
     id serial not null,
     nome varchar(100) not null,
-    limite integer not null,
-    saldo integer not null,
+    limit integer not null,
+    current_balance integer not null,
     constraint pk_members primary key(id)
 );
 
 create unlogged table public.transactions
 (
     id serial not null,
-    valor integer not null,
+    amount integer not null,
     cliente_id integer not null,
-    tipo integer not null,
-    descricao varchar(10) not null,    
-    realizada_em timestamp not null default (now() at time zone 'utc'),
+    kind integer not null,
+    description varchar(10) not null,    
+    submitted_at timestamp not null default (now() at time zone 'utc'),
     constraint pk_transactions primary key(id)
 );
 
@@ -37,9 +37,9 @@ create index ix_transactions_cliente_id on transactions(cliente_id asc);
 create or replace procedure public.criar_transacao
 ( 
 	cliente_id integer,
-	valor integer,
-	tipo integer,
-	descricao varchar(10),
+	amount integer,
+	kind integer,
+	description varchar(10),
 	inout "ClienteId" integer default null,
 	inout "Limite" integer default null,
 	inout "Saldo" integer default null,
@@ -64,20 +64,20 @@ begin
     end if;
     
     update public.members
-        set saldo =
+        set current_balance =
             case
-                when tipo = 1 then saldo + valor
-                else saldo + valor * -1
+                when kind = 1 then current_balance + amount
+                else current_balance + amount * -1
             end
         where id = cliente_id and
         (
             case
-                when tipo = 1 then true
+                when kind = 1 then true
                 else
-                    (abs(saldo + (valor * -1)) <= limite)
+                    (abs(current_balance + (amount * -1)) <= limit)
                 end
         ) = true
-        returning limite, saldo
+        returning limit, current_balance
         into "Limite", "Saldo";
     
     if "Limite" is null then
@@ -88,12 +88,12 @@ begin
     end if;
     
     insert into public.transactions
-        (valor, tipo, descricao, cliente_id)
+        (amount, kind, description, cliente_id)
     values
         (
-            valor,
-            tipo,
-            descricao,
+            amount,
+            kind,
+            description,
             cliente_id
         );    
     select
@@ -109,11 +109,11 @@ select
     j.id,
     json_build_object
     (
-        'saldo',
+        'current_balance',
         json_build_object
         (
-            'limite',
-            j.limite,
+            'limit',
+            j.limit,
 
             'total',
             j.total,
@@ -122,15 +122,15 @@ select
             to_char(j.date_balance, 'YYYY-MM-DD"T"HH24:MI:US"Z"')
         ),
 
-        'ultimas_transactions',
-        coalesce(j.ultimas_transactions, '{}')
+        'recent_transactions',
+        coalesce(j.recent_transactions, '{}')
     ) as balance
 from
     (
         select
             c.id,
-            c.saldo as total,
-            c.limite,
+            c.current_balance as total,
+            c.limit,
             now() at time zone 'utc' as date_balance,
             (
                 select
@@ -139,23 +139,23 @@ from
                     (
 
                         select
-                            t.valor,
-                            t.descricao,
-                            to_char(t.realizada_em, 'YYYY-MM-DD"T"HH24:MI:US"Z"') as realizada_em,
+                            t.amount,
+                            t.description,
+                            to_char(t.submitted_at, 'YYYY-MM-DD"T"HH24:MI:US"Z"') as submitted_at,
                             case
-                                when t.tipo = 1 then 'c'
+                                when t.kind = 1 then 'c'
                                 else 'd'
-                            end as tipo
+                            end as kind
                         from
                             public.transactions t
                         where
                             t.cliente_id = c.id
                         order by
-                            t.realizada_em desc
+                            t.submitted_at desc
                             limit 10
 
                     ) as t
-            ) as ultimas_transactions
+            ) as recent_transactions
         from
             public.members c
 
@@ -166,7 +166,7 @@ create unique index if not exists ix_vw_balance_id on public.vw_balance (id);
 -------------------------- carga inicial --------------------------
 DO $$
 begin
-insert into public.members (id, nome, saldo, limite)
+insert into public.members (id, nome, current_balance, limit)
 values
     (1, 'o barato sai caro', 0, 100000),
     (2, 'zan corp ltda', 0, 80000),

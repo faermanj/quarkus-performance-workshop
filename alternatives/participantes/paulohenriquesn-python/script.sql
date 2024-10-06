@@ -7,10 +7,10 @@ CREATE UNLOGGED TABLE clients (
 CREATE UNLOGGED TABLE transactions (
     id SERIAL PRIMARY KEY,
     client_id INT NOT NULL,
-    valor INT NOT NULL,
-    tipo TEXT NOT NULL,
-    descricao TEXT NOT NULL,
-    realizada_em TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc', now()) NOT NULL,
+    amount INT NOT NULL,
+    kind TEXT NOT NULL,
+    description TEXT NOT NULL,
+    submitted_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc', now()) NOT NULL,
     CONSTRAINT fk_client_id FOREIGN KEY(client_id) REFERENCES clients(id)
 );
 

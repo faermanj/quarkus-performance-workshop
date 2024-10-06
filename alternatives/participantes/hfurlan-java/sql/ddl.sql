@@ -1,198 +1,198 @@
 create table transactions (
     cliente_id int,
-    valor int,
-    descricao varchar(10),
-    tipo char(1),
+    amount int,
+    description varchar(10),
+    kind char(1),
     data_hora_inclusao timestamp default NOW()
 );
 
 create table clientes (
     cliente_id int not null,
     nome varchar(100) not null,
-    limite int not null constraint limite_positivo check (limite >= 0),
-    saldo_inicial int not null constraint saldo_inicial_positivo check (saldo_inicial >= 0),
+    limit int not null constraint limit_positivo check (limit >= 0),
+    current_balance_inicial int not null constraint current_balance_inicial_positivo check (current_balance_inicial >= 0),
     primary key(cliente_id)
 );
 
-create unlogged table saldos (
+create unlogged table current_balances (
     cliente_id int not null,
-    saldo int not null constraint saldo_valido check (saldo >= (limite * -1)),
-    limite int not null,
-    transacao_0_valor int,
-    transacao_0_tipo char(1),
-    transacao_0_descricao varchar(10),
+    current_balance int not null constraint current_balance_valido check (current_balance >= (limit * -1)),
+    limit int not null,
+    transacao_0_amount int,
+    transacao_0_kind char(1),
+    transacao_0_description varchar(10),
     transacao_0_data_hora_inclusao timestamp,
-    transacao_1_valor int,
-    transacao_1_tipo char(1),
-    transacao_1_descricao varchar(10),
+    transacao_1_amount int,
+    transacao_1_kind char(1),
+    transacao_1_description varchar(10),
     transacao_1_data_hora_inclusao timestamp,
-    transacao_2_valor int,
-    transacao_2_tipo char(1),
-    transacao_2_descricao varchar(10),
+    transacao_2_amount int,
+    transacao_2_kind char(1),
+    transacao_2_description varchar(10),
     transacao_2_data_hora_inclusao timestamp,
-    transacao_3_valor int,
-    transacao_3_tipo char(1),
-    transacao_3_descricao varchar(10),
+    transacao_3_amount int,
+    transacao_3_kind char(1),
+    transacao_3_description varchar(10),
     transacao_3_data_hora_inclusao timestamp,
-    transacao_4_valor int,
-    transacao_4_tipo char(1),
-    transacao_4_descricao varchar(10),
+    transacao_4_amount int,
+    transacao_4_kind char(1),
+    transacao_4_description varchar(10),
     transacao_4_data_hora_inclusao timestamp,
-    transacao_5_valor int,
-    transacao_5_tipo char(1),
-    transacao_5_descricao varchar(10),
+    transacao_5_amount int,
+    transacao_5_kind char(1),
+    transacao_5_description varchar(10),
     transacao_5_data_hora_inclusao timestamp,
-    transacao_6_valor int,
-    transacao_6_tipo char(1),
-    transacao_6_descricao varchar(10),
+    transacao_6_amount int,
+    transacao_6_kind char(1),
+    transacao_6_description varchar(10),
     transacao_6_data_hora_inclusao timestamp,
-    transacao_7_valor int,
-    transacao_7_tipo char(1),
-    transacao_7_descricao varchar(10),
+    transacao_7_amount int,
+    transacao_7_kind char(1),
+    transacao_7_description varchar(10),
     transacao_7_data_hora_inclusao timestamp,
-    transacao_8_valor int,
-    transacao_8_tipo char(1),
-    transacao_8_descricao varchar(10),
+    transacao_8_amount int,
+    transacao_8_kind char(1),
+    transacao_8_description varchar(10),
     transacao_8_data_hora_inclusao timestamp,
-    transacao_9_valor int,
-    transacao_9_tipo char(1),
-    transacao_9_descricao varchar(10),
+    transacao_9_amount int,
+    transacao_9_kind char(1),
+    transacao_9_description varchar(10),
     transacao_9_data_hora_inclusao timestamp,
     primary key(cliente_id)
 );
 
-create or replace function inserir_saldo()
+create or replace function inserir_current_balance()
   returns TRIGGER 
   language PLPGSQL
   as
 $$
 begin
-    insert into saldos (cliente_id, saldo, limite) values (NEW.cliente_id, NEW.saldo_inicial, NEW.limite);
+    insert into current_balances (cliente_id, current_balance, limit) values (NEW.cliente_id, NEW.current_balance_inicial, NEW.limit);
     return NEW;
 end;
 $$;
 
-create or replace function remover_saldo()
+create or replace function remover_current_balance()
   returns TRIGGER 
   language PLPGSQL
   as
 $$
 begin
-    delete from saldos where cliente_id = OLD.cliente_id;
+    delete from current_balances where cliente_id = OLD.cliente_id;
     return OLD;
 end;
 $$;
 
-create or replace trigger clientes_inserir_saldo
+create or replace trigger clientes_inserir_current_balance
     after insert on clientes
     for each row
-    execute function inserir_saldo();
+    execute function inserir_current_balance();
 
-create or replace trigger clientes_remover_saldo
+create or replace trigger clientes_remover_current_balance
     after delete ON clientes
     for each row
-    execute function remover_saldo();
+    execute function remover_current_balance();
 
-create function creditar(p_cliente_id int, p_valor int, p_descricao varchar(10)) RETURNS int AS $$
+create function creditar(p_cliente_id int, p_amount int, p_description varchar(10)) RETURNS int AS $$
 declare
-  saldo_atualizado int;
+  current_balance_atualizado int;
 begin
---with novo_saldo as (UPDATE saldos SET saldo = saldo + $1 WHERE cliente_id = $2 RETURNING saldo) insert into transactions (cliente_id, valor, descricao, tipo, saldo) values ($3, $4, $5, $6, (select * from novo_saldo)) returning saldo
-  insert into transactions (cliente_id, valor, descricao, tipo) values (p_cliente_id, p_valor, p_descricao, 'c');
-  update saldos set saldo = saldo + p_valor,
-    transacao_0_valor = p_valor,
-    transacao_0_tipo = 'c',
-    transacao_0_descricao = p_descricao,
+--with novo_current_balance as (UPDATE current_balances SET current_balance = current_balance + $1 WHERE cliente_id = $2 RETURNING current_balance) insert into transactions (cliente_id, amount, description, kind, current_balance) values ($3, $4, $5, $6, (select * from novo_current_balance)) returning current_balance
+  insert into transactions (cliente_id, amount, description, kind) values (p_cliente_id, p_amount, p_description, 'c');
+  update current_balances set current_balance = current_balance + p_amount,
+    transacao_0_amount = p_amount,
+    transacao_0_kind = 'c',
+    transacao_0_description = p_description,
     transacao_0_data_hora_inclusao = NOW(),
-    transacao_1_valor              = transacao_0_valor,
-    transacao_1_tipo               = transacao_0_tipo,
-    transacao_1_descricao          = transacao_0_descricao,
+    transacao_1_amount              = transacao_0_amount,
+    transacao_1_kind               = transacao_0_kind,
+    transacao_1_description          = transacao_0_description,
     transacao_1_data_hora_inclusao = transacao_0_data_hora_inclusao,
-    transacao_2_valor              = transacao_1_valor,
-    transacao_2_tipo               = transacao_1_tipo,
-    transacao_2_descricao          = transacao_1_descricao,
+    transacao_2_amount              = transacao_1_amount,
+    transacao_2_kind               = transacao_1_kind,
+    transacao_2_description          = transacao_1_description,
     transacao_2_data_hora_inclusao = transacao_1_data_hora_inclusao,
-    transacao_3_valor              = transacao_2_valor,
-    transacao_3_tipo               = transacao_2_tipo,
-    transacao_3_descricao          = transacao_2_descricao,
+    transacao_3_amount              = transacao_2_amount,
+    transacao_3_kind               = transacao_2_kind,
+    transacao_3_description          = transacao_2_description,
     transacao_3_data_hora_inclusao = transacao_2_data_hora_inclusao,
-    transacao_4_valor              = transacao_3_valor,
-    transacao_4_tipo               = transacao_3_tipo,
-    transacao_4_descricao          = transacao_3_descricao,
+    transacao_4_amount              = transacao_3_amount,
+    transacao_4_kind               = transacao_3_kind,
+    transacao_4_description          = transacao_3_description,
     transacao_4_data_hora_inclusao = transacao_3_data_hora_inclusao,
-    transacao_5_valor              = transacao_4_valor,
-    transacao_5_tipo               = transacao_4_tipo,
-    transacao_5_descricao          = transacao_4_descricao,
+    transacao_5_amount              = transacao_4_amount,
+    transacao_5_kind               = transacao_4_kind,
+    transacao_5_description          = transacao_4_description,
     transacao_5_data_hora_inclusao = transacao_4_data_hora_inclusao,
-    transacao_6_valor              = transacao_5_valor,
-    transacao_6_tipo               = transacao_5_tipo,
-    transacao_6_descricao          = transacao_5_descricao,
+    transacao_6_amount              = transacao_5_amount,
+    transacao_6_kind               = transacao_5_kind,
+    transacao_6_description          = transacao_5_description,
     transacao_6_data_hora_inclusao = transacao_5_data_hora_inclusao,
-    transacao_7_valor              = transacao_6_valor,
-    transacao_7_tipo               = transacao_6_tipo,
-    transacao_7_descricao          = transacao_6_descricao,
+    transacao_7_amount              = transacao_6_amount,
+    transacao_7_kind               = transacao_6_kind,
+    transacao_7_description          = transacao_6_description,
     transacao_7_data_hora_inclusao = transacao_6_data_hora_inclusao,
-    transacao_8_valor              = transacao_7_valor,
-    transacao_8_tipo               = transacao_7_tipo,
-    transacao_8_descricao          = transacao_7_descricao,
+    transacao_8_amount              = transacao_7_amount,
+    transacao_8_kind               = transacao_7_kind,
+    transacao_8_description          = transacao_7_description,
     transacao_8_data_hora_inclusao = transacao_7_data_hora_inclusao,
-    transacao_9_valor              = transacao_8_valor,
-    transacao_9_tipo               = transacao_8_tipo,
-    transacao_9_descricao          = transacao_8_descricao,
+    transacao_9_amount              = transacao_8_amount,
+    transacao_9_kind               = transacao_8_kind,
+    transacao_9_description          = transacao_8_description,
     transacao_9_data_hora_inclusao = transacao_8_data_hora_inclusao
-    where cliente_id = p_cliente_id returning saldo into saldo_atualizado;
-    return saldo_atualizado;
+    where cliente_id = p_cliente_id returning current_balance into current_balance_atualizado;
+    return current_balance_atualizado;
 end;
 $$ LANGUAGE plpgsql;
 
-create function debitar(p_cliente_id int, p_valor int, p_descricao varchar(10)) RETURNS int AS $$
+create function debitar(p_cliente_id int, p_amount int, p_description varchar(10)) RETURNS int AS $$
 declare
-  saldo_atualizado int;
+  current_balance_atualizado int;
 begin
---with novo_saldo as (UPDATE saldos SET saldo = saldo + $1 WHERE cliente_id = $2 RETURNING saldo) insert into transactions (cliente_id, valor, descricao, tipo, saldo) values ($3, $4, $5, $6, (select * from novo_saldo)) returning saldo
-  insert into transactions (cliente_id, valor, descricao, tipo) values (p_cliente_id, p_valor, p_descricao, 'd');
-  update saldos set saldo = saldo - p_valor,
-    transacao_0_valor = p_valor,
-    transacao_0_tipo = 'd',
-    transacao_0_descricao = p_descricao,
+--with novo_current_balance as (UPDATE current_balances SET current_balance = current_balance + $1 WHERE cliente_id = $2 RETURNING current_balance) insert into transactions (cliente_id, amount, description, kind, current_balance) values ($3, $4, $5, $6, (select * from novo_current_balance)) returning current_balance
+  insert into transactions (cliente_id, amount, description, kind) values (p_cliente_id, p_amount, p_description, 'd');
+  update current_balances set current_balance = current_balance - p_amount,
+    transacao_0_amount = p_amount,
+    transacao_0_kind = 'd',
+    transacao_0_description = p_description,
     transacao_0_data_hora_inclusao = NOW(),
-    transacao_1_valor              = transacao_0_valor,
-    transacao_1_tipo               = transacao_0_tipo,
-    transacao_1_descricao          = transacao_0_descricao,
+    transacao_1_amount              = transacao_0_amount,
+    transacao_1_kind               = transacao_0_kind,
+    transacao_1_description          = transacao_0_description,
     transacao_1_data_hora_inclusao = transacao_0_data_hora_inclusao,
-    transacao_2_valor              = transacao_1_valor,
-    transacao_2_tipo               = transacao_1_tipo,
-    transacao_2_descricao          = transacao_1_descricao,
+    transacao_2_amount              = transacao_1_amount,
+    transacao_2_kind               = transacao_1_kind,
+    transacao_2_description          = transacao_1_description,
     transacao_2_data_hora_inclusao = transacao_1_data_hora_inclusao,
-    transacao_3_valor              = transacao_2_valor,
-    transacao_3_tipo               = transacao_2_tipo,
-    transacao_3_descricao          = transacao_2_descricao,
+    transacao_3_amount              = transacao_2_amount,
+    transacao_3_kind               = transacao_2_kind,
+    transacao_3_description          = transacao_2_description,
     transacao_3_data_hora_inclusao = transacao_2_data_hora_inclusao,
-    transacao_4_valor              = transacao_3_valor,
-    transacao_4_tipo               = transacao_3_tipo,
-    transacao_4_descricao          = transacao_3_descricao,
+    transacao_4_amount              = transacao_3_amount,
+    transacao_4_kind               = transacao_3_kind,
+    transacao_4_description          = transacao_3_description,
     transacao_4_data_hora_inclusao = transacao_3_data_hora_inclusao,
-    transacao_5_valor              = transacao_4_valor,
-    transacao_5_tipo               = transacao_4_tipo,
-    transacao_5_descricao          = transacao_4_descricao,
+    transacao_5_amount              = transacao_4_amount,
+    transacao_5_kind               = transacao_4_kind,
+    transacao_5_description          = transacao_4_description,
     transacao_5_data_hora_inclusao = transacao_4_data_hora_inclusao,
-    transacao_6_valor              = transacao_5_valor,
-    transacao_6_tipo               = transacao_5_tipo,
-    transacao_6_descricao          = transacao_5_descricao,
+    transacao_6_amount              = transacao_5_amount,
+    transacao_6_kind               = transacao_5_kind,
+    transacao_6_description          = transacao_5_description,
     transacao_6_data_hora_inclusao = transacao_5_data_hora_inclusao,
-    transacao_7_valor              = transacao_6_valor,
-    transacao_7_tipo               = transacao_6_tipo,
-    transacao_7_descricao          = transacao_6_descricao,
+    transacao_7_amount              = transacao_6_amount,
+    transacao_7_kind               = transacao_6_kind,
+    transacao_7_description          = transacao_6_description,
     transacao_7_data_hora_inclusao = transacao_6_data_hora_inclusao,
-    transacao_8_valor              = transacao_7_valor,
-    transacao_8_tipo               = transacao_7_tipo,
-    transacao_8_descricao          = transacao_7_descricao,
+    transacao_8_amount              = transacao_7_amount,
+    transacao_8_kind               = transacao_7_kind,
+    transacao_8_description          = transacao_7_description,
     transacao_8_data_hora_inclusao = transacao_7_data_hora_inclusao,
-    transacao_9_valor              = transacao_8_valor,
-    transacao_9_tipo               = transacao_8_tipo,
-    transacao_9_descricao          = transacao_8_descricao,
+    transacao_9_amount              = transacao_8_amount,
+    transacao_9_kind               = transacao_8_kind,
+    transacao_9_description          = transacao_8_description,
     transacao_9_data_hora_inclusao = transacao_8_data_hora_inclusao
-    where cliente_id = p_cliente_id returning saldo into saldo_atualizado;
-    return saldo_atualizado;
+    where cliente_id = p_cliente_id returning current_balance into current_balance_atualizado;
+    return current_balance_atualizado;
 end;
 $$ LANGUAGE plpgsql;

@@ -1,24 +1,24 @@
 CREATE UNLOGGED TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY,
-    limite INTEGER NOT NULL,
-    saldo INTEGER NOT NULL DEFAULT 0,
-    CONSTRAINT chk_limite CHECK (-saldo <= limite)
+    limit INTEGER NOT NULL,
+    current_balance INTEGER NOT NULL DEFAULT 0,
+    CONSTRAINT chk_limit CHECK (-current_balance <= limit)
 );
 
 CREATE UNLOGGED TABLE IF NOT EXISTS transactions (
     id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL,
-    valor INTEGER NOT NULL,
-    tipo VARCHAR(1) NOT NULL,
-    descricao VARCHAR(10) NOT NULL,
-    realizada_em TIMESTAMP NOT NULL DEFAULT NOW(),
+    amount INTEGER NOT NULL,
+    kind VARCHAR(1) NOT NULL,
+    description VARCHAR(10) NOT NULL,
+    submitted_at TIMESTAMP NOT NULL DEFAULT NOW(),
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
-CREATE INDEX idx_transactions_realizada_em ON transactions(realizada_em DESC, user_id);
+CREATE INDEX idx_transactions_submitted_at ON transactions(submitted_at DESC, user_id);
 CREATE INDEX idx_transactions_user_id ON transactions(user_id);
 
-INSERT INTO users(id, limite)
+INSERT INTO users(id, limit)
 VALUES 
     (1, 100000),
     (2, 80000),

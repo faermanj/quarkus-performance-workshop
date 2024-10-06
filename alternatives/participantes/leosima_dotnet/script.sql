@@ -1,17 +1,17 @@
 CREATE UNLOGGED TABLE cliente (
     "id" INT,
 	"nome" VARCHAR(100) NOT NULL,
-    "limite" INT NOT NULL,
-    "saldo" INT NOT NULL,
+    "limit" INT NOT NULL,
+    "current_balance" INT NOT NULL,
     PRIMARY KEY(id)
 );
 
 CREATE UNLOGGED TABLE transacao (
     "id" INT GENERATED ALWAYS AS IDENTITY,
     "idCliente" INT NOT NULL,
-    "valor" INT NOT NULL,
-    "tipo" CHAR(1) NOT NULL,
-    "descricao" text NOT NULL,
+    "amount" INT NOT NULL,
+    "kind" CHAR(1) NOT NULL,
+    "description" text NOT NULL,
     data TIMESTAMP NOT NULL,
     PRIMARY KEY("id"),
     CONSTRAINT fk_cliente
@@ -22,39 +22,39 @@ CREATE UNLOGGED TABLE transacao (
 
 CREATE OR REPLACE FUNCTION realizar_transacao (
     p_idCliente INT,
-    p_valor INT,
-    p_tipo CHAR(1),
-    p_descricao VARCHAR(10)
-) RETURNS TABLE (limite_cliente INT, novo_saldo INT) AS $$
+    p_amount INT,
+    p_kind CHAR(1),
+    p_description VARCHAR(10)
+) RETURNS TABLE (limit_cliente INT, novo_current_balance INT) AS $$
 DECLARE
-    v_saldo INT;
-    v_limite INT;
+    v_current_balance INT;
+    v_limit INT;
 BEGIN
-    SELECT saldo, limite INTO v_saldo, v_limite 
+    SELECT current_balance, limit INTO v_current_balance, v_limit 
     FROM cliente 
     WHERE id = p_idCliente FOR UPDATE;
 
-    IF p_tipo = 'd' THEN
-   		IF v_saldo - p_valor < (v_limite * -1) then
+    IF p_kind = 'd' THEN
+   		IF v_current_balance - p_amount < (v_limit * -1) then
    			raise exception 'RN02:Limite insuficiente pra transacao';
    		END IF;
     END IF;
     
-    IF p_tipo = 'd' THEN
-        UPDATE cliente SET saldo = saldo - p_valor WHERE id = p_idCliente;
-    ELSIF p_tipo = 'c' THEN
-        UPDATE cliente SET saldo = saldo + p_valor WHERE id = p_idCliente;
+    IF p_kind = 'd' THEN
+        UPDATE cliente SET current_balance = current_balance - p_amount WHERE id = p_idCliente;
+    ELSIF p_kind = 'c' THEN
+        UPDATE cliente SET current_balance = current_balance + p_amount WHERE id = p_idCliente;
     END IF;
 
-    INSERT INTO transacao (valor, tipo, descricao, "idCliente", data)
+    INSERT INTO transacao (amount, kind, description, "idCliente", data)
     VALUES
-        (p_valor, p_tipo, p_descricao, p_idCliente, CURRENT_TIMESTAMP);
+        (p_amount, p_kind, p_description, p_idCliente, CURRENT_TIMESTAMP);
 
-    RETURN QUERY SELECT saldo, limite FROM cliente WHERE id = p_idCliente;
+    RETURN QUERY SELECT current_balance, limit FROM cliente WHERE id = p_idCliente;
 END;
 $$ LANGUAGE plpgsql;
 
-INSERT INTO cliente (id, nome, limite, saldo) VALUES
+INSERT INTO cliente (id, nome, limit, current_balance) VALUES
 (1, 'Fulano', 100000, 0),
 (2, 'Ciclano', 80000, 0),
 (3, 'Beltrano', 1000000, 0),

@@ -1,13 +1,13 @@
 DROP TABLE IF EXISTS clientes;
 DROP TABLE IF EXISTS transactions;
-DROP TYPE IF EXISTS "tipo_transacao";
+DROP TYPE IF EXISTS "kind_transacao";
 
-CREATE TYPE "tipo_transacao" AS ENUM ('c', 'd');
+CREATE TYPE "kind_transacao" AS ENUM ('c', 'd');
 
 CREATE TABLE IF NOT EXISTS clientes (
     "id" SERIAL NOT NULL,
-    "saldo" INTEGER NOT NULL CHECK (saldo >= -"limite"),
-    "limite" INTEGER NOT NULL,
+    "current_balance" INTEGER NOT NULL CHECK (current_balance >= -"limit"),
+    "limit" INTEGER NOT NULL,
     CONSTRAINT "clientes_pkey" PRIMARY KEY ("id")
 );
 
@@ -16,11 +16,11 @@ ON clientes ("id");
 
 CREATE TABLE IF NOT EXISTS transactions (
     "id" SERIAL NOT NULL,
-    "valor" INTEGER NOT NULL,
+    "amount" INTEGER NOT NULL,
     "id_cliente" INTEGER NOT NULL,
-    "tipo" "tipo_transacao" NOT NULL,
-    "descricao" VARCHAR(10) NOT NULL,
-    "realizada_em" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "kind" "kind_transacao" NOT NULL,
+    "description" VARCHAR(10) NOT NULL,
+    "submitted_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT transactions_pkey PRIMARY KEY ("id"),
     CONSTRAINT fk_clientes_transactions_id FOREIGN KEY ("id_cliente") REFERENCES clientes("id")
 );
@@ -29,7 +29,7 @@ CREATE INDEX idx_transactions_client_id
 ON transactions ("id_cliente");
 
 INSERT INTO
-    clientes (saldo, limite)
+    clientes (current_balance, limit)
 VALUES
     (0, 1000 * 100),
     (0, 800 * 100),

@@ -14,65 +14,65 @@ SET default_table_access_method = heap;
 
 CREATE UNLOGGED TABLE members (
 	id SERIAL PRIMARY KEY,
-	limite INTEGER NOT NULL,
-	saldo INTEGER NOT NULL DEFAULT 0
+	limit INTEGER NOT NULL,
+	current_balance INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE UNLOGGED TABLE transactions (
 	id SERIAL PRIMARY KEY,
 	cliente_id INTEGER NOT NULL,
-	valor INTEGER NOT NULL,
-	tipo CHAR(1) NOT NULL,
-	descricao VARCHAR(255) NOT NULL,
-	realizada_em TIMESTAMP NOT NULL DEFAULT NOW(),
+	amount INTEGER NOT NULL,
+	kind CHAR(1) NOT NULL,
+	description VARCHAR(255) NOT NULL,
+	submitted_at TIMESTAMP NOT NULL DEFAULT NOW(),
 	CONSTRAINT fk_members_transactions_id
 		FOREIGN KEY (cliente_id) REFERENCES members(id)
 );
 
 
 CREATE INDEX IF NOT EXISTS idx_cliente_id ON members(id);
-CREATE INDEX IF NOT EXISTS idx_transacao_id_cliente_realizada_em_desc ON transactions(cliente_id, realizada_em DESC);
+CREATE INDEX IF NOT EXISTS idx_transacao_id_cliente_submitted_at_desc ON transactions(cliente_id, submitted_at DESC);
 
-INSERT INTO members (limite) VALUES
+INSERT INTO members (limit) VALUES
 	(100000),
 	(80000),
 	(1000000),
 	(10000000),
 	(500000);
 
-CREATE OR REPLACE FUNCTION adicionar_transacao(id_cliente INT, tipo CHAR(1), valor NUMERIC, descricao VARCHAR)
-	RETURNS TABLE (novo_saldo INT, novo_limite INT, validation_error BOOLEAN) AS $$
+CREATE OR REPLACE FUNCTION adicionar_transacao(id_cliente INT, kind CHAR(1), amount NUMERIC, description VARCHAR)
+	RETURNS TABLE (novo_current_balance INT, novo_limit INT, validation_error BOOLEAN) AS $$
 DECLARE
     diff INT;
-    limite_cliente INT;
-    saldo_cliente INT;
+    limit_cliente INT;
+    current_balance_cliente INT;
 BEGIN
-		IF tipo = 'd' THEN
-        diff := valor * -1;
+		IF kind = 'd' THEN
+        diff := amount * -1;
     ELSE
-        diff := valor;
+        diff := amount;
     END IF;
 
 			PERFORM pg_advisory_xact_lock(id_cliente);
 			SELECT 
-				c.limite,
-				COALESCE(c.saldo, 0)
+				c.limit,
+				COALESCE(c.current_balance, 0)
 			INTO
-				limite_cliente,
-				saldo_cliente
+				limit_cliente,
+				current_balance_cliente
 			FROM members c
 			WHERE c.id = id_cliente;
 
-		IF (saldo_cliente + diff) < (-1 * limite_cliente) THEN
-				RETURN QUERY SELECT saldo_cliente as novo_saldo, limite_cliente as novo_limite, true as validation_error;
+		IF (current_balance_cliente + diff) < (-1 * limit_cliente) THEN
+				RETURN QUERY SELECT current_balance_cliente as novo_current_balance, limit_cliente as novo_limit, true as validation_error;
 		ELSE 
 			UPDATE members 
-			SET saldo = saldo + diff 
+			SET current_balance = current_balance + diff 
 			WHERE id = id_cliente;
 
-			INSERT INTO transactions (cliente_id, valor, tipo, descricao) VALUES (id_cliente, valor, tipo, descricao);
+			INSERT INTO transactions (cliente_id, amount, kind, description) VALUES (id_cliente, amount, kind, description);
 
-			RETURN QUERY SELECT (saldo_cliente + diff) as novo_saldo, limite_cliente as novo_limite, false as validation_error;
+			RETURN QUERY SELECT (current_balance_cliente + diff) as novo_current_balance, limit_cliente as novo_limit, false as validation_error;
 		END IF;
 		
 END;
@@ -83,26 +83,26 @@ RETURNS json AS $$
 DECLARE
     result json;
     row_count integer;
-    v_saldo numeric;
-    v_limite numeric;
+    v_current_balance numeric;
+    v_limit numeric;
 BEGIN
-    SELECT saldo, limite
-    INTO v_saldo, v_limite
+    SELECT current_balance, limit
+    INTO v_current_balance, v_limit
     FROM members
     WHERE id = p_id;
 
     SELECT json_build_object(
-        'saldo', json_build_object(
-            'total', v_saldo,
+        'current_balance', json_build_object(
+            'total', v_current_balance,
             'date_balance', NOW(),
-            'limite', v_limite
+            'limit', v_limit
         ),
-        'ultimas_transactions', COALESCE((
+        'recent_transactions', COALESCE((
             SELECT json_agg(row_to_json(t)) FROM (
-                SELECT valor, tipo, descricao, realizada_em
+                SELECT amount, kind, description, submitted_at
                 FROM transactions
                 WHERE cliente_id = p_id
-                ORDER BY realizada_em DESC
+                ORDER BY submitted_at DESC
                 LIMIT 10
             ) t
         ), '[]')

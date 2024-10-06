@@ -1,17 +1,17 @@
 create table cliente (
     id bigserial not null,
-    limite integer not null,
-    saldo integer not null,
+    limit integer not null,
+    current_balance integer not null,
     primary key (id)
 );
 
 create table transacao (
     id bigserial not null,
-    descricao varchar(255),
-    tipo char(1),
-    valor integer not null,
+    description varchar(255),
+    kind char(1),
+    amount integer not null,
     cliente_id bigint,
-    realizada_em timestamp(6),
+    submitted_at timestamp(6),
     primary key (id),
     foreign key (cliente_id) references cliente(id)
 );
@@ -19,7 +19,7 @@ create table transacao (
 create index transacao_fkey on public.transacao using btree (cliente_id);
 
 
-insert into cliente (id, limite, saldo)
+insert into cliente (id, limit, current_balance)
 values
     (1, 100000, 0),
     (2, 80000, 0),

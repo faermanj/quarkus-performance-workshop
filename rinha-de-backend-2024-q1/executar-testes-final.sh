@@ -56,14 +56,14 @@ stopApi() {
 
 generateResults() {
     echo " " > TEMP-OK.md
-    echo "| participante | multa SLA (> 249ms) | multa SLA (inconsistência saldo) | multa total | valor a receber | relatório |" >> TEMP-OK.md
+    echo "| participante | multa SLA (> 249ms) | multa SLA (inconsistência saldo) | multa total | amount a receber | relatório |" >> TEMP-OK.md
     echo "| --           | --                  | --                               | --          | --              | --        |" >> TEMP-OK.md
 
     #echo " " > TEMP-NOK.md
     #echo "| participante | logs |" >> TEMP-NOK.md
     #echo "| --           | --   |" >> TEMP-NOK.md
 
-    valorContrato=100000.0
+    amountContrato=100000.0
     SLARespostasOk=98.0
     multaInconsistenciaSaldoLimiteUnidade=803.01
    echo "computando participantes..."
@@ -88,7 +88,7 @@ generateResults() {
             multaSLA250ms=$(python3 -c "print(max(0.0, round(((${SLARespostasOk} - ${porcentagemRespostasAceitaveis}) * 1000), 2)))")
             multaSLAInconsSaldo=$(python3 -c "print(round(((${inconsistenciasSaldoLimite} + ${inconsistenciatransactionsSaldo}) * ${multaInconsistenciaSaldoLimiteUnidade}), 2))")
             multaSLATotal=$(python3 -c "print(round(${multaSLA250ms} + ${multaSLAInconsSaldo}, 2))")
-            pagamento=$(python3 -c "print(max(0.0, round(${valorContrato} - ${multaSLATotal}, 2)))")
+            pagamento=$(python3 -c "print(max(0.0, round(${amountContrato} - ${multaSLATotal}, 2)))")
 
             echo -n "| [$participante](./participantes/$participante) " >> TEMP-OK.md
             echo -n "| USD ${multaSLA250ms} " >> TEMP-OK.md

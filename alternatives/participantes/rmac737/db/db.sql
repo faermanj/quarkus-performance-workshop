@@ -1,12 +1,12 @@
 
 CREATE UNLOGGED TABLE public.cliente (
     id serial PRIMARY KEY,
-    limite int NOT NULL,
-    saldo_inicial int NOT NULL
+    limit int NOT NULL,
+    current_balance_inicial int NOT NULL
 );
  CREATE INDEX members_id_idx ON cliente (id);
 
-INSERT INTO public.cliente (limite, saldo_inicial)
+INSERT INTO public.cliente (limit, current_balance_inicial)
 VALUES
 (100000, 0),
 (80000, 0),
@@ -17,10 +17,10 @@ VALUES
 CREATE UNLOGGED TABLE public.historico_cliente (
     id SERIAL PRIMARY KEY,
     id_cliente INTEGER NOT NULL,
-    valor INTEGER NOT NULL,
-    tipo CHAR(1) NOT NULL,
-    descricao VARCHAR(10) NOT NULL,
-    realizada_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    amount INTEGER NOT NULL,
+    kind CHAR(1) NOT NULL,
+    description VARCHAR(10) NOT NULL,
+    submitted_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX idx_transactions_cliente_id ON public.historico_cliente (id_cliente);
 
@@ -28,29 +28,29 @@ ALTER TABLE ONLY public.historico_cliente
     ADD CONSTRAINT historico_cliente_fk FOREIGN KEY (id_cliente) REFERENCES cliente(id);
 	
 	
-CREATE OR REPLACE FUNCTION ExecutarTransacao(id_cliente INTEGER, valor INTEGER, tipo CHAR, descricao TEXT)
-RETURNS TABLE (limite INTEGER, saldo_inicial INTEGER) AS $$
+CREATE OR REPLACE FUNCTION ExecutarTransacao(id_cliente INTEGER, amount INTEGER, kind CHAR, description TEXT)
+RETURNS TABLE (limit INTEGER, current_balance_inicial INTEGER) AS $$
 DECLARE
-    limiteAtual INTEGER;
-    saldoAtual INTEGER;
+    limitAtual INTEGER;
+    current_balanceAtual INTEGER;
 BEGIN    
-    SELECT cliente.limite, cliente.saldo_inicial INTO limiteAtual, saldoAtual FROM public.cliente WHERE id = id_cliente FOR UPDATE;
+    SELECT cliente.limit, cliente.current_balance_inicial INTO limitAtual, current_balanceAtual FROM public.cliente WHERE id = id_cliente FOR UPDATE;
 
-    IF tipo = 'd' THEN
-        saldoAtual := saldoAtual - valor;
+    IF kind = 'd' THEN
+        current_balanceAtual := current_balanceAtual - amount;
     ELSE
-        saldoAtual := saldoAtual + valor;
+        current_balanceAtual := current_balanceAtual + amount;
     END IF;
 
-    IF saldoAtual < 0 AND ABS(saldoAtual) > limiteAtual THEN
+    IF current_balanceAtual < 0 AND ABS(current_balanceAtual) > limitAtual THEN
         RETURN;
     ELSE    
-        INSERT INTO historico_cliente (id_cliente, valor, tipo, descricao, realizada_em)
-        VALUES (id_cliente, valor, tipo, descricao, CURRENT_TIMESTAMP);
+        INSERT INTO historico_cliente (id_cliente, amount, kind, description, submitted_at)
+        VALUES (id_cliente, amount, kind, description, CURRENT_TIMESTAMP);
 
-        UPDATE cliente SET saldo_inicial = saldoAtual WHERE id = id_cliente;
+        UPDATE cliente SET current_balance_inicial = current_balanceAtual WHERE id = id_cliente;
 
-        RETURN QUERY SELECT limiteAtual, saldoAtual;
+        RETURN QUERY SELECT limitAtual, current_balanceAtual;
     END IF;
 END;
 $$ LANGUAGE plpgsql;

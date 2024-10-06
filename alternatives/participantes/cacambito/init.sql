@@ -1,8 +1,8 @@
 -- CreateTable
 CREATE TABLE "Cliente" (
     "id" SERIAL NOT NULL,
-    "limite" INTEGER NOT NULL,
-    "saldo" INTEGER NOT NULL,
+    "limit" INTEGER NOT NULL,
+    "current_balance" INTEGER NOT NULL,
 
     CONSTRAINT "Cliente_pkey" PRIMARY KEY ("id")
 );
@@ -11,10 +11,10 @@ CREATE TABLE "Cliente" (
 CREATE TABLE "Transacao" (
     "id" SERIAL NOT NULL,
     "client_id" INTEGER NOT NULL,
-    "valor" INTEGER NOT NULL,
-    "realizada_em" TIMESTAMP(3) NOT NULL,
-    "descricao" TEXT,
-    "tipo" TEXT NOT NULL,
+    "amount" INTEGER NOT NULL,
+    "submitted_at" TIMESTAMP(3) NOT NULL,
+    "description" TEXT,
+    "kind" TEXT NOT NULL,
 
     CONSTRAINT "Transacao_pkey" PRIMARY KEY ("id")
 );
@@ -24,7 +24,7 @@ ALTER TABLE "Transacao" ADD CONSTRAINT "Transacao_client_id_fkey" FOREIGN KEY ("
 
 
 INSERT INTO "Cliente" 
-  (limite, saldo)
+  (limit, current_balance)
 VALUES
   (100000, 0),
   (80000, 0),

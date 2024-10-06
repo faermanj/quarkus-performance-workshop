@@ -1,14 +1,14 @@
 CREATE TABLE clientes (
   id SERIAL PRIMARY KEY,
-  limite INT,
-  saldo INT
+  limit INT,
+  current_balance INT
 );
 
 CREATE TABLE transactions (
   client_id INT,
-  valor INT,
-  tipo VARCHAR(1),
-  descricao VARCHAR(10),
+  amount INT,
+  kind VARCHAR(1),
+  description VARCHAR(10),
   data_transacao TIMESTAMPTZ,
   CONSTRAINT fk_client
       FOREIGN KEY(client_id) 
@@ -17,7 +17,7 @@ CREATE TABLE transactions (
 
 DO $$
 BEGIN
-  INSERT INTO clientes (limite, saldo)
+  INSERT INTO clientes (limit, current_balance)
   VALUES
     (1000 * 100, 0),
     (800 * 100, 0),
@@ -26,28 +26,28 @@ BEGIN
     (5000 * 100, 0);
 END; $$;
 
-CREATE TYPE save_transaction_result AS (limite int, saldo int);
+CREATE TYPE save_transaction_result AS (limit int, current_balance int);
 
-CREATE OR REPLACE FUNCTION save_transaction(IN client_id INT, IN valor INT, IN tipo CHAR(1), IN descricao VARCHAR(10)) RETURNS save_transaction_result
+CREATE OR REPLACE FUNCTION save_transaction(IN client_id INT, IN amount INT, IN kind CHAR(1), IN description VARCHAR(10)) RETURNS save_transaction_result
 LANGUAGE plpgsql
 AS $$
 DECLARE
     l INT;
     s INT;
 BEGIN
-    SELECT limite, saldo INTO l, s FROM clientes WHERE id = client_id FOR UPDATE;
+    SELECT limit, current_balance INTO l, s FROM clientes WHERE id = client_id FOR UPDATE;
 
-    IF tipo = 'd' AND (s - valor) >= l * -1 THEN
-        UPDATE clientes SET saldo = s - valor WHERE id = client_id;
-        s := s - valor;
-    ELSIF tipo = 'c' THEN
-        UPDATE clientes SET saldo = s + valor WHERE id = client_id;
-        s := s + valor;
-    ELSIF tipo = 'd' AND (s - valor) < l * -1 THEN
+    IF kind = 'd' AND (s - amount) >= l * -1 THEN
+        UPDATE clientes SET current_balance = s - amount WHERE id = client_id;
+        s := s - amount;
+    ELSIF kind = 'c' THEN
+        UPDATE clientes SET current_balance = s + amount WHERE id = client_id;
+        s := s + amount;
+    ELSIF kind = 'd' AND (s - amount) < l * -1 THEN
       RETURN NULL;
     END IF;
 
-    INSERT INTO transactions (client_id, valor, tipo, descricao, data_transacao) VALUES (client_id, valor, tipo, descricao, NOW());
+    INSERT INTO transactions (client_id, amount, kind, description, data_transacao) VALUES (client_id, amount, kind, description, NOW());
 
     RETURN (l, s);
 END $$;

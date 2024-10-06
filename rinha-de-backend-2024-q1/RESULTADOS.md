@@ -12,18 +12,18 @@ Se a API tiver uma porcentagem menor de sucesso do que o estabelecido, uma multa
 
 
 ### Consistência de Saldo
-Cada resposta do teste que detectar inconsistência no saldo do cliente (balance e/ou limite ultrapassado), irá gerar uma multa de `[quantidade de inconsistências] * USD 803,01`. Por exemplo, se durante o teste forem detectadas 10 respostas contendo inconsistência no saldo, uma multa de **USD 8030,10** `(10 * 803,01)` será gerada.
+Cada resposta do teste que detectar inconsistência no saldo do cliente (balance e/ou limit ultrapassado), irá gerar uma multa de `[quantidade de inconsistências] * USD 803,01`. Por exemplo, se durante o teste forem detectadas 10 respostas contendo inconsistência no saldo, uma multa de **USD 8030,10** `(10 * 803,01)` será gerada.
 
 
 ### Valor a Ser Pago Pelo Fornecimento da API
-A Rinha de Backend® Inc. pagará um valor de USD 100.000,00 para cada fornecedor de API, descontando as multas para possíveis compensações de SLA mencionadas anteriomente.
+A Rinha de Backend® Inc. pagará um amount de USD 100.000,00 para cada fornecedor de API, descontando as multas para possíveis compensações de SLA mencionadas anteriomente.
 
 ## Resultados
 
-Abaixo está a tabela com os valores e fornecedores da API de Crébitos da segunda edição da Rinha de Backend.
+Abaixo está a tabela com os amountes e fornecedores da API de Crébitos da segunda edição da Rinha de Backend.
  
  
-| participante | multa SLA (> 249ms) | multa SLA (inconsistência saldo) | multa total | valor a receber | relatório |
+| participante | multa SLA (> 249ms) | multa SLA (inconsistência saldo) | multa total | amount a receber | relatório |
 | --           | --                  | --                               | --          | --              | --        |
 | [0000-golang](./participantes/0000-golang) | USD 0.0 | USD 0.0 | USD 0.0 | **USD 100000.0** | [link](resultados/0000-golang/rinhabackendcrebitossimulation-20240304171019294) |
 | [1garo](./participantes/1garo) | USD 0.0 | USD 0.0 | USD 0.0 | **USD 100000.0** | [link](resultados/1garo/rinhabackendcrebitossimulation-20240218235136818) |

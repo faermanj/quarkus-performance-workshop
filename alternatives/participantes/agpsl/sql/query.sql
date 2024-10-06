@@ -4,17 +4,17 @@ WHERE id = $1 LIMIT 1;
 
 -- name: UpdateCustomer :many
 UPDATE clientes
-  set saldo = saldo + $2
+  set current_balance = current_balance + $2
 WHERE id = $1
 RETURNING *;
 
 -- name: InsertTransaction :exec
 INSERT INTO transactions (
-  cliente_id, valor, tipo, descricao
+  cliente_id, amount, kind, description
 ) VALUES (
   $1, $2, $3, $4
 );
 
 -- name: GetLastTransactions :many
-SELECT valor, tipo, descricao, realizada_em FROM transactions
+SELECT amount, kind, description, submitted_at FROM transactions
 WHERE cliente_id = $1 ORDER BY id DESC LIMIT 10;

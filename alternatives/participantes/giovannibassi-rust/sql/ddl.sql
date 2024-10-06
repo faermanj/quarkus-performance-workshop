@@ -14,14 +14,14 @@ SET default_table_access_method = heap;
 
 CREATE UNLOGGED TABLE cliente (
     id integer PRIMARY KEY NOT NULL,
-    saldo integer NOT NULL,
-    limite integer NOT NULL
+    current_balance integer NOT NULL,
+    limit integer NOT NULL
 );
 
 CREATE UNLOGGED TABLE transacao (
     id SERIAL PRIMARY KEY,
-    valor integer NOT NULL,
-    descricao varchar(10) NOT NULL,
+    amount integer NOT NULL,
+    description varchar(10) NOT NULL,
     realizadaem timestamp with time zone NOT NULL,
     idcliente integer NOT NULL
 );

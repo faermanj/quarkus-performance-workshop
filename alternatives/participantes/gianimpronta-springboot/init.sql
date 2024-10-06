@@ -3,8 +3,8 @@ CREATE EXTENSION IF NOT EXISTS pg_trgm;
 CREATE UNLOGGED TABLE IF NOT EXISTS clientes
 (
     id BIGSERIAL NOT NULL,
-    limite BIGINT NOT NULL,
-    saldo BIGINT NOT NULL,
+    limit BIGINT NOT NULL,
+    current_balance BIGINT NOT NULL,
     CONSTRAINT pk_clientes PRIMARY KEY (id)
 );
 create index clientes_id_idx
@@ -13,9 +13,9 @@ create index clientes_id_idx
 CREATE UNLOGGED TABLE transactions
 (
     id BIGSERIAL NOT NULL,
-    valor      BIGINT                      NOT NULL,
-    tipo       CHAR                        NOT NULL,
-    descricao  VARCHAR(10)                 NOT NULL,
+    amount      BIGINT                      NOT NULL,
+    kind       CHAR                        NOT NULL,
+    description  VARCHAR(10)                 NOT NULL,
     realizacao TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     cliente_id BIGINT                      NOT NULL,
     CONSTRAINT pk_transactions PRIMARY KEY (id)
@@ -30,7 +30,7 @@ truncate table clientes cascade;
 DO
 $$
     BEGIN
-        INSERT INTO clientes (limite, saldo)
+        INSERT INTO clientes (limit, current_balance)
         VALUES (1000 * 100, 0),
                (800 * 100, 0),
                (10000 * 100, 0),

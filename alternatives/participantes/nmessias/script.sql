@@ -1,11 +1,11 @@
 CREATE UNLOGGED TABLE transactions (
     id SERIAL PRIMARY KEY,
-    saldo INTEGER NOT NULL,
-    limite INTEGER NOT NULL,
-    valor INTEGER NOT NULL,
-    descricao VARCHAR(10) NOT NULL,
-    tipo CHAR(1) NOT NULL,
-    realizada_em TIMESTAMP NOT NULL,
+    current_balance INTEGER NOT NULL,
+    limit INTEGER NOT NULL,
+    amount INTEGER NOT NULL,
+    description VARCHAR(10) NOT NULL,
+    kind CHAR(1) NOT NULL,
+    submitted_at TIMESTAMP NOT NULL,
     id_cliente INTEGER NOT NULL
 );
 
@@ -13,16 +13,16 @@ CREATE INDEX idx_transactions_id_cliente ON transactions (id_cliente);
 
 CREATE TYPE criar_transacao_result AS (
   code integer,
-  saldo integer,
-  limite integer
+  current_balance integer,
+  limit integer
 );
 
-CREATE FUNCTION criar_transacao(a_id_cliente INTEGER, valor INTEGER, descricao VARCHAR(10), tipo CHAR(1))
+CREATE FUNCTION criar_transacao(a_id_cliente INTEGER, amount INTEGER, description VARCHAR(10), kind CHAR(1))
 RETURNS criar_transacao_result AS $$
 DECLARE 
   current_data RECORD;
   result criar_transacao_result;
-  copy_valor INTEGER;
+  copy_amount INTEGER;
 BEGIN
   PERFORM pg_advisory_xact_lock(a_id_cliente);
   SELECT * INTO current_data FROM transactions WHERE id_cliente = a_id_cliente order by id desc limit 1;
@@ -32,18 +32,18 @@ BEGIN
     RETURN result;
   END IF;
 
-  IF tipo = 'd' THEN
-    copy_valor := valor * -1;
+  IF kind = 'd' THEN
+    copy_amount := amount * -1;
   ELSE
-    copy_valor := valor;
+    copy_amount := amount;
   END IF;
 
-  IF copy_valor < 0 AND current_data.saldo + copy_valor < current_data.limite * -1 THEN
+  IF copy_amount < 0 AND current_data.current_balance + copy_amount < current_data.limit * -1 THEN
     SELECT -2, -2, -2 INTO result;
   ELSE
-      INSERT INTO transactions (saldo, limite, valor, descricao, tipo, realizada_em, id_cliente)
-        VALUES (current_data.saldo + copy_valor, current_data.limite, valor, descricao, tipo, NOW(), a_id_cliente)
-        RETURNING 0, saldo, limite INTO result;
+      INSERT INTO transactions (current_balance, limit, amount, description, kind, submitted_at, id_cliente)
+        VALUES (current_data.current_balance + copy_amount, current_data.limit, amount, description, kind, NOW(), a_id_cliente)
+        RETURNING 0, current_balance, limit INTO result;
   END IF;
 
   RETURN result;  
@@ -56,7 +56,7 @@ DECLARE
     result json;
     cliente_data RECORD;
 BEGIN
-    SELECT saldo, limite INTO cliente_data FROM transactions WHERE id_cliente = a_id_cliente order by id desc limit 1;
+    SELECT current_balance, limit INTO cliente_data FROM transactions WHERE id_cliente = a_id_cliente order by id desc limit 1;
 
     IF cliente_data IS NULL THEN
         SELECT NULL INTO result;
@@ -64,14 +64,14 @@ BEGIN
     END IF;
 
     SELECT json_build_object(
-        'saldo', json_build_object(
-            'total', cliente_data.saldo,
+        'current_balance', json_build_object(
+            'total', cliente_data.current_balance,
             'date_balance', NOW(),
-            'limite', cliente_data.limite
+            'limit', cliente_data.limit
         ),
-        'ultimas_transactions', COALESCE((
+        'recent_transactions', COALESCE((
             SELECT json_agg(row_to_json(t)) FROM (
-                SELECT valor, tipo, descricao, realizada_em FROM transactions WHERE id_cliente = a_id_cliente ORDER BY id DESC LIMIT 10
+                SELECT amount, kind, description, submitted_at FROM transactions WHERE id_cliente = a_id_cliente ORDER BY id DESC LIMIT 10
             ) t
         ), '[]')
     ) INTO result;
@@ -82,7 +82,7 @@ $$ LANGUAGE plpgsql;
 
 DO $$
 BEGIN
-  INSERT INTO transactions (id_cliente, saldo, limite, valor, descricao, tipo, realizada_em)
+  INSERT INTO transactions (id_cliente, current_balance, limit, amount, description, kind, submitted_at)
   VALUES
     (1, 0, 1000 * 100, 0, '', 'c', now()),
     (2, 0, 800 * 100, 0, '', 'c', now()),

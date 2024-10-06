@@ -39,15 +39,15 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 // curl -v -X GET http://localhost:9999/clientes/1/balance
 
-// curl -v -X POST -H "Content-Type: application/json" -d '{"valor": 100,
-// "tipo": "c", "descricao": "Deposito"}'
+// curl -v -X POST -H "Content-Type: application/json" -d '{"amount": 100,
+// "kind": "c", "description": "Deposito"}'
 // http:///localhost:9999/clientes/1/transactions
 
 //@WebServlet(value = "/cached/*")
 public class RinhaServlet extends HttpServlet {
     private static final String WARMUP_QUERY = "CREATE EXTENSION IF NOT EXISTS pg_prewarm; SELECT pg_prewarm('transactions');";
     private static final String EXTRATO_QUERY = "SELECT json_agg(t) FROM (SELECT * FROM transactions WHERE id = ?) t";
-    private static final String TRANSACAO_QUERY = "INSERT INTO transactions (cliente_id, valor, tipo, descricao) VALUES (?, ?, ?, ?)";
+    private static final String TRANSACAO_QUERY = "INSERT INTO transactions (cliente_id, amount, kind, description) VALUES (?, ?, ?, ?)";
     private static final ObjectMapper objectMapper = new ObjectMapper();
     public static Map<Integer, Cliente> cache;
     public static final int shard = envInt("RINHA_SHARD", 1);
@@ -98,7 +98,7 @@ public class RinhaServlet extends HttpServlet {
 
     private void write(Cliente cliente, HttpServletResponse resp) {
         try {
-            var body = Map.of("limite", cliente.limite, "saldo", cliente.saldo);
+            var body = Map.of("limit", cliente.limit, "current_balance", cliente.current_balance);
             if (resp == null)
                 return;
             resp.setHeader("x-rinha-cache", "hit");
@@ -188,31 +188,31 @@ public class RinhaServlet extends HttpServlet {
 
     private void postTransacao(Integer id, JsonNode t, HttpServletResponse resp) throws IOException {
         // Validate and process the transaction as in the original resource
-        var valorNumber = t.get("valor").asText();
-        if (valorNumber == null || valorNumber.contains(".")) {
+        var amountNumber = t.get("amount").asText();
+        if (amountNumber == null || amountNumber.contains(".")) {
             if (resp != null)
                 sendError(resp, 422, "Valor invalido");
             return;
         }
 
-        Integer valor = null;
+        Integer amount = null;
         try {
-            valor = Integer.parseInt((String) valorNumber);
+            amount = Integer.parseInt((String) amountNumber);
         } catch (NumberFormatException e) {
             if (resp != null)
                 sendError(resp, 422, "Valor invalido");
             return;
         }
 
-        var tipo = (String) t.get("tipo").asText();
-        if (tipo == null || !("c".equals(tipo) || "d".equals(tipo))) {
+        var kind = (String) t.get("kind").asText();
+        if (kind == null || !("c".equals(kind) || "d".equals(kind))) {
             if (resp != null)
                 sendError(resp, 422, "Tipo invalido");
             return;
         }
 
-        var descricao = (String) t.get("descricao").asText();
-        if (descricao == null || descricao.isEmpty() || descricao.length() > 10 || "null".equals(descricao)) {
+        var description = (String) t.get("description").asText();
+        if (description == null || description.isEmpty() || description.length() > 10 || "null".equals(description)) {
             if (resp != null)
                 sendError(resp, 422, "Descricao invalida");
             return;
@@ -221,9 +221,9 @@ public class RinhaServlet extends HttpServlet {
         try (var conn = ds.getConnection();
                 var stmt = conn.prepareStatement(TRANSACAO_QUERY)) {
             stmt.setInt(1, id);
-            stmt.setInt(2, valor);
-            stmt.setString(3, tipo);
-            stmt.setString(4, descricao);
+            stmt.setInt(2, amount);
+            stmt.setString(3, kind);
+            stmt.setString(4, description);
             stmt.executeUpdate();
             //TODO: Update cache
             if (resp != null) {

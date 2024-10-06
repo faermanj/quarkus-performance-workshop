@@ -15,67 +15,67 @@ SET default_table_access_method = heap;
 
 CREATE UNLOGGED TABLE pessoas (
     id int NOT NULL PRIMARY KEY,
-    limite int NOT NULL CHECK (limite > 0),
-    saldo int NOT NULL,
-    CHECK (saldo > -limite)
+    limit int NOT NULL CHECK (limit > 0),
+    current_balance int NOT NULL,
+    CHECK (current_balance > -limit)
 );
 
 CREATE UNLOGGED TABLE transactions (
     pessoa_id int NOT NULL,
-    valor int NOT NULL,
-    tipo varchar(1) NOT NULL,
-    descricao varchar(10) NOT NULL,
-    realizada_em timestamp NOT NULL
+    amount int NOT NULL,
+    kind varchar(1) NOT NULL,
+    description varchar(10) NOT NULL,
+    submitted_at timestamp NOT NULL
 );
 
-CREATE INDEX idx_transactions_pessoa_id ON transactions (pessoa_id, realizada_em DESC);
+CREATE INDEX idx_transactions_pessoa_id ON transactions (pessoa_id, submitted_at DESC);
 
-INSERT INTO pessoas (id, limite, saldo) VALUES (1, 100000, 0);
-INSERT INTO pessoas (id, limite, saldo) VALUES (2, 80000, 0);
-INSERT INTO pessoas (id, limite, saldo) VALUES (3, 1000000, 0);
-INSERT INTO pessoas (id, limite, saldo) VALUES (4, 10000000, 0);
-INSERT INTO pessoas (id, limite, saldo) VALUES (5, 500000, 0);
+INSERT INTO pessoas (id, limit, current_balance) VALUES (1, 100000, 0);
+INSERT INTO pessoas (id, limit, current_balance) VALUES (2, 80000, 0);
+INSERT INTO pessoas (id, limit, current_balance) VALUES (3, 1000000, 0);
+INSERT INTO pessoas (id, limit, current_balance) VALUES (4, 10000000, 0);
+INSERT INTO pessoas (id, limit, current_balance) VALUES (5, 500000, 0);
 
 CREATE OR REPLACE PROCEDURE SALVAR_TRANSACAO(
     id_pessoa int,
-    tipo varchar(1),
-    valor int,
-    descricao varchar(10),
+    kind varchar(1),
+    amount int,
+    description varchar(10),
     INOUT resultado varchar(255)
 )
 LANGUAGE plpgsql
 AS $$
 DECLARE
-    var_novo_saldo int;
-    var_atual_limite int;
+    var_novo_current_balance int;
+    var_atual_limit int;
 BEGIN
-    IF tipo = 'c' THEN
+    IF kind = 'c' THEN
         UPDATE pessoas
             SET
-                saldo = saldo + valor,
-                limite = limite
+                current_balance = current_balance + amount,
+                limit = limit
             WHERE id = id_pessoa
-            RETURNING saldo, limite
-                INTO var_novo_saldo, var_atual_limite;
+            RETURNING current_balance, limit
+                INTO var_novo_current_balance, var_atual_limit;
     ELSE
         UPDATE pessoas
             SET
-                saldo = saldo - valor,
-                limite = limite
+                current_balance = current_balance - amount,
+                limit = limit
             WHERE id = id_pessoa
-            RETURNING saldo, limite
-                INTO var_novo_saldo, var_atual_limite;
+            RETURNING current_balance, limit
+                INTO var_novo_current_balance, var_atual_limit;
     END IF;
 
     IF NOT FOUND THEN
         resultado = '-1';
         RETURN;
     ELSE
-        INSERT INTO transactions (pessoa_id, valor, tipo, descricao, realizada_em)
-            VALUES (id_pessoa, valor, tipo, descricao, CURRENT_TIMESTAMP);
+        INSERT INTO transactions (pessoa_id, amount, kind, description, submitted_at)
+            VALUES (id_pessoa, amount, kind, description, CURRENT_TIMESTAMP);
 
         COMMIT;
-        resultado = CONCAT(var_novo_saldo::varchar, ':', var_atual_limite::varchar);
+        resultado = CONCAT(var_novo_current_balance::varchar, ':', var_atual_limit::varchar);
     END IF;
 END;
 $$;

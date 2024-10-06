@@ -33,13 +33,13 @@ public class PostgreSQLServlet extends HttpServlet {
     private static final String EXTRATO_QUERY = "select * from proc_balance(?)";
     private static final String TRANSACAO_QUERY = "select * from proc_transacao(?, ?, ?, ?, ?)";
     private static final String WARMUP_QUERY = "select 1+1;";
-    private static final String valorPattern = "\"valor\":\\s*(\\d+(\\.\\d+)?)";
-    private static final String tipoPattern = "\"tipo\":\\s*\"([^\"]*)\"";
-    private static final String descricaoPattern = "\"descricao\":\\s*(?:\"([^\"]*)\"|null)";
+    private static final String amountPattern = "\"amount\":\\s*(\\d+(\\.\\d+)?)";
+    private static final String kindPattern = "\"kind\":\\s*\"([^\"]*)\"";
+    private static final String descriptionPattern = "\"description\":\\s*(?:\"([^\"]*)\"|null)";
 
-    private static final Pattern pValor = Pattern.compile(valorPattern);
-    private static final Pattern pTipo = Pattern.compile(tipoPattern);
-    private static final Pattern pDescricao = Pattern.compile(descricaoPattern);
+    private static final Pattern pValor = Pattern.compile(amountPattern);
+    private static final Pattern pTipo = Pattern.compile(kindPattern);
+    private static final Pattern pDescricao = Pattern.compile(descriptionPattern);
     private static final int RETRIES_MAX = 10;
 
     private Integer shard;
@@ -207,8 +207,8 @@ public class PostgreSQLServlet extends HttpServlet {
             Log.warnf("[%s] %s", sc, msg);
     }
 
-    // curl -v -X POST -H "Content-Type: application/json" -d '{"valor": 100,
-    // "tipo": "c", "descricao": "Deposito"}'
+    // curl -v -X POST -H "Content-Type: application/json" -d '{"amount": 100,
+    // "kind": "c", "description": "Deposito"}'
     // http:///localhost:9999/clientes/1/transactions
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -235,14 +235,14 @@ public class PostgreSQLServlet extends HttpServlet {
         Matcher mDescricao = pDescricao.matcher(json);
 
         if (mValor.find() && mTipo.find() && mDescricao.find()) {
-            // Os valores foram extraídos com sucesso
-            String valor = mValor.group(1);
-            String tipo = mTipo.group(1);
-            String descricao = mDescricao.group(1);
+            // Os amountes foram extraídos com sucesso
+            String amount = mValor.group(1);
+            String kind = mTipo.group(1);
+            String description = mDescricao.group(1);
 
-            // QuarkusTransaction.requiringNew().run(() -> doTransacao(id, valor, tipo,
-            // descricao, resp));
-            tryTransacao(id, valor, tipo, descricao, resp);
+            // QuarkusTransaction.requiringNew().run(() -> doTransacao(id, amount, kind,
+            // description, resp));
+            tryTransacao(id, amount, kind, description, resp);
 
         } else {
             sendError(resp, 422, "Corpo da requisição JSON inválido ou incompleto.");
@@ -250,30 +250,30 @@ public class PostgreSQLServlet extends HttpServlet {
         return;
     }
 
-    private void tryTransacao(Integer id, String valorNumber, String tipo, String descricao, HttpServletResponse resp) {
-        if (valorNumber == null || valorNumber.contains(".")) {
+    private void tryTransacao(Integer id, String amountNumber, String kind, String description, HttpServletResponse resp) {
+        if (amountNumber == null || amountNumber.contains(".")) {
             if (resp != null)
                 sendError(resp, 422, "Valor invalido");
             return;
         }
 
-        Integer valor = null;
+        Integer amount = null;
         try {
-            valor = Integer.parseInt((String) valorNumber);
+            amount = Integer.parseInt((String) amountNumber);
         } catch (NumberFormatException e) {
             if (resp != null)
                 sendError(resp, 422, "Valor invalido");
             return;
         }
-        int valorFinal = valor;
+        int amountFinal = amount;
 
-        if (tipo == null || !("c".equals(tipo) || "d".equals(tipo))) {
+        if (kind == null || !("c".equals(kind) || "d".equals(kind))) {
             if (resp != null)
                 sendError(resp, 422, "Tipo invalido");
             return;
         }
 
-        if (descricao == null || descricao.isEmpty() || descricao.length() > 10 || "null".equals(descricao)) {
+        if (description == null || description.isEmpty() || description.length() > 10 || "null".equals(description)) {
             if (resp != null)
                 sendError(resp, 422, "Descricao invalida");
             return;
@@ -284,7 +284,7 @@ public class PostgreSQLServlet extends HttpServlet {
             try {
                 int result = QuarkusTransaction.requiringNew()
                         .call(() -> {
-                            doTransacao(id, valorFinal, tipo, descricao, resp);
+                            doTransacao(id, amountFinal, kind, description, resp);
                             return 0;
                         });
                 if (result == 0)
@@ -301,7 +301,7 @@ public class PostgreSQLServlet extends HttpServlet {
         sendError(resp, SC_INTERNAL_SERVER_ERROR, "Retry limit exceeded");
     }
 
-    private void doTransacao(Integer id, int valor, String tipo, String descricao, HttpServletResponse resp)
+    private void doTransacao(Integer id, int amount, String kind, String description, HttpServletResponse resp)
             throws SQLException, IOException {
         try (var conn = ds.getConnection();
                 /// var lock = conn.prepareStatement("SELECT pg_advisory_xact_lock(?)");
@@ -313,9 +313,9 @@ public class PostgreSQLServlet extends HttpServlet {
 
             stmt.setInt(1, shard);
             stmt.setInt(2, id);
-            stmt.setInt(3, valor);
-            stmt.setString(4, tipo);
-            stmt.setString(5, descricao);
+            stmt.setInt(3, amount);
+            stmt.setString(4, kind);
+            stmt.setString(5, description);
             stmt.execute();
             try (var rs = stmt.getResultSet()) {
                 if (rs.next()) {

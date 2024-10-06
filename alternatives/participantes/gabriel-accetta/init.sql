@@ -1,15 +1,15 @@
 CREATE TABLE IF NOT EXISTS Cliente (
   id INT PRIMARY KEY,
-  limite INT NOT NULL,
-  saldo INT NOT NULL
+  limit INT NOT NULL,
+  current_balance INT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS Transacao (
   id SERIAL PRIMARY KEY,
   idCliente INT REFERENCES Cliente(id) NOT NULL,
-  valor INT NOT NULL,
-  descricao VARCHAR(10) NOT NULL,
-  tipo CHAR(1) NOT NULL,
+  amount INT NOT NULL,
+  description VARCHAR(10) NOT NULL,
+  kind CHAR(1) NOT NULL,
   realizadaEm TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
@@ -38,7 +38,7 @@ AFTER INSERT ON Transacao
 FOR EACH ROW
 EXECUTE FUNCTION delete_old_transactions();
 
-INSERT INTO Cliente (id, limite, saldo)
+INSERT INTO Cliente (id, limit, current_balance)
 VALUES
   (1, 100000, 0),
   (2, 80000, 0),

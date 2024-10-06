@@ -19,13 +19,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class HttpNettyHandler extends SimpleChannelInboundHandler<HttpObject> {
-    private static final String valorPattern = "\"valor\":\\s*(\\d+(\\.\\d+)?)";
-    private static final String tipoPattern = "\"tipo\":\\s*\"([^\"]*)\"";
-    private static final String descricaoPattern = "\"descricao\":\\s*(?:\"([^\"]*)\"|null)";
+    private static final String amountPattern = "\"amount\":\\s*(\\d+(\\.\\d+)?)";
+    private static final String kindPattern = "\"kind\":\\s*\"([^\"]*)\"";
+    private static final String descriptionPattern = "\"description\":\\s*(?:\"([^\"]*)\"|null)";
 
-    private static final Pattern pValor = Pattern.compile(valorPattern);
-    private static final Pattern pTipo = Pattern.compile(tipoPattern);
-    private static final Pattern pDescricao = Pattern.compile(descricaoPattern);
+    private static final Pattern pValor = Pattern.compile(amountPattern);
+    private static final Pattern pTipo = Pattern.compile(kindPattern);
+    private static final Pattern pDescricao = Pattern.compile(descriptionPattern);
     private static final Pattern PATTERN_ID = Pattern.compile("/clientes/(\\d+)/.*");
     private static final String EXTRATO_QUERY = "select * from proc_balance(?)";
     private static final String TRANSACAO_QUERY = "select * from proc_transacao(?, ?, ?, ?, ?)";
@@ -88,9 +88,9 @@ public class HttpNettyHandler extends SimpleChannelInboundHandler<HttpObject> {
         Matcher mDescricao = pDescricao.matcher(json);
     
         if (mValor.find() && mTipo.find() && mDescricao.find()) {
-            String valor = mValor.group(1);
-            String tipo = mTipo.group(1);
-            String descricao = mDescricao.group(1);
+            String amount = mValor.group(1);
+            String kind = mTipo.group(1);
+            String description = mDescricao.group(1);
     
             try (Connection conn = dataSource.getConnection();
                  PreparedStatement stmt = conn.prepareStatement(TRANSACAO_QUERY)) {
@@ -98,9 +98,9 @@ public class HttpNettyHandler extends SimpleChannelInboundHandler<HttpObject> {
                 int shard = getShard(); // Implement this based on your logic
                 stmt.setInt(1, shard);
                 stmt.setInt(2, id);
-                stmt.setBigDecimal(3, new java.math.BigDecimal(valor));
-                stmt.setString(4, tipo);
-                stmt.setString(5, descricao);
+                stmt.setBigDecimal(3, new java.math.BigDecimal(amount));
+                stmt.setString(4, kind);
+                stmt.setString(5, description);
                 
                 boolean executed = stmt.execute();
                 if (executed) {

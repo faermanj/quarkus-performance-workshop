@@ -4,18 +4,18 @@ CREATE SEQUENCE transacao_id_seq INCREMENT BY 50;
 CREATE TABLE IF NOT EXISTS cliente (
     id BIGINT DEFAULT nextval('cliente_id_seq'::regclass) PRIMARY KEY,
     nome VARCHAR(100),
-    limite NUMERIC,
-    saldo NUMERIC
+    limit NUMERIC,
+    current_balance NUMERIC
 );
 
 CREATE TABLE if not exists transacao(
     id BIGINT DEFAULT nextval('transacao_id_seq'::regclass) PRIMARY KEY,
-	valor  NUMERIC,
-	tipo char,
-	descricao varchar(10),
+	amount  NUMERIC,
+	kind char,
+	description varchar(10),
 	external_id UUID,
 	cliente_id bigint,
-	realizada_em TIMESTAMP WITH TIME zone,
+	submitted_at TIMESTAMP WITH TIME zone,
 	FOREIGN KEY (cliente_id) REFERENCES cliente(id)
 
 );

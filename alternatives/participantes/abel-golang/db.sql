@@ -1,19 +1,19 @@
 CREATE TABLE IF NOT EXISTS clientes (
     id SERIAL PRIMARY KEY,
-    limite INTEGER NOT NULL,
-    saldo INTEGER NOT NULL DEFAULT 0
+    limit INTEGER NOT NULL,
+    current_balance INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE UNLOGGED TABLE IF NOT EXISTS transactions (
     id SERIAL PRIMARY KEY,
     idCliente INTEGER NOT NULL,
-    valor INTEGER NOT NULL,
-    tipo CHAR(1) NOT NULL,
-    descricao VARCHAR(10) NOT NULL,
+    amount INTEGER NOT NULL,
+    kind CHAR(1) NOT NULL,
+    description VARCHAR(10) NOT NULL,
     dataCriacao TIMESTAMP NOT NULL
 );
 
-INSERT INTO clientes (limite)
+INSERT INTO clientes (limit)
 VALUES
   (1000 * 100),
   (800 * 100),
@@ -28,62 +28,62 @@ CREATE INDEX idx_transactions ON transactions (idCliente ASC);
 
 CREATE OR REPLACE FUNCTION debitar(
     idClienteTx INTEGER,
-    valorTx INT,
-    descricaoTx VARCHAR(10))
+    amountTx INT,
+    descriptionTx VARCHAR(10))
 RETURNS TABLE (
     novoSaldo INT,
     sucesso BOOL,
-    limite INT)
+    limit INT)
 LANGUAGE plpgsql
 AS $$
 DECLARE
-    saldoAtual INT;
-    limiteAtual INT;
+    current_balanceAtual INT;
+    limitAtual INT;
 BEGIN
     PERFORM pg_advisory_xact_lock(idClienteTx);
 
     SELECT 
-        clientes.limite,
-        clientes.saldo
+        clientes.limit,
+        clientes.current_balance
     INTO
-        limiteAtual,
-        saldoAtual
+        limitAtual,
+        current_balanceAtual
     FROM clientes
     WHERE id = idClienteTx;
 
-    IF saldoAtual - valorTx >= limiteAtual * -1 THEN
-        INSERT INTO transactions VALUES(DEFAULT, idClienteTx, valorTx, 'd', descricaoTx, NOW());
+    IF current_balanceAtual - amountTx >= limitAtual * -1 THEN
+        INSERT INTO transactions VALUES(DEFAULT, idClienteTx, amountTx, 'd', descriptionTx, NOW());
         
         RETURN QUERY
         UPDATE clientes 
-        SET saldo = saldo - valorTx 
+        SET current_balance = current_balance - amountTx 
         WHERE id = idClienteTx
-        RETURNING saldo, TRUE, limiteAtual;
+        RETURNING current_balance, TRUE, limitAtual;
     ELSE
-        RETURN QUERY SELECT saldoAtual, FALSE, limiteAtual;
+        RETURN QUERY SELECT current_balanceAtual, FALSE, limitAtual;
     END IF;
 END;
 $$;
 
 CREATE OR REPLACE FUNCTION creditar(
     idClienteTx INTEGER,
-    valorTx INT,
-    descricaoTx VARCHAR(10))
+    amountTx INT,
+    descriptionTx VARCHAR(10))
 RETURNS TABLE (
     novoSaldo INT,
     sucesso BOOL,
-    limiteAtual INT)
+    limitAtual INT)
 LANGUAGE plpgsql
 AS $$
 BEGIN
     PERFORM pg_advisory_xact_lock(idClienteTx);
 
-    INSERT INTO transactions VALUES(DEFAULT, idClienteTx, valorTx, 'c', descricaoTx, NOW());
+    INSERT INTO transactions VALUES(DEFAULT, idClienteTx, amountTx, 'c', descriptionTx, NOW());
 
     RETURN QUERY
         UPDATE clientes
-        SET saldo = saldo + valorTx
+        SET current_balance = current_balance + amountTx
         WHERE id = idClienteTx
-        RETURNING saldo, TRUE, clientes.limite;
+        RETURNING current_balance, TRUE, clientes.limit;
 END;
 $$;

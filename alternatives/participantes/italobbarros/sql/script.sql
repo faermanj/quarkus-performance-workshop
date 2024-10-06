@@ -3,8 +3,8 @@
 CREATE TABLE clientes (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255),
-    limite INT,
-    saldo INT
+    limit INT,
+    current_balance INT
 );
 
 
@@ -12,9 +12,9 @@ CREATE TABLE clientes (
 CREATE TABLE historico_transactions (
     id SERIAL,
     id_cliente INT,
-    valor INT,
-    tipo CHAR(1),
-    descricao VARCHAR(10),
+    amount INT,
+    kind CHAR(1),
+    description VARCHAR(10),
     data_transacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id, id_cliente) -- Inclua a coluna id_cliente na chave primária
 ) PARTITION BY LIST (id_cliente);
@@ -31,7 +31,7 @@ CREATE TABLE historico_transactions_cliente_5 PARTITION OF historico_transaction
     FOR VALUES IN (5);     
 
 -- Inserção de dados iniciais na tabela de clientes
-INSERT INTO clientes (name, limite, saldo) VALUES
+INSERT INTO clientes (name, limit, current_balance) VALUES
     ('Italo', 100000, 0),
     ('Carla', 80000, 0),
     ('Monica', 1000000, 0),

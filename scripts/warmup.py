@@ -9,7 +9,7 @@ for i in range(1, 43):
         # Replace the URLs with your actual endpoints
         requests.get("http://your_service:9999/members/333/balance")
         requests.post("http://your_service:9999/members/333/transactions",
-                      json={"valor": 0, "tipo": "d", "descricao": "warmup"})
+                      json={"amount": 0, "kind": "d", "description": "warmup"})
     except requests.RequestException as e:
         print(f"Request {i} failed: {e}")
 

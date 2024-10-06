@@ -4,18 +4,18 @@ DROP TABLE IF EXISTS clientes;
 
 CREATE UNLOGGED TABLE IF NOT EXISTS clientes (
     id SERIAL NOT NULL,
-    limite INTEGER NOT NULL,
-	saldo INTEGER NOT NULL,
+    limit INTEGER NOT NULL,
+	current_balance INTEGER NOT NULL,
     PRIMARY KEY (id)
 );
 
 CREATE UNLOGGED TABLE IF NOT EXISTS transactions (
     id SERIAL NOT NULL,
     id_clientes BIGINT NOT NULL,
-    valor INTEGER NOT NULL,
-    tipo CHAR(1) NOT NULL,
-    descricao VARCHAR(10),
-    realizada_em TIMESTAMP NOT NULL,
+    amount INTEGER NOT NULL,
+    kind CHAR(1) NOT NULL,
+    description VARCHAR(10),
+    submitted_at TIMESTAMP NOT NULL,
     PRIMARY KEY (id),
     CONSTRAINT fk_clientes
         FOREIGN KEY(id_clientes)
@@ -24,7 +24,7 @@ CREATE UNLOGGED TABLE IF NOT EXISTS transactions (
 
 DO $$
 BEGIN
-    INSERT INTO clientes (id, limite, saldo)
+    INSERT INTO clientes (id, limit, current_balance)
     VALUES
        (1, 1000 * 100, 0)
       ,(2, 800 * 100, 0)

@@ -15,7 +15,7 @@ CREATE UNLOGGED TABLE IF NOT EXISTS transactions_1 (
 );
 CREATE INDEX idx_customer_id_1 ON transactions_1(id);
 -- CREATE INDEX idx_customer_id ON transactions(id, created_at);
--- CREATE INDEX idx_cliente_realizada_em ON transactions (cliente_id, realizada_em);
+-- CREATE INDEX idx_cliente_submitted_at ON transactions (cliente_id, submitted_at);
 
 CREATE UNLOGGED TABLE IF NOT EXISTS transactions_2 (
 -- CREATE TABLE transactions (

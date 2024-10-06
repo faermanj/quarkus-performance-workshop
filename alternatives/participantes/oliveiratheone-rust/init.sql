@@ -1,19 +1,19 @@
 CREATE UNLOGGED TABLE
     "members" (
                    "id" SERIAL NOT NULL,
-                   "saldo" INTEGER NOT NULL,
-                   "limite" INTEGER NOT NULL,
+                   "current_balance" INTEGER NOT NULL,
+                   "limit" INTEGER NOT NULL,
                    CONSTRAINT "members_pkey" PRIMARY KEY ("id")
 );
 
 CREATE UNLOGGED TABLE
     "transactions" (
                      "id" SERIAL NOT NULL,
-                     "valor" INTEGER NOT NULL,
+                     "amount" INTEGER NOT NULL,
                      "id_cliente" INTEGER NOT NULL,
-                     "tipo" char(1) NOT NULL,
-                     "descricao" VARCHAR(10) NOT NULL,
-                     "realizada_em" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                     "kind" char(1) NOT NULL,
+                     "description" VARCHAR(10) NOT NULL,
+                     "submitted_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                      CONSTRAINT "transactions_pkey" PRIMARY KEY ("id")
 );
 
@@ -24,33 +24,33 @@ DECLARE
 customer_data JSON;
     statements_data JSON;
 BEGIN
-SELECT json_build_object('total', saldo, 'limite', limite, 'date_balance', now())
+SELECT json_build_object('total', current_balance, 'limit', limit, 'date_balance', now())
 INTO customer_data
 FROM members
 WHERE id = customer_id;
 
-SELECT COALESCE(json_agg(json_build_object('valor', valor, 'tipo', tipo, 'descricao', descricao, 'realizada_em', realizada_em)), '[]'::JSON)
+SELECT COALESCE(json_agg(json_build_object('amount', amount, 'kind', kind, 'description', description, 'submitted_at', submitted_at)), '[]'::JSON)
 INTO statements_data
 FROM (
-         SELECT valor, tipo, descricao, realizada_em
+         SELECT amount, kind, description, submitted_at
          FROM transactions
          WHERE id_cliente = customer_id
-         ORDER BY realizada_em DESC
+         ORDER BY submitted_at DESC
              LIMIT 10
      ) AS t;
 
 RETURN json_build_object(
-        'saldo', customer_data,
-        'ultimas_transactions', statements_data
+        'current_balance', customer_data,
+        'recent_transactions', statements_data
        );
 END;
 $$
 LANGUAGE plpgsql;
 
-CREATE INDEX transactions_ordering ON transactions (realizada_em DESC, id_cliente);
+CREATE INDEX transactions_ordering ON transactions (submitted_at DESC, id_cliente);
 
 INSERT INTO
-    members (saldo, limite)
+    members (current_balance, limit)
 VALUES
     (0, 1000 * 100),
     (0, 800 * 100),

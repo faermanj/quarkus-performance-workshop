@@ -28,14 +28,14 @@ DECLARE
 BEGIN
   SELECT balance, account_limit INTO v_balance, v_account_limit FROM accounts WHERE id = p_account_id;
   SELECT json_build_object(
-    'saldo', json_build_object(
+    'current_balance', json_build_object(
       'total', v_balance,
       'date_balance', TO_CHAR(now(), 'YYYY-MM-DD HH:MI:SS.US'),
-      'limite', v_account_limit
+      'limit', v_account_limit
     ),
-    'ultimas_transactions', COALESCE((
+    'recent_transactions', COALESCE((
       SELECT json_agg(row_to_json(t)) FROM (
-        SELECT amount as valor, operation as tipo, description as descricao, created_at as realizada_em
+        SELECT amount as amount, operation as kind, description as description, created_at as submitted_at
         FROM transactions
         WHERE account_id = p_account_id
         ORDER BY created_at DESC

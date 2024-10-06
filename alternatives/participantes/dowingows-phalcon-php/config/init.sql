@@ -1,21 +1,21 @@
 CREATE UNLOGGED TABLE clientes (
     id SERIAL PRIMARY KEY,
-    limite INT,
-    saldo INT
+    limit INT,
+    current_balance INT
 );
 
 CREATE UNLOGGED TABLE transactions (
     id SERIAL PRIMARY KEY,
-    valor INT,
-    tipo CHAR(1),
+    amount INT,
+    kind CHAR(1),
     cliente_id INT,
-    descricao VARCHAR(10),
-    realizada_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    description VARCHAR(10),
+    submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_cliente_e_suas_transactions ON transactions (cliente_id, realizada_em DESC);
+CREATE INDEX idx_cliente_e_suas_transactions ON transactions (cliente_id, submitted_at DESC);
 
-INSERT INTO clientes (limite, saldo) VALUES
+INSERT INTO clientes (limit, current_balance) VALUES
 (100000, 0),
 (80000, 0),
 (1000000, 0),
@@ -25,42 +25,42 @@ INSERT INTO clientes (limite, saldo) VALUES
 
 CREATE OR REPLACE FUNCTION realizar_transacao(
     IN p_cliente_id INT,
-    IN p_valor INT,
-    IN p_descricao VARCHAR(10),
-    IN p_tipo CHAR(1)
+    IN p_amount INT,
+    IN p_description VARCHAR(10),
+    IN p_kind CHAR(1)
 )
 RETURNS RECORD AS $$
 DECLARE
-    v_saldo_atual INT;
-    v_limite INT;
+    v_current_balance_atual INT;
+    v_limit INT;
     ret RECORD;
 BEGIN
 
-    SELECT saldo, limite INTO v_saldo_atual, v_limite
+    SELECT current_balance, limit INTO v_current_balance_atual, v_limit
     FROM clientes
     WHERE id = p_cliente_id
     FOR UPDATE; 
 
-    IF p_tipo = 'd' THEN
-        IF (v_saldo_atual - p_valor) < (-v_limite) THEN
+    IF p_kind = 'd' THEN
+        IF (v_current_balance_atual - p_amount) < (-v_limit) THEN
             RAISE EXCEPTION 'Limite disponível atingido!';
         ELSE
             UPDATE clientes
-            SET saldo = saldo - p_valor
+            SET current_balance = current_balance - p_amount
             WHERE id = p_cliente_id 
-            RETURNING saldo, limite INTO ret;
+            RETURNING current_balance, limit INTO ret;
 
-            INSERT INTO transactions (valor, tipo, cliente_id, descricao)
-            VALUES (p_valor, 'd', p_cliente_id, p_descricao);
+            INSERT INTO transactions (amount, kind, cliente_id, description)
+            VALUES (p_amount, 'd', p_cliente_id, p_description);
         END IF;
-    ELSIF p_tipo = 'c' THEN
+    ELSIF p_kind = 'c' THEN
         UPDATE clientes
-        SET saldo = saldo + p_valor
+        SET current_balance = current_balance + p_amount
         WHERE id = p_cliente_id
-        RETURNING saldo, limite INTO ret;
+        RETURNING current_balance, limit INTO ret;
 
-        INSERT INTO transactions (valor, tipo, cliente_id, descricao)
-        VALUES (p_valor, 'c', p_cliente_id, p_descricao);
+        INSERT INTO transactions (amount, kind, cliente_id, description)
+        VALUES (p_amount, 'c', p_cliente_id, p_description);
     ELSE
         RAISE EXCEPTION 'Transação inválida!';
     END IF;

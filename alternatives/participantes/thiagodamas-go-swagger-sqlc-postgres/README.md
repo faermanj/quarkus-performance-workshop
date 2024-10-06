@@ -1,6 +1,6 @@
 # rinha2024-q1-go-swagger-sqlc-postgres
 
-O propósito deste protótipo é testar 2 frameworks que eu já tinha experiência, mas não juntos:
+O propósito deste protókind é testar 2 frameworks que eu já tinha experiência, mas não juntos:
 - go-swagger ([https://github.com/go-swagger/go-swagger](https://github.com/go-swagger/go-swagger))
 - sqlc ([https://github.com/sqlc-dev/sqlc](https://github.com/sqlc-dev/sqlc))
 

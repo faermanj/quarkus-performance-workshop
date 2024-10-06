@@ -14,18 +14,18 @@ ALTER SYSTEM SET max_wal_size                 = '4GB';
 
 CREATE TABLE cliente (
 	id                           BIGINT                    NOT NULL,
-	limite                       BIGINT      DEFAULT 0     NOT NULL,
-	saldo                        BIGINT                    NOT NULL,
+	limit                       BIGINT      DEFAULT 0     NOT NULL,
+	current_balance                        BIGINT                    NOT NULL,
 	CONSTRAINT cliente_pk        PRIMARY KEY (id),
-	CONSTRAINT cliente_limite_ck CHECK       ((saldo + limite) > -1)
+	CONSTRAINT cliente_limit_ck CHECK       ((current_balance + limit) > -1)
 );
 
 CREATE TABLE transacao (
 	id                           BIGINT      GENERATED ALWAYS AS IDENTITY,
-	valor                        BIGINT                    NOT NULL,
-	tipo                         VARCHAR(10)               NOT NULL,
-	descricao                    VARCHAR(10)               NOT NULL,
-	realizada_em                 TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+	amount                        BIGINT                    NOT NULL,
+	kind                         VARCHAR(10)               NOT NULL,
+	description                    VARCHAR(10)               NOT NULL,
+	submitted_at                 TIMESTAMPTZ DEFAULT NOW() NOT NULL,
 	cliente_id                   BIGINT                    NOT NULL,
     CONSTRAINT transacao_pk      PRIMARY KEY (id),
     CONSTRAINT cliente_fk        FOREIGN KEY (cliente_id) REFERENCES cliente(id)
@@ -38,30 +38,30 @@ CREATE INDEX CONCURRENTLY idx_transacao_01 ON transacao (
 
 CREATE OR REPLACE PROCEDURE nova_transacao (
 	IN    cliente_id              BIGINT,
-	IN    transacao_tipo          VARCHAR(10),
-	IN    transacao_valor         BIGINT,
-	IN    transacao_descricao     VARCHAR(10),
+	IN    transacao_kind          VARCHAR(10),
+	IN    transacao_amount         BIGINT,
+	IN    transacao_description     VARCHAR(10),
 	INOUT resultado               VARCHAR(30),
-	INOUT cliente_saldo           BIGINT,
-	INOUT cliente_limite          BIGINT
+	INOUT cliente_current_balance           BIGINT,
+	INOUT cliente_limit          BIGINT
 )
 LANGUAGE plpgsql
 AS $$
 BEGIN
     UPDATE cliente
-    SET saldo = (
-        CASE transacao_tipo
-        WHEN 'DEBIT'  THEN saldo - transacao_valor
-        WHEN 'CREDIT' THEN saldo + transacao_valor
+    SET current_balance = (
+        CASE transacao_kind
+        WHEN 'DEBIT'  THEN current_balance - transacao_amount
+        WHEN 'CREDIT' THEN current_balance + transacao_amount
         END
     )
     WHERE id = cliente_id
     RETURNING
-        saldo,
-        limite
+        current_balance,
+        limit
     INTO
-        cliente_saldo,
-        cliente_limite;
+        cliente_current_balance,
+        cliente_limit;
 
 	IF NOT FOUND THEN
 		resultado := 'CLIENTE_NAO_ENCONTRADO';
@@ -70,15 +70,15 @@ BEGIN
 
 	resultado := 'SUCESSO';
     INSERT INTO transacao (
-        tipo,
-        valor,
-        descricao,
+        kind,
+        amount,
+        description,
         cliente_id
     )
     VALUES (
-        transacao_tipo,
-        transacao_valor,
-        transacao_descricao,
+        transacao_kind,
+        transacao_amount,
+        transacao_description,
         cliente_id
     );
 

@@ -84,7 +84,7 @@ END IF;
 UPDATE clients SET balance = _account_new_balance WHERE id = _client_id;
 INSERT INTO transactions(client_id,amount,operation,description) values (_client_id,_amount,_operation,_description);
 
-RETURN jsonb_build_object('limite', _account_limit, 'saldo', _account_new_balance);
+RETURN jsonb_build_object('limit', _account_limit, 'current_balance', _account_new_balance);
 END;
 $$ LANGUAGE plpgsql;
 
@@ -106,7 +106,7 @@ END IF;
 SELECT json_build_object(
     'total', c.balance,
     'date_balance', NOW(),
-    'limite', c.account_limit
+    'limit', c.account_limit
 )
 INTO _client_info
 FROM clients c WHERE id = _client_id;
@@ -114,10 +114,10 @@ FROM clients c WHERE id = _client_id;
 
 SELECT json_agg(
                json_build_object(
-                       'valor', t.amount,
-                       'tipo', t.operation,
-                       'descricao', t.description,
-                       'realizada_em', t.created_at
+                       'amount', t.amount,
+                       'kind', t.operation,
+                       'description', t.description,
+                       'submitted_at', t.created_at
                    )
            )
 FROM (
@@ -135,8 +135,8 @@ FROM (
 
 
 SELECT json_build_object (
-    'saldo', _client_info,
-    'ultimas_transactions', _last_transactions
+    'current_balance', _client_info,
+    'recent_transactions', _last_transactions
 )
 INTO _res;
 

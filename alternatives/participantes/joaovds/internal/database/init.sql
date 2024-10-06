@@ -57,6 +57,6 @@ BEGIN
 
   UPDATE accounts SET balance = new_balance WHERE id = account_id;
 
-  RETURN json_build_object('limite', account_limit, 'saldo', new_balance);
+  RETURN json_build_object('limit', account_limit, 'saldo', new_balance);
 END;
 $$ LANGUAGE plpgsql;

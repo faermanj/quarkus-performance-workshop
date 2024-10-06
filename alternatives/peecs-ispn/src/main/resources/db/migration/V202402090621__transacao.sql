@@ -1,17 +1,17 @@
-CREATE TYPE transacao_result AS (saldo INT, limite INT);
+CREATE TYPE transacao_result AS (current_balance INT, limit INT);
 
-CREATE OR REPLACE FUNCTION proc_transacao(p_cliente_id INT, p_valor INT, p_tipo VARCHAR, p_descricao VARCHAR)
+CREATE OR REPLACE FUNCTION proc_transacao(p_cliente_id INT, p_amount INT, p_kind VARCHAR, p_description VARCHAR)
 RETURNS transacao_result as $$
 DECLARE
     diff INT;
-    v_saldo INT;
-    v_limite INT;
+    v_current_balance INT;
+    v_limit INT;
     result transacao_result;
 BEGIN
-    IF p_tipo = 'd' THEN
-        diff := p_valor * -1;
+    IF p_kind = 'd' THEN
+        diff := p_amount * -1;
     ELSE
-        diff := p_valor;
+        diff := p_amount;
     END IF;
 
     -- Is this necessary?
@@ -19,16 +19,16 @@ BEGIN
 
 
     UPDATE clientes 
-        SET saldo = saldo + diff 
+        SET current_balance = current_balance + diff 
         WHERE id = p_cliente_id
-        RETURNING saldo, limite INTO v_saldo, v_limite;
+        RETURNING current_balance, limit INTO v_current_balance, v_limit;
 
-    IF (v_saldo + diff) < (-1 * v_limite) THEN
-        RAISE 'LIMITE_INDISPONIVEL [%, %, %]', v_saldo, diff, v_limite;
+    IF (v_current_balance + diff) < (-1 * v_limit) THEN
+        RAISE 'LIMITE_INDISPONIVEL [%, %, %]', v_current_balance, diff, v_limit;
     ELSE
-        result := (v_saldo, v_limite)::transacao_result;
-        INSERT INTO transactions (cliente_id, valor, tipo, descricao)
-            VALUES (p_cliente_id, p_valor, p_tipo, p_descricao);
+        result := (v_current_balance, v_limit)::transacao_result;
+        INSERT INTO transactions (cliente_id, amount, kind, description)
+            VALUES (p_cliente_id, p_amount, p_kind, p_description);
         RETURN result;
     END IF;
 EXCEPTION

@@ -1,33 +1,33 @@
 CREATE TABLE IF NOT EXISTS members (
   id SERIAL PRIMARY KEY,
   nome VARCHAR(10),
-  saldo INT DEFAULT 0,
-  limite INT
+  current_balance INT DEFAULT 0,
+  limit INT
 );
 
 CREATE TABLE IF NOT EXISTS transactions (
   id SERIAL PRIMARY KEY,
   cliente_id INT,
-  valor INT,
-  tipo VARCHAR(1),
-  descricao VARCHAR(10),
-  realizada_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  amount INT,
+  kind VARCHAR(1),
+  description VARCHAR(10),
+  submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
   CONSTRAINT fk_cliente
     FOREIGN KEY(cliente_id) REFERENCES members(id)
 );
 
 ALTER TABLE members
-ADD CONSTRAINT checar_saldo
-CHECK (saldo >= -limite);
+ADD CONSTRAINT checar_current_balance
+CHECK (current_balance >= -limit);
 
-CREATE OR REPLACE FUNCTION checar_limite_saldo()
+CREATE OR REPLACE FUNCTION checar_limit_current_balance()
 RETURNS TRIGGER AS $$
 BEGIN
   IF EXISTS(
-    SELECT 1 FROM members WHERE id = NEW.cliente_id AND (saldo - NEW.valor) < -limite
+    SELECT 1 FROM members WHERE id = NEW.cliente_id AND (current_balance - NEW.amount) < -limit
   ) THEN
-    RAISE EXCEPTION 'Transação Inválida: Saldo negativo não pode ser menor do que seu limite.';
+    RAISE EXCEPTION 'Transação Inválida: Saldo negativo não pode ser menor do que seu limit.';
   END IF;
   RETURN NEW;
 END;
@@ -36,12 +36,12 @@ $$LANGUAGE plpgsql;
 CREATE TRIGGER before_transaction_insert
 BEFORE INSERT ON transactions
 FOR EACH ROW
-EXECUTE FUNCTION checar_limite_saldo();
+EXECUTE FUNCTION checar_limit_current_balance();
 
 DO $$
 
 BEGIN
-  INSERT INTO members (nome, limite)
+  INSERT INTO members (nome, limit)
   VALUES
     ('Cliente 1', 100000),
     ('Cliente 2', 80000),

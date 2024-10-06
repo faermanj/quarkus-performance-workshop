@@ -7,32 +7,32 @@ SET default_table_access_method = heap;
 
 CREATE UNLOGGED TABLE cliente (
     id SERIAL PRIMARY KEY,
-    saldo integer NOT NULL,
-    limite integer NOT NULL
+    current_balance integer NOT NULL,
+    limit integer NOT NULL
 );
 
 CREATE UNLOGGED TABLE transacao (
     id SERIAL PRIMARY KEY,
-    valor integer NOT NULL,
-    tipo varchar(1) NOT NULL,
-    descricao varchar(10) NOT NULL,
-    realizada_em timestamp NOT NULL DEFAULT (now()),
+    amount integer NOT NULL,
+    kind varchar(1) NOT NULL,
+    description varchar(10) NOT NULL,
+    submitted_at timestamp NOT NULL DEFAULT (now()),
     cliente_id integer NOT NULL
 );
 
 CREATE INDEX idx_cliente_id ON transacao(cliente_id);
-CREATE INDEX idx_realizada_em ON transacao(realizada_em);
+CREATE INDEX idx_submitted_at ON transacao(submitted_at);
 
-INSERT INTO cliente (id, limite, saldo) VALUES (1, 100000, 0);
-INSERT INTO cliente (id, limite, saldo) VALUES (2, 80000, 0);
-INSERT INTO cliente (id, limite, saldo) VALUES (3, 1000000, 0);
-INSERT INTO cliente (id, limite, saldo) VALUES (4, 10000000, 0);
-INSERT INTO cliente (id, limite, saldo) VALUES (5, 500000, 0);
+INSERT INTO cliente (id, limit, current_balance) VALUES (1, 100000, 0);
+INSERT INTO cliente (id, limit, current_balance) VALUES (2, 80000, 0);
+INSERT INTO cliente (id, limit, current_balance) VALUES (3, 1000000, 0);
+INSERT INTO cliente (id, limit, current_balance) VALUES (4, 10000000, 0);
+INSERT INTO cliente (id, limit, current_balance) VALUES (5, 500000, 0);
 
-CREATE OR REPLACE FUNCTION criar_transacao(cliente_id integer, valor integer, descricao varchar(10), tipo varchar(1))
-    RETURNS TABLE (saldoR integer, limiteR integer) AS $$
+CREATE OR REPLACE FUNCTION criar_transacao(cliente_id integer, amount integer, description varchar(10), kind varchar(1))
+    RETURNS TABLE (current_balanceR integer, limitR integer) AS $$
 
-    DECLARE saldoNovo integer;
+    DECLARE current_balanceNovo integer;
     clienteASerAtualizado cliente%rowtype;
     clienteR cliente%rowtype;
 
@@ -43,20 +43,20 @@ BEGIN
         RAISE EXCEPTION 'cliente nao encontrado';
     END IF;
 
-    IF tipo = 'd' THEN
-        IF clienteASerAtualizado.saldo + clienteASerAtualizado.limite >= valor THEN
-            saldoNovo := clienteASerAtualizado.saldo - valor;
+    IF kind = 'd' THEN
+        IF clienteASerAtualizado.current_balance + clienteASerAtualizado.limit >= amount THEN
+            current_balanceNovo := clienteASerAtualizado.current_balance - amount;
         ELSE
-            RAISE EXCEPTION 'nao possui limite';
+            RAISE EXCEPTION 'nao possui limit';
         END IF;
     ELSE
-        saldoNovo := clienteASerAtualizado.saldo + valor;
+        current_balanceNovo := clienteASerAtualizado.current_balance + amount;
     END IF;
 
-    UPDATE cliente SET saldo = saldoNovo WHERE id = cliente_id RETURNING * INTO clienteR;
+    UPDATE cliente SET current_balance = current_balanceNovo WHERE id = cliente_id RETURNING * INTO clienteR;
 
-    INSERT INTO transacao (cliente_id, valor, tipo, descricao) VALUES (cliente_id, valor, tipo, descricao);
+    INSERT INTO transacao (cliente_id, amount, kind, description) VALUES (cliente_id, amount, kind, description);
 
-    RETURN QUERY SELECT clienteR.saldo, clienteR.limite;
+    RETURN QUERY SELECT clienteR.current_balance, clienteR.limit;
 END;
 $$ LANGUAGE plpgsql;

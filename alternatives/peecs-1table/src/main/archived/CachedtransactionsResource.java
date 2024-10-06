@@ -20,7 +20,7 @@ public class CachedtransactionsResource {
     @Inject
     Cache<Integer, Cliente> clientes;
     
-    // curl -v -X POST -H "Content-Type: application/json" -d "{"valor": 1, 'tipo': 'c', 'descricao': 'rinah rox'}" http://localhost:9999/simple/clientes/1/transactions
+    // curl -v -X POST -H "Content-Type: application/json" -d "{"amount": 1, 'kind': 'c', 'description': 'rinah rox'}" http://localhost:9999/simple/clientes/1/transactions
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Transactional
@@ -33,8 +33,8 @@ public class CachedtransactionsResource {
             return Response.status(404).entity("Cliente nao encontrado").build();
         }
         var result = Map.of(
-            "limite", cliente.limite,
-            "saldo", cliente.saldo
+            "limit", cliente.limit,
+            "current_balance", cliente.current_balance
         );
         return Response.ok(result).build();
     }

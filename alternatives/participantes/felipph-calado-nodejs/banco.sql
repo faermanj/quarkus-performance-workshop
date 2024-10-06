@@ -1,16 +1,16 @@
 
 create table transactions (
     cliente_id int,
-    valor numeric not null,
-    descricao varchar(10) not null,
-    tipo char(1) not null,
+    amount numeric not null,
+    description varchar(10) not null,
+    kind char(1) not null,
     data_hora_inclusao timestamp default NOW()
 );
 create table clientes (
     cliente_id int,
     nome varchar(100) not null,
-    limite int not null,
-    saldo int  not null
+    limit int not null,
+    current_balance int  not null
 
 );
 
@@ -30,12 +30,12 @@ INSERT INTO clientes VALUES
 
 create or replace procedure do_trans(
     IN p_cliente_id int,
-    IN p_tipo char,
-    IN p_valor int,
-    IN p_descricao text,
+    IN p_kind char,
+    IN p_amount int,
+    IN p_description text,
     out p_http_cod char(3),
-    out p_saldo int,
-    out p_limite int
+    out p_current_balance int,
+    out p_limit int
 )
     language plpgsql
 as
@@ -44,36 +44,36 @@ DECLARE
     v_count int;
 
 begin
-    SELECT saldo, limite
-    into p_saldo, p_limite
+    SELECT current_balance, limit
+    into p_current_balance, p_limit
     from clientes
     where cliente_id = p_cliente_id FOR UPDATE;
 
-    if (p_tipo != 'c' AND p_tipo != 'd') then
+    if (p_kind != 'c' AND p_kind != 'd') then
         raise exception 'Tipo inválido!';
     end if;
 
-    if p_tipo = 'c' then
-        p_valor := p_valor * -1;
+    if p_kind = 'c' then
+        p_amount := p_amount * -1;
     end if;
 
-    if p_tipo = 'd' and p_saldo - p_valor < (p_limite * -1) then
+    if p_kind = 'd' and p_current_balance - p_amount < (p_limit * -1) then
         p_http_cod := 422;
         raise exception using
             errcode = 'P0001',
-            message = 'Sem limite!',
-            hint = 'Tente um valor menor';
+            message = 'Sem limit!',
+            hint = 'Tente um amount menor';
     end if;
 
 
 
-    insert into transactions(cliente_id, valor, descricao, tipo, data_hora_inclusao)
-    values (p_cliente_id, abs(p_valor), p_descricao, p_tipo,  current_timestamp);
+    insert into transactions(cliente_id, amount, description, kind, data_hora_inclusao)
+    values (p_cliente_id, abs(p_amount), p_description, p_kind,  current_timestamp);
 
     update clientes
-    set saldo = saldo - p_valor
+    set current_balance = current_balance - p_amount
     where cliente_id = p_cliente_id
-    returning saldo, limite into p_saldo, p_limite;
+    returning current_balance, limit into p_current_balance, p_limit;
 
 
     p_http_cod := 200;
@@ -118,18 +118,18 @@ BEGIN
         loop
 
             if v_count = 0 then
-                p_balance := '{"saldo": {
+                p_balance := '{"current_balance": {
                 "total": ' || v_result.SALDO || ',
                 "date_balance": "' || current_timestamp || '",
-                "limite": ' || v_result.LIMITE || '
-              },"ultimas_transactions": [';
+                "limit": ' || v_result.LIMITE || '
+              },"recent_transactions": [';
             end if;
-            if v_result.valor is not null then
+            if v_result.amount is not null then
                 p_balance := p_balance || ' {
-                  "valor": ' || v_result.valor || ',
-                  "tipo": "' || v_result.tipo || '",
-                  "descricao": "' || v_result.descricao || '",
-                  "realizada_em": "' || v_result.data_hora_inclusao || '"
+                  "amount": ' || v_result.amount || ',
+                  "kind": "' || v_result.kind || '",
+                  "description": "' || v_result.description || '",
+                  "submitted_at": "' || v_result.data_hora_inclusao || '"
                 },';
                 v_count := v_count + 1;
             end if;

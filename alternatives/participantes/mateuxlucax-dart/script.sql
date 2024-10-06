@@ -12,14 +12,14 @@ SET default_table_access_method = heap;
 
 CREATE UNLOGGED TABLE IF NOT EXISTS members (
   id SMALLINT PRIMARY KEY,
-  limite INT NOT NULL,
-  saldo INT NOT NULL DEFAULT 0
-  CONSTRAINT saldo CHECK (saldo > -limite)
+  limit INT NOT NULL,
+  current_balance INT NOT NULL DEFAULT 0
+  CONSTRAINT current_balance CHECK (current_balance > -limit)
 );
 
-CREATE INDEX pk_cliente_idx ON members (id) INCLUDE (saldo);
+CREATE INDEX pk_cliente_idx ON members (id) INCLUDE (current_balance);
 
-INSERT INTO members (id, limite)
+INSERT INTO members (id, limit)
 VALUES (1, 1000 * 100),
        (2, 800 * 100),
        (3, 10000 * 100),
@@ -30,10 +30,10 @@ ON CONFLICT DO NOTHING;
 CREATE UNLOGGED TABLE IF NOT EXISTS transactions (
   id SERIAL PRIMARY KEY,
   cliente_id SMALLINT NOT NULL,
-  valor INT NOT NULL,
-  tipo CHAR(1) NOT NULL,
-  descricao VARCHAR(10) NOT NULL,
-  realizada_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  amount INT NOT NULL,
+  kind CHAR(1) NOT NULL,
+  description VARCHAR(10) NOT NULL,
+  submitted_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   FOREIGN KEY (cliente_id) REFERENCES members (id)
 );
 
@@ -41,21 +41,21 @@ CREATE INDEX idx_transactions_cliente_id ON transactions (cliente_id, id DESC);
 
 CREATE OR REPLACE PROCEDURE adiciona_transacao(
   id_cliente SMALLINT,
-  valor INTEGER,
-  valor_balance INTEGER, 
-  tipo CHAR(1),
-  descricao VARCHAR(10),
-  OUT saldo_atual INTEGER,
-  OUT limite_atual INTEGER
+  amount INTEGER,
+  amount_balance INTEGER, 
+  kind CHAR(1),
+  description VARCHAR(10),
+  OUT current_balance_atual INTEGER,
+  OUT limit_atual INTEGER
 )
 LANGUAGE plpgsql AS
 $$
 BEGIN
-  INSERT INTO transactions (cliente_id, valor, tipo, descricao) VALUES (id_cliente, valor, tipo, descricao);
+  INSERT INTO transactions (cliente_id, amount, kind, description) VALUES (id_cliente, amount, kind, description);
 
   UPDATE members
-     SET saldo = saldo + valor_balance
-   WHERE id = id_cliente RETURNING saldo, limite INTO saldo_atual, limite_atual;
+     SET current_balance = current_balance + amount_balance
+   WHERE id = id_cliente RETURNING current_balance, limit INTO current_balance_atual, limit_atual;
 
   COMMIT;
   RETURN;

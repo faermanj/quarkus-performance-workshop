@@ -1,17 +1,17 @@
 CREATE UNLOGGED TABLE clientes (
 	id SERIAL PRIMARY KEY,
 	nome VARCHAR(50) NOT NULL,
-	limite INTEGER NOT NULL,
-	saldo INTEGER 
+	limit INTEGER NOT NULL,
+	current_balance INTEGER 
 );
 
 CREATE UNLOGGED TABLE transactions (
 	id SERIAL PRIMARY KEY,
 	cliente_id INTEGER NOT NULL,
-	valor INTEGER NOT NULL,
-	tipo CHAR(1) NOT NULL,
-	descricao VARCHAR(10) NOT NULL,
-	realizada_em TIMESTAMP NOT NULL DEFAULT NOW()
+	amount INTEGER NOT NULL,
+	kind CHAR(1) NOT NULL,
+	description VARCHAR(10) NOT NULL,
+	submitted_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 ALTER TABLE
@@ -21,9 +21,9 @@ ADD
 SET
     (autovacuum_enabled = off);
 
-CREATE INDEX ON transactions (cliente_id, realizada_em DESC);
+CREATE INDEX ON transactions (cliente_id, submitted_at DESC);
 
-INSERT INTO clientes (nome, limite, saldo)
+INSERT INTO clientes (nome, limit, current_balance)
 VALUES
 	('o barato sai caro', 1000 * 100, 0),
 	('zan corp ltda', 800 * 100,  0),
@@ -31,43 +31,43 @@ VALUES
 	('padaria joia de cocaia', 100000 * 100, 0),
 	('kid mais', 5000 * 100, 0);
 
-CREATE TYPE result_transacao AS (saldo_atual INT, limite INT);
+CREATE TYPE result_transacao AS (current_balance_atual INT, limit INT);
 
-CREATE OR REPLACE FUNCTION transacao(cliente_id_tx INTEGER, valor_tx INTEGER, tipo_tx VARCHAR(1), descricao_tx VARCHAR(10)) RETURNS result_transacao AS $$
+CREATE OR REPLACE FUNCTION transacao(cliente_id_tx INTEGER, amount_tx INTEGER, kind_tx VARCHAR(1), description_tx VARCHAR(10)) RETURNS result_transacao AS $$
 DECLARE
-	saldo INTEGER;
-  limite INTEGER;
-	saldo_atual INTEGER;
+	current_balance INTEGER;
+  limit INTEGER;
+	current_balance_atual INTEGER;
 BEGIN
 	PERFORM pg_advisory_xact_lock(cliente_id_tx);
 	SELECT
-		COALESCE(c.saldo, 0),
-		c.limite
+		COALESCE(c.current_balance, 0),
+		c.limit
 	INTO
-		saldo,
-		limite
+		current_balance,
+		limit
 	FROM clientes c
 	WHERE c.id = cliente_id_tx;
 
-	IF tipo_tx = 'd' THEN
-		saldo_atual := saldo - valor_tx;
-		IF saldo_atual + limite < 0 THEN
+	IF kind_tx = 'd' THEN
+		current_balance_atual := current_balance - amount_tx;
+		IF current_balance_atual + limit < 0 THEN
 			RETURN (0, -1);
 		END IF;
 	ELSE
-		saldo_atual := saldo + valor_tx;
+		current_balance_atual := current_balance + amount_tx;
 	END IF;		
 	
 	UPDATE clientes c
 	SET
-		saldo = saldo_atual
+		current_balance = current_balance_atual
 	WHERE 
 		c.id = cliente_id_tx;
 
 	INSERT INTO 
-		transactions (cliente_id, valor, tipo, descricao)
-	VALUES (cliente_id_tx, valor_tx, tipo_tx, descricao_tx);
+		transactions (cliente_id, amount, kind, description)
+	VALUES (cliente_id_tx, amount_tx, kind_tx, description_tx);
 
-	RETURN (saldo_atual, limite);
+	RETURN (current_balance_atual, limit);
 END;$$
 LANGUAGE plpgsql;

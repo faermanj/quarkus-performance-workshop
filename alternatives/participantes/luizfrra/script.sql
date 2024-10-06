@@ -1,17 +1,17 @@
 CREATE TABLE transactions (
     transacao_id SERIAL PRIMARY KEY,
     transacao_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    limite INT,
-    valor INT,
-    valor_apos_transacao INT,
+    limit INT,
+    amount INT,
+    amount_apos_transacao INT,
     transacao_type VARCHAR(1),
-    descricao VARCHAR(10),
+    description VARCHAR(10),
     client_id INT
 );
 
 CREATE INDEX idx_transacao_client ON transactions(client_id, transacao_id DESC);
 
-INSERT INTO transactions (limite, valor, valor_apos_transacao, client_id, transacao_type) VALUES
+INSERT INTO transactions (limit, amount, amount_apos_transacao, client_id, transacao_type) VALUES
 (100000, 0, 0, 1, 's'),
 (80000, 0, 0, 2, 's'),
 (1000000, 0, 0, 3, 's'),
@@ -28,7 +28,7 @@ DECLARE
 BEGIN
     valud_to_add := ABS(valud_to_add);
 
-    SELECT limite, valor_apos_transacao INTO current_limit, current_value
+    SELECT limit, amount_apos_transacao INTO current_limit, current_value
     FROM transactions
     WHERE client_id = process_transaction.fclient_id
     ORDER BY transacao_id DESC
@@ -53,7 +53,7 @@ BEGIN
 		RETURN;
     END IF;
 
-    INSERT INTO transactions (limite, valor, valor_apos_transacao, client_id, descricao, transacao_type)
+    INSERT INTO transactions (limit, amount, amount_apos_transacao, client_id, description, transacao_type)
     VALUES (current_limit, valud_to_add, new_value, process_transaction.fclient_id, description, typeOp);
 
     RETURN QUERY SELECT current_limit, new_value;

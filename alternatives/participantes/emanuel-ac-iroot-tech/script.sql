@@ -4,9 +4,9 @@
 
 CREATE TABLE public.clientes (
     id smallint NOT NULL,
-    limite integer,
-    saldo integer,
-    CONSTRAINT saldo_check CHECK (((limite + saldo) > 0))
+    limit integer,
+    current_balance integer,
+    CONSTRAINT current_balance_check CHECK (((limit + current_balance) > 0))
 );
 
 
@@ -19,13 +19,13 @@ ALTER TABLE public.clientes OWNER TO rinha;
 CREATE TABLE public.transactions (
     clientes_id integer NOT NULL,
     data timestamp with time zone NOT NULL,
-    tipo character varying(1),
-    descricao text,
-    --descricao character varying(10),
-    valor integer,
-    CONSTRAINT tipo_check CHECK (tipo in ('c','d')),
-    CONSTRAINT tipo_descricao CHECK (coalesce(descricao, '') <> ''),
-    CONSTRAINT length_descricao CHECK (char_length(descricao)<=10)
+    kind character varying(1),
+    description text,
+    --description character varying(10),
+    amount integer,
+    CONSTRAINT kind_check CHECK (kind in ('c','d')),
+    CONSTRAINT kind_description CHECK (coalesce(description, '') <> ''),
+    CONSTRAINT length_description CHECK (char_length(description)<=10)
 );
 
 
@@ -61,7 +61,7 @@ ALTER TABLE ONLY public.clientes
 --
 
 ALTER TABLE ONLY public.transactions
-    ADD CONSTRAINT transactions_pkey PRIMARY KEY (clientes_id, data, tipo);
+    ADD CONSTRAINT transactions_pkey PRIMARY KEY (clientes_id, data, kind);
 
 
 --

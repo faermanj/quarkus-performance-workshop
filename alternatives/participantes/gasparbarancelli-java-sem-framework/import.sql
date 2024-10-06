@@ -25,37 +25,37 @@ VALUES (1, 100000),
 
 CREATE OR REPLACE FUNCTION efetuar_transacao(
     clienteIdParam int,
-    tipoParam varchar(1),
-    valorParam int,
-    descricaoParam varchar(10)
+    kindParam varchar(1),
+    amountParam int,
+    descriptionParam varchar(10)
 )
-RETURNS TABLE (saldoRetorno int, limiteRetorno int) AS $$
+RETURNS TABLE (current_balanceRetorno int, limitRetorno int) AS $$
 DECLARE
     cliente cliente%rowtype;
     novoSaldo int;
     numeroLinhasAfetadas int;
 BEGIN
 
-    IF tipoParam = 'd' THEN
-            novoSaldo := valorParam * -1;
+    IF kindParam = 'd' THEN
+            novoSaldo := amountParam * -1;
     ELSE
-            novoSaldo := valorParam;
+            novoSaldo := amountParam;
     END IF;
 
-    UPDATE cliente SET saldo = saldo + novoSaldo
-    WHERE id = clienteIdParam AND (novoSaldo > 0 OR limite * -1 <= saldo + novoSaldo)
+    UPDATE cliente SET current_balance = current_balance + novoSaldo
+    WHERE id = clienteIdParam AND (novoSaldo > 0 OR limit * -1 <= current_balance + novoSaldo)
         RETURNING * INTO cliente;
 
     GET DIAGNOSTICS numeroLinhasAfetadas = ROW_COUNT;
 
     IF numeroLinhasAfetadas = 0 THEN
-            RAISE EXCEPTION 'Cliente nao possui limite';
+            RAISE EXCEPTION 'Cliente nao possui limit';
     END IF;
 
-    INSERT INTO transacao (cliente_id, valor, tipo, descricao, data)
-    VALUES (clienteIdParam, valorParam, tipoParam, descricaoParam, current_timestamp);
+    INSERT INTO transacao (cliente_id, amount, kind, description, data)
+    VALUES (clienteIdParam, amountParam, kindParam, descriptionParam, current_timestamp);
 
 
-    RETURN QUERY SELECT cliente.saldo, cliente.limite;
+    RETURN QUERY SELECT cliente.current_balance, cliente.limit;
 END;
 $$ LANGUAGE plpgsql;

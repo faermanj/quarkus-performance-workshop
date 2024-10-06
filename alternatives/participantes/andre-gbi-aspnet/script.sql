@@ -1,57 +1,57 @@
 CREATE UNLOGGED TABLE clientes (
     id SERIAL PRIMARY KEY,
-    limite DECIMAL(10) NOT NULL,
-    saldo DECIMAL(10) NOT NULL
+    limit DECIMAL(10) NOT NULL,
+    current_balance DECIMAL(10) NOT NULL
 );
 
 CREATE UNLOGGED TABLE transactions (
     id SERIAL PRIMARY KEY,
     cliente_id INTEGER REFERENCES clientes(id) ON DELETE CASCADE,
-    valor DECIMAL(10) NOT NULL,
-    tipo CHAR(1) CHECK (tipo IN ('d', 'c')),
-    descricao TEXT NOT NULL,
-    realizada_em TIMESTAMP WITH TIME ZONE NOT NULL
+    amount DECIMAL(10) NOT NULL,
+    kind CHAR(1) CHECK (kind IN ('d', 'c')),
+    description TEXT NOT NULL,
+    submitted_at TIMESTAMP WITH TIME ZONE NOT NULL
 );
 
 
 
 
-CREATE FUNCTION maker_transacao(input_cliente_id INT, input_tipo VARCHAR, input_descricao VARCHAR, input_valor INT) 
-RETURNS TABLE (saldo INT, limite_cliente INT, falha BOOLEAN, mensagem VARCHAR(40)) AS $$
+CREATE FUNCTION maker_transacao(input_cliente_id INT, input_kind VARCHAR, input_description VARCHAR, input_amount INT) 
+RETURNS TABLE (current_balance INT, limit_cliente INT, falha BOOLEAN, mensagem VARCHAR(40)) AS $$
 DECLARE
     falha_result BOOLEAN := false;
     mensagem_result VARCHAR(40) := '';
-    limite_search INT;
-    saldo_search INT;
-    valor_transacao_final INT;
+    limit_search INT;
+    current_balance_search INT;
+    amount_transacao_final INT;
 BEGIN
 
-        SELECT c.limite, c.saldo 
-            INTO limite_search, saldo_search 
+        SELECT c.limit, c.current_balance 
+            INTO limit_search, current_balance_search 
         FROM CLIENTES AS c 
             WHERE ID = input_cliente_id
         FOR UPDATE ;
         
       
-        IF input_tipo = 'c' THEN
+        IF input_kind = 'c' THEN
 
             mensagem_result := 'Sucesso no credito';
-            valor_transacao_final :=  saldo_search + input_valor;
-            UPDATE CLIENTES SET saldo = valor_transacao_final WHERE id = input_cliente_id;
+            amount_transacao_final :=  current_balance_search + input_amount;
+            UPDATE CLIENTES SET current_balance = amount_transacao_final WHERE id = input_cliente_id;
 
         ELSE
         
              
-            IF ABS(saldo_search) + input_valor > limite_search THEN
+            IF ABS(current_balance_search) + input_amount > limit_search THEN
 
-                mensagem_result := 'Cliente sem saldo';
+                mensagem_result := 'Cliente sem current_balance';
                 falha_result := true;
                 
             ELSE
             
                 mensagem_result := 'Sucesso no debito';
-                valor_transacao_final :=  saldo_search - input_valor;
-                UPDATE CLIENTES SET saldo = valor_transacao_final  WHERE id = input_cliente_id;
+                amount_transacao_final :=  current_balance_search - input_amount;
+                UPDATE CLIENTES SET current_balance = amount_transacao_final  WHERE id = input_cliente_id;
             
             END IF;
 
@@ -60,8 +60,8 @@ BEGIN
 
 
     IF falha_result = false THEN
-        INSERT INTO transactions (cliente_id,valor,tipo,descricao,realizada_em) VALUES (input_cliente_id,input_valor,input_tipo,input_descricao,NOW());
-        RETURN QUERY SELECT valor_transacao_final, limite_search, falha_result, mensagem_result;
+        INSERT INTO transactions (cliente_id,amount,kind,description,submitted_at) VALUES (input_cliente_id,input_amount,input_kind,input_description,NOW());
+        RETURN QUERY SELECT amount_transacao_final, limit_search, falha_result, mensagem_result;
     ELSE
         RETURN QUERY SELECT 0, 0, falha_result, mensagem_result;
 
@@ -74,42 +74,42 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION proc_balance(p_id INT)
 RETURNS JSON AS $$
 DECLARE
-    saldo_info JSON;
+    current_balance_info JSON;
 BEGIN
 
     -- Construct and return the entire JSON in a single query
     SELECT JSON_BUILD_OBJECT(
-        'saldo', (
+        'current_balance', (
             SELECT JSON_BUILD_OBJECT(
-                'total', saldo,
-                'limite', limite
+                'total', current_balance,
+                'limit', limit
             )
             FROM clientes
             WHERE id = p_id
         ),
-        'ultimas_transactions', (
+        'recent_transactions', (
             SELECT COALESCE(
                 JSON_AGG(
                     JSON_BUILD_OBJECT(
-                        'valor', valor,
-                        'tipo', tipo,
-                        'descricao', descricao,
-                        'realizada_em', TO_CHAR(realizada_em, 'YYYY-MM-DD"T"HH24:MI:SS"Z"')
-                    ) ORDER BY realizada_em DESC
+                        'amount', amount,
+                        'kind', kind,
+                        'description', description,
+                        'submitted_at', TO_CHAR(submitted_at, 'YYYY-MM-DD"T"HH24:MI:SS"Z"')
+                    ) ORDER BY submitted_at DESC
                 ), 
                 '[]'::JSON
             )
             FROM (
-                SELECT valor, tipo, descricao, realizada_em
+                SELECT amount, kind, description, submitted_at
                 FROM transactions
                 WHERE cliente_id = p_id
-                ORDER BY realizada_em DESC
+                ORDER BY submitted_at DESC
                 LIMIT 10
-            ) AS ultimas_transactions
+            ) AS recent_transactions
         )
-    ) INTO saldo_info;
+    ) INTO current_balance_info;
 
-    RETURN saldo_info;
+    RETURN current_balance_info;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -119,7 +119,7 @@ $$ LANGUAGE plpgsql;
 
 
 
-INSERT INTO clientes (id, limite, saldo) VALUES 
+INSERT INTO clientes (id, limit, current_balance) VALUES 
 (1, 100000, 0),
 (2, 80000, 0),
 (3, 1000000, 0),

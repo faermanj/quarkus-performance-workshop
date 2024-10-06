@@ -1,22 +1,22 @@
 CREATE UNLOGGED TABLE clientes (
    id SERIAL PRIMARY KEY,
    nome VARCHAR(50) NOT NULL,
-   limite INTEGER NOT NULL,
-   saldo INTEGER NOT NULL DEFAULT 0
+   limit INTEGER NOT NULL,
+   current_balance INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE UNLOGGED TABLE transactions (
     id         SERIAL PRIMARY KEY,
     cliente_id INTEGER     NOT NULL,
-    valor      INTEGER     NOT NULL,
-    tipo   CHAR(1)     NOT NULL,
-    descricao  VARCHAR(10) NOT NULL,
+    amount      INTEGER     NOT NULL,
+    kind   CHAR(1)     NOT NULL,
+    description  VARCHAR(10) NOT NULL,
     realizado_em  TIMESTAMP   NOT NULL DEFAULT (NOW() AT TIME ZONE 'UTC'),
     CONSTRAINT fk_transactions_cliente_id
         FOREIGN KEY (cliente_id) REFERENCES clientes(id)
 );
 
-INSERT INTO clientes (nome, limite)
+INSERT INTO clientes (nome, limit)
   VALUES
     ('o barato sai caro', 1000 * 100),
     ('zan corp ltda', 800 * 100),
@@ -28,14 +28,14 @@ INSERT INTO clientes (nome, limite)
 
 CREATE OR REPLACE FUNCTION create_transacao_cliente(
   IN idcliente integer,
-  IN valor integer,
-  IN tipo char(1),
-  IN descricao varchar(10)
+  IN amount integer,
+  IN kind char(1),
+  IN description varchar(10)
 ) RETURNS TABLE (found integer, sal integer, lim integer) AS $$
 DECLARE
   clienteencontrado clientes%rowtype;
-  saldo_cliente INT;
-  limite_cliente INT;
+  current_balance_cliente INT;
+  limit_cliente INT;
 BEGIN
   SELECT * FROM clientes
   INTO clienteencontrado
@@ -45,20 +45,20 @@ BEGIN
     RETURN QUERY SELECT 0, 0, 0;
   END IF;
 
-  INSERT INTO transactions (valor, descricao, tipo, realizado_em, cliente_id)
-    VALUES (valor, descricao, tipo, now() at time zone 'utc', idcliente);
+  INSERT INTO transactions (amount, description, kind, realizado_em, cliente_id)
+    VALUES (amount, description, kind, now() at time zone 'utc', idcliente);
 
   UPDATE clientes 
-    SET saldo = saldo + valor
-    WHERE id = idcliente AND (valor > 0 OR saldo + valor >= limite)
-    RETURNING saldo, limite
-    INTO saldo_cliente, limite_cliente;
+    SET current_balance = current_balance + amount
+    WHERE id = idcliente AND (amount > 0 OR current_balance + amount >= limit)
+    RETURNING current_balance, limit
+    INTO current_balance_cliente, limit_cliente;
 
-    IF limite_cliente is NULL THEN
+    IF limit_cliente is NULL THEN
         RETURN QUERY SELECT 1, 0, 0;
     END IF;
 
-    RETURN QUERY SELECT 2, saldo_cliente, limite_cliente;
+    RETURN QUERY SELECT 2, current_balance_cliente, limit_cliente;
 END;$$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION get_transactions(
@@ -68,13 +68,13 @@ DECLARE
     result JSON;
 BEGIN
     SELECT json_agg(json_build_object(
-                  'valor', t.valor,
-                  'tipo', t.tipo,
-                  'descricao', t.descricao,
+                  'amount', t.amount,
+                  'kind', t.kind,
+                  'description', t.description,
                   'realizado_em', t.realizado_em
                 )) INTO result
     FROM (
-        SELECT valor, tipo, descricao, realizado_em
+        SELECT amount, kind, description, realizado_em
         FROM transactions
         WHERE cliente_id = idcliente
         ORDER BY realizado_em DESC
@@ -86,14 +86,14 @@ $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION balance(
   IN idcliente integer
-) RETURNS TABLE (total INT, date_balance TIMESTAMP, limitee INT, ultimas_transactions JSON)  AS $$
+) RETURNS TABLE (total INT, date_balance TIMESTAMP, limite INT, recent_transactions JSON)  AS $$
 DECLARE
-  saldo_cliente INT;
-  limite_cliente INT;
+  current_balance_cliente INT;
+  limit_cliente INT;
 BEGIN
-    SELECT saldo, limite FROM clientes
-    INTO saldo_cliente, limite_cliente
+    SELECT current_balance, limit FROM clientes
+    INTO current_balance_cliente, limit_cliente
     WHERE id = idcliente;
 
-    RETURN QUERY SELECT saldo_cliente, NOW() at time zone 'utc' as data, limite_cliente, get_transactions(idcliente);
+    RETURN QUERY SELECT current_balance_cliente, NOW() at time zone 'utc' as data, limit_cliente, get_transactions(idcliente);
 END;$$ LANGUAGE plpgsql;

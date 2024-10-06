@@ -1,26 +1,26 @@
-CREATE VIEW v_checa_saldo_cliente AS
+CREATE VIEW v_checa_current_balance_cliente AS
 SELECT 
     c.id,
     c.nome,
-    c.limite,
-    s.valor AS saldo_atual,
-    (COALESCE(valor_credito, 0) - COALESCE(valor_debito, 0)) AS saldo_calculado,
-    s.valor - (COALESCE(valor_credito, 0) - COALESCE(valor_debito, 0)) AS dif_saldo,
+    c.limit,
+    s.amount AS current_balance_atual,
+    (COALESCE(amount_credito, 0) - COALESCE(amount_debito, 0)) AS current_balance_calculado,
+    s.amount - (COALESCE(amount_credito, 0) - COALESCE(amount_debito, 0)) AS dif_current_balance,
     COALESCE(tot_c, 0) AS tot_transacao_c,
     COALESCE(tot_d, 0) AS tot_transacao_d
 FROM
     public.cliente c
 JOIN
-    public.saldocliente s ON c.id = s.cliente_id
+    public.current_balancecliente s ON c.id = s.cliente_id
 LEFT JOIN (
     SELECT 
         cliente_id,
         COUNT(1) AS tot_c,
-        SUM(valor) AS valor_credito
+        SUM(amount) AS amount_credito
     FROM 
         public.transacao
     WHERE 
-        tipo = 'c'
+        kind = 'c'
     GROUP BY 
         cliente_id
 ) AS total_credito ON c.id = total_credito.cliente_id
@@ -28,11 +28,11 @@ LEFT JOIN (
     SELECT 
         cliente_id,
         COUNT(1) AS tot_d,
-        SUM(valor) AS valor_debito
+        SUM(amount) AS amount_debito
     FROM 
         public.transacao
     WHERE 
-        tipo = 'd'
+        kind = 'd'
     GROUP BY 
         cliente_id
 ) AS total_debito ON c.id = total_debito.cliente_id

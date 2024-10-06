@@ -14,9 +14,9 @@ The system interface is very simple, taking HTTP requests and returning json dat
 POST /members/[id]/transactions
 
 {
-    "valor": 1000,
-    "tipo" : "c",
-    "descricao" : "descricao"
+    "amount": 1000,
+    "kind" : "c",
+    "description" : "description"
 }
 
 ```
@@ -26,23 +26,23 @@ Here's a sample balance request. You can use it to test the system in developmen
 GET /members/[id]/balance
 
 {
-  "saldo": {
+  "current_balance": {
     "total": -9098,
     "date_balance": "2024-01-17T02:34:41.217753Z",
-    "limite": 100000
+    "limit": 100000
   },
-  "ultimas_transactions": [
+  "recent_transactions": [
     {
-      "valor": 10,
-      "tipo": "c",
-      "descricao": "descricao",
-      "realizada_em": "2024-01-17T02:34:38.543030Z"
+      "amount": 10,
+      "kind": "c",
+      "description": "description",
+      "submitted_at": "2024-01-17T02:34:38.543030Z"
     },
     {
-      "valor": 90000,
-      "tipo": "d",
-      "descricao": "descricao",
-      "realizada_em": "2024-01-17T02:34:38.543030Z"
+      "amount": 90000,
+      "kind": "d",
+      "description": "description",
+      "submitted_at": "2024-01-17T02:34:38.543030Z"
     }
   ]
 }

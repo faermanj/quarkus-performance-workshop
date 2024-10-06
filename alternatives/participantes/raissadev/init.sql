@@ -1,17 +1,17 @@
 CREATE UNLOGGED TABLE IF NOT EXISTS members (
     id SERIAL PRIMARY KEY NOT NULL
 ,   nome VARCHAR(100) NOT NULL
-,   limite INT NOT NULL
-,   saldo INT
+,   limit INT NOT NULL
+,   current_balance INT
 );
 
 CREATE UNLOGGED TABLE IF NOT EXISTS transactions (
     id SERIAL PRIMARY KEY NOT NULL
 ,   id_cliente INT NOT NULL
-,   valor INT NOT NULL
-,   tipo VARCHAR(1) NOT NULL
-,   descricao VARCHAR(100) NOT NULL
-,   realizada_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+,   amount INT NOT NULL
+,   kind VARCHAR(1) NOT NULL
+,   description VARCHAR(100) NOT NULL
+,   submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ,   FOREIGN KEY (id_cliente) REFERENCES members(id)
 );
 
@@ -19,7 +19,7 @@ CREATE UNLOGGED TABLE IF NOT EXISTS transactions (
 
 DO $$
 BEGIN
-  INSERT INTO members (nome, limite)
+  INSERT INTO members (nome, limit)
   VALUES
     ('o barato sai caro', 1000 * 100),
     ('zan corp ltda', 800 * 100),

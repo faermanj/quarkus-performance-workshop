@@ -1,14 +1,14 @@
 CREATE TABLE a ( -- account
   i INTEGER PRIMARY KEY, -- id
-  s INTEGER NOT NULL, -- saldo
-  l INTEGER NOT NULL -- limite
+  s INTEGER NOT NULL, -- current_balance
+  l INTEGER NOT NULL -- limit
 );
 CREATE TABLE t ( -- transaction
   i SERIAL PRIMARY KEY, -- id
   a INTEGER NOT NULL, -- account_id
-  v INTEGER NOT NULL, -- valor
-  t CHAR(1) NOT NULL, -- tipo
-  d VARCHAR(10) NOT NULL, -- descricao
+  v INTEGER NOT NULL, -- amount
+  t CHAR(1) NOT NULL, -- kind
+  d VARCHAR(10) NOT NULL, -- description
   r TIMESTAMP NOT NULL DEFAULT NOW() -- realiza_em
   -- FOREIGN KEY(account_id) REFERENCES account(id)
 );

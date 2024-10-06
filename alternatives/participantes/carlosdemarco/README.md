@@ -20,7 +20,7 @@
 
 Autor: Carlos De Marco
 
-Utilizada a stack Spring Boot com programação reativa (WebFlux / Non Blocking) e driver de conexão R2DBC (Non Blocking) com o objetivo de ganhar performance e aumento de throughput considerando o limite de CPU e Memória. 
+Utilizada a stack Spring Boot com programação reativa (WebFlux / Non Blocking) e driver de conexão R2DBC (Non Blocking) com o objetivo de ganhar performance e aumento de throughput considerando o limit de CPU e Memória. 
 
 Submissão feita com:
 

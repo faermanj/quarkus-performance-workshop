@@ -3,18 +3,18 @@ ALTER SYSTEM SET max_connections TO '300';
 CREATE UNLOGGED TABLE clientes (
     id SERIAL PRIMARY KEY,
     nome VARCHAR(50) NOT NULL,
-    limite INTEGER NOT NULL,
-    saldo_atual integer not null default 0,
+    limit INTEGER NOT NULL,
+    current_balance_atual integer not null default 0,
     versao integer not null default 0
 );
 
 CREATE UNLOGGED TABLE transactions (
     id SERIAL PRIMARY KEY,
     cliente_id INTEGER NOT NULL,
-    valor INTEGER NOT NULL,
-    tipo CHAR(1) NOT NULL,
-    descricao VARCHAR(10) NOT NULL,
-    realizada_em TIMESTAMP NOT NULL DEFAULT NOW(),
+    amount INTEGER NOT NULL,
+    kind CHAR(1) NOT NULL,
+    description VARCHAR(10) NOT NULL,
+    submitted_at TIMESTAMP NOT NULL DEFAULT NOW(),
     versao integer not null,
     CONSTRAINT fk_clientes_transactions_id
         FOREIGN KEY (cliente_id) REFERENCES clientes(id)
@@ -24,7 +24,7 @@ CREATE UNIQUE INDEX uk_clientes_transactions_versao ON transactions (cliente_id,
 
 DO $$
 BEGIN
-    INSERT INTO clientes (nome, limite)
+    INSERT INTO clientes (nome, limit)
     VALUES
         ('o barato sai caro', 1000 * 100),
         ('zan corp ltda', 800 * 100),
@@ -36,16 +36,16 @@ END;
 $$;
 
 CREATE or replace FUNCTION efetuar_transacao(
-    in in_descricao varchar(10), 
-    in in_valor int, 
-    in in_tipo char(1),
+    in in_description varchar(10), 
+    in in_amount int, 
+    in in_kind char(1),
     in in_client_id int,
     out out_operation_status int,
-    out out_saldo_atual int,
-    out out_limite int) 
+    out out_current_balance_atual int,
+    out out_limit int) 
 AS $$
 declare versao_antiga int;
-        novo_saldo int;
+        novo_current_balance int;
         atualizados int;
 begin
 /*
@@ -54,34 +54,34 @@ begin
 *   2= Saldo Insuficiente
 *   3= Conflito
 */    
-    -- Resgata saldo atual
-    select saldo_atual 
+    -- Resgata current_balance atual
+    select current_balance_atual 
          , versao 
-         , limite
+         , limit
     from clientes
     where id = in_client_id
-    into out_saldo_atual, 
+    into out_current_balance_atual, 
          versao_antiga, 
-         out_limite;     
+         out_limit;     
 
-    -- Atualiza saldo do cliente
-    novo_saldo := out_saldo_atual - in_valor;
-    if in_tipo = 'c' then
-        novo_saldo := out_saldo_atual + in_valor;
+    -- Atualiza current_balance do cliente
+    novo_current_balance := out_current_balance_atual - in_amount;
+    if in_kind = 'c' then
+        novo_current_balance := out_current_balance_atual + in_amount;
     end if;
     
-    if (out_limite * -1) > novo_saldo then
+    if (out_limit * -1) > novo_current_balance then
         out_operation_status := 2;
         return;  
     end if;
 
     update clientes set 
-          saldo_atual = novo_saldo
+          current_balance_atual = novo_current_balance
         , versao = versao_antiga + 1
     where id = in_client_id
       and versao = versao_antiga;
 
-    -- Confirma sucesso da atualização de saldo
+    -- Confirma sucesso da atualização de current_balance
     GET DIAGNOSTICS atualizados = ROW_COUNT;   
     if atualizados = 0 then
         out_operation_status := 3; 
@@ -91,21 +91,21 @@ begin
     -- Registra transação 
     INSERT INTO transactions (
           cliente_id
-        , valor
-        , tipo
-        , descricao
-        , realizada_em
+        , amount
+        , kind
+        , description
+        , submitted_at
         , versao
     ) VALUES(
           in_client_id
-        , in_valor
-        , in_tipo
-        , in_descricao
+        , in_amount
+        , in_kind
+        , in_description
         , now()
         , versao_antiga + 1
     );
 
-    out_saldo_atual := novo_saldo;     
+    out_current_balance_atual := novo_current_balance;     
     out_operation_status := 1;    
 END;
 $$ LANGUAGE plpgsql;

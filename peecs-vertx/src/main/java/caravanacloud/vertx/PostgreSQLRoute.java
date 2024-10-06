@@ -26,7 +26,7 @@ import jakarta.ws.rs.core.Response;
 @ApplicationScoped
 @Path("/members")
 public class PostgreSQLRoute {
-    private static final String VERSION_ID = "Devoxx 2024 - rc1";
+    private static final String VERSION_ID = "Devoxx 2024 - rc4";
     private static final String EXTRATO_QUERY = "select status_code, body from proc_balance($1)";
     private static final String TRANSACAO_QUERY = "select status_code, body from proc_transacao($1, $2, $3, $4)";
     private static final String WARMUP_QUERY = "select 1+1;";
@@ -34,13 +34,13 @@ public class PostgreSQLRoute {
     private static final Uni<Response> ERR_404 = Uni.createFrom().item(Response.status(404).build());
     private static final Response RES_422 = Response.status(422).build();
     private static final Uni<Response> ERR_422 = Uni.createFrom().item(RES_422);
-    private static final String valorPattern = "\"valor\":\\s*(\\d+(\\.\\d+)?)";
-    private static final String tipoPattern = "\"tipo\":\\s*\"([^\"]*)\"";
-    private static final String descricaoPattern = "\"descricao\":\\s*(?:\"([^\"]*)\"|null)";
+    private static final String amountPattern = "\"amount\":\\s*(\\d+(\\.\\d+)?)";
+    private static final String kindPattern = "\"kind\":\\s*\"([^\"]*)\"";
+    private static final String descriptionPattern = "\"description\":\\s*(?:\"([^\"]*)\"|null)";
 
-    private static final Pattern pValor = Pattern.compile(valorPattern);
-    private static final Pattern pTipo = Pattern.compile(tipoPattern);
-    private static final Pattern pDescricao = Pattern.compile(descricaoPattern);
+    private static final Pattern pValor = Pattern.compile(amountPattern);
+    private static final Pattern pTipo = Pattern.compile(kindPattern);
+    private static final Pattern pDescricao = Pattern.compile(descriptionPattern);
     
     @Inject
     Vertx vertx;
@@ -56,7 +56,7 @@ public class PostgreSQLRoute {
                 for (int i = 0; i < WARMUP_LEVEL; i++) {
                     warmup();
                     processExtrato(333);
-                    processTransacao(333,  "{\"valor\":\"0\",\"tipo\":\"c\",\"descricao\":\"warmup\"}");
+                    processTransacao(333,  "{\"amount\":\"0\",\"kind\":\"c\",\"description\":\"warmup\"}");
                 }
                 ready = true;
             } catch (Exception e) {
@@ -125,33 +125,33 @@ public class PostgreSQLRoute {
             return ERR_422;
         }
             
-        // Os valores foram extraídos com sucesso
-        String valorNumber = mValor.group(1);
-        String tipo = mTipo.group(1);
-        String descricao = mDescricao.group(1);
+        // Os amountes foram extraídos com sucesso
+        String amountNumber = mValor.group(1);
+        String kind = mTipo.group(1);
+        String description = mDescricao.group(1);
 
-        if (valorNumber == null || valorNumber.contains(".")) {
+        if (amountNumber == null || amountNumber.contains(".")) {
             return ERR_422;
         }
 
-        int valor = -1;
+        int amount = -1;
         try {
-            valor = Integer.parseInt(valorNumber);
+            amount = Integer.parseInt(amountNumber);
         } catch (NumberFormatException e) {
             return ERR_422;
         }
-        final int valorFinal = valor;
+        final int amountFinal = amount;
 
-        if (tipo == null || !("c".equals(tipo) || "d".equals(tipo))) {
+        if (kind == null || !("c".equals(kind) || "d".equals(kind))) {
             return ERR_422;
         }
 
-        if (descricao == null || descricao.isEmpty() || descricao.length() > 10 || "null".equals(descricao)) {
+        if (description == null || description.isEmpty() || description.length() > 10 || "null".equals(description)) {
             return ERR_422;
         }
 
         Uni<Response>  result = client.preparedQuery(TRANSACAO_QUERY)
-                .execute(Tuple.of(id, valorFinal, tipo, descricao))
+                .execute(Tuple.of(id, amountFinal, kind, description))
                 .onItem().transform(RowSet::iterator)
                 .onItem().transform(iterator -> iterator.hasNext() ? responseOf(iterator.next()) : null)
                 .onFailure().recoverWithItem(e -> errorOf(e, "err_transacao"));

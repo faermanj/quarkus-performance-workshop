@@ -1,6 +1,6 @@
 curl -v -X POST \
     -H "Content-Type: application/json" \
-    -d '{"valor": 10, "tipo": "d", "descricao": "teste"}' \
+    -d '{"amount": 10, "kind": "d", "description": "teste"}' \
         http:///localhost:9999/members/333/transactions | jq
 
 curl -v -X GET \

@@ -29,7 +29,7 @@ while [ $(($SECONDS - $start)) -lt 10 ]; do
         # Alternating transaction type for each iteration
         transactionType=$([ $(($counter % 2)) -eq 0 ] && echo "c" || echo "d")
 
-        payload="{\"valor\": 1, \"tipo\": \"$transactionType\", \"descricao\": \"warmup\"}"
+        payload="{\"amount\": 1, \"kind\": \"$transactionType\", \"description\": \"warmup\"}"
 
         # Execute curl commands in parallel & silently
         curl -s -X POST -H "$contentType" -d "$payload" "$transactionUrl1" --max-time 1 > /dev/null 2>&1 &

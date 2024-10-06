@@ -3,21 +3,21 @@ DROP TABLE IF EXISTS users;
 
 CREATE TABLE users (
 	id INTEGER PRIMARY KEY,
-	saldo INTEGER,
-	limite INTEGER
+	current_balance INTEGER,
+	limit INTEGER
 );
 
 CREATE TABLE transactions (
 	id SERIAL PRIMARY KEY,
 	user_id INTEGER,
-	valor INTEGER,
-	tipo VARCHAR(1),
-	descricao VARCHAR(10),
+	amount INTEGER,
+	kind VARCHAR(1),
+	description VARCHAR(10),
 	criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 
-INSERT INTO users (id, limite, saldo)
+INSERT INTO users (id, limit, current_balance)
 VALUES
 (1, 100000, 0),
 (2, 80000, 0),

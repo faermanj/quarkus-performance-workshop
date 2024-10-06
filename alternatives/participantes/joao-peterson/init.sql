@@ -1,11 +1,11 @@
 create unlogged table clientes(
 	id int primary key,
-	limite bigint not null,
-	saldo bigint not null default 0
+	limit bigint not null,
+	current_balance bigint not null default 0
 );
 
 -- default clients
-insert into clientes (id, limite) values
+insert into clientes (id, limit) values
 	(1, 100000),
 	(2, 80000),
 	(3, 1000000),
@@ -16,10 +16,10 @@ insert into clientes (id, limite) values
 create unlogged table transactions(
 	id bigserial not null,
 	cliente int not null,
-	tipo boolean not null,
-	valor int not null,
-	descricao varchar(10) not null,
-	realizada_em timestamp not null,
+	kind boolean not null,
+	amount int not null,
+	description varchar(10) not null,
+	submitted_at timestamp not null,
 	constraint fk_transactions_clientes foreign key (cliente) references clientes (id) 
 )
 partition by list (cliente);
@@ -35,34 +35,34 @@ create table transactions_default partition of transactions default;
 -- indexes
 create index on transactions (id);
 create index on transactions (cliente);
-create index on transactions (realizada_em desc);
+create index on transactions (submitted_at desc);
 
 -- insert transaction
-create or replace procedure transar(cliente_in int, tipo_in boolean, valor_in int, descricao_in varchar(10))
+create or replace procedure transar(cliente_in int, kind_in boolean, amount_in int, description_in varchar(10))
 language plpgsql as 
 $$
 begin
 	-- record transaction
-   	insert into transactions(cliente, tipo, valor, descricao, realizada_em)
-    values (cliente_in, tipo_in, valor_in, descricao_in, now());
+   	insert into transactions(cliente, kind, amount, description, submitted_at)
+    values (cliente_in, kind_in, amount_in, description_in, now());
 end
 $$;
 
--- update saldo
-create or replace procedure saldar(cliente_in int, saldo_in int)
+-- update current_balance
+create or replace procedure saldar(cliente_in int, current_balance_in int)
 language plpgsql as 
 $$
 begin
-	-- record saldo
-	update clientes set saldo = saldo_in where id = cliente_in;
+	-- record current_balance
+	update clientes set current_balance = current_balance_in where id = cliente_in;
 end
 $$;
 
 -- get balance
-create or replace function balance(cliente_in int) returns table(valor int, tipo bool, descricao varchar(10), realizada_em timestamp)
+create or replace function balance(cliente_in int) returns table(amount int, kind bool, description varchar(10), submitted_at timestamp)
 language plpgsql as
 $$
 begin
-	return query select t.valor, t.tipo, t.descricao, t.realizada_em from transactions as t where t.cliente = cliente_in order by t.realizada_em desc limit 10;
+	return query select t.amount, t.kind, t.description, t.submitted_at from transactions as t where t.cliente = cliente_in order by t.submitted_at desc limit 10;
 end
 $$

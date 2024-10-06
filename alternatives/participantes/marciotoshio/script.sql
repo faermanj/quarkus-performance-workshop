@@ -2,23 +2,23 @@
 
 CREATE TABLE clientes (
     id     SMALLSERIAL PRIMARY KEY,
-    limite INTEGER,
-    saldo  INTEGER CHECK (saldo >= -limite) NOT NULL
+    limit INTEGER,
+    current_balance  INTEGER CHECK (current_balance >= -limit) NOT NULL
 );
 CREATE INDEX idx_clientes_id ON clientes (id);
 
 CREATE TABLE transactions (
     id           SERIAL PRIMARY KEY,
-    valor        INTEGER,
-    tipo         CHAR(1),
-    descricao    VARCHAR(10),
-    realizada_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    amount        INTEGER,
+    kind         CHAR(1),
+    description    VARCHAR(10),
+    submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     cliente_id   SMALLINT REFERENCES clientes (id),
     CONSTRAINT fk_transactions_clientes FOREIGN KEY (cliente_id) REFERENCES clientes (id)
 );
-CREATE INDEX idx_transactions_cliente_id_realizada_em ON transactions (cliente_id, realizada_em);
+CREATE INDEX idx_transactions_cliente_id_submitted_at ON transactions (cliente_id, submitted_at);
 
-INSERT INTO clientes (limite, saldo)
+INSERT INTO clientes (limit, current_balance)
 VALUES
     (100000, 0),
     (80000, 0),

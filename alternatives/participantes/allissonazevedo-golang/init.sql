@@ -2,15 +2,15 @@
 
 CREATE UNLOGGED TABLE IF NOT EXISTS clientes (
    id SMALLINT PRIMARY KEY NOT NULL,
-   limite INTEGER NOT NULL,
-   saldo INTEGER NOT NULL,
-   ultimas_transactions JSONB not null default '[]'::jsonb,
-   CONSTRAINT limite_minimo CHECK (saldo > limite)
+   limit INTEGER NOT NULL,
+   current_balance INTEGER NOT NULL,
+   recent_transactions JSONB not null default '[]'::jsonb,
+   CONSTRAINT limit_minimo CHECK (current_balance > limit)
 );
 
 -- insert clientes
 
-INSERT INTO clientes (id, limite, saldo)
+INSERT INTO clientes (id, limit, current_balance)
 VALUES
     (1, -100000, 0),
     (2, -80000, 0),
@@ -24,19 +24,19 @@ VALUES
 CREATE OR REPLACE FUNCTION add_transaction(client_id INTEGER, transaction JSONB)
 RETURNS JSONB AS $$
 DECLARE
-   novosaldo INTEGER;
+   novocurrent_balance INTEGER;
    cliente RECORD;
 BEGIN
-   IF transaction ->> 'tipo' = 'c' THEN
-      novosaldo := (transaction ->> 'valor')::INTEGER;
-   ELSIF transaction ->> 'tipo' = 'd' THEN
-      novosaldo := -(transaction ->> 'valor')::INTEGER;
+   IF transaction ->> 'kind' = 'c' THEN
+      novocurrent_balance := (transaction ->> 'amount')::INTEGER;
+   ELSIF transaction ->> 'kind' = 'd' THEN
+      novocurrent_balance := -(transaction ->> 'amount')::INTEGER;
    END IF;
 
    UPDATE clientes
       SET
-         saldo = saldo + novosaldo,
-         ultimas_transactions = jsonb_path_query_array(jsonb_insert(ultimas_transactions,'{0}', transaction), '$[0 to 9]')
+         current_balance = current_balance + novocurrent_balance,
+         recent_transactions = jsonb_path_query_array(jsonb_insert(recent_transactions,'{0}', transaction), '$[0 to 9]')
       WHERE id = client_id
       RETURNING * INTO cliente;
 
@@ -44,7 +44,7 @@ BEGIN
       RAISE EXCEPTION 'cliente_not_found';
    END IF;
 
-   RETURN jsonb_build_object('limite', ABS(cliente.limite), 'saldo', cliente.saldo);
+   RETURN jsonb_build_object('limit', ABS(cliente.limit), 'current_balance', cliente.current_balance);
 
 END;
 $$ LANGUAGE plpgsql;

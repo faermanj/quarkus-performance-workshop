@@ -57,7 +57,7 @@ Resultado utilizando Graalvm
 Algo muito interessante foi observar o uso de memória das duas abordagens
 
 - **Spring**
-    - Usei um container maior (600MB) para realizar os testes no spring padrão por que pelas regras do desafio o valor
+    - Usei um container maior (600MB) para realizar os testes no spring padrão por que pelas regras do desafio o amount
       determinado não conseguia
       nem manter a aplicação rodando.
       ![Resultado utilizando Graalvm](https://raw.githubusercontent.com/jjeanjacques10/rinhabackend-2024-q1/main/images/Docker-Spring-High-Memory.png)

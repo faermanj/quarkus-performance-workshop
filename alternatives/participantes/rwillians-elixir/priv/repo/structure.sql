@@ -26,8 +26,8 @@ SET default_table_access_method = heap;
 
 CREATE TABLE public.members (
     id bigint NOT NULL,
-    limite integer NOT NULL,
-    saldo integer NOT NULL
+    limit integer NOT NULL,
+    current_balance integer NOT NULL
 );
 
 
@@ -67,10 +67,10 @@ CREATE TABLE public.schema_migrations (
 CREATE TABLE public.transactions (
     id uuid NOT NULL,
     cliente_id integer NOT NULL,
-    tipo character varying(1) NOT NULL,
-    valor integer NOT NULL,
-    descricao character varying(10) NOT NULL,
-    realizada_em timestamp without time zone NOT NULL
+    kind character varying(1) NOT NULL,
+    amount integer NOT NULL,
+    description character varying(10) NOT NULL,
+    submitted_at timestamp without time zone NOT NULL
 );
 
 
@@ -106,10 +106,10 @@ ALTER TABLE ONLY public.transactions
 
 
 --
--- Name: transactions_cliente_id_realizada_em_DESC_index; Type: INDEX; Schema: public; Owner: -
+-- Name: transactions_cliente_id_submitted_at_DESC_index; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX "transactions_cliente_id_realizada_em_DESC_index" ON public.transactions USING btree (cliente_id, realizada_em DESC);
+CREATE INDEX "transactions_cliente_id_submitted_at_DESC_index" ON public.transactions USING btree (cliente_id, submitted_at DESC);
 
 
 --

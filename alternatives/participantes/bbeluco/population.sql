@@ -5,7 +5,7 @@ CREATE DATABASE "rinhadb";
 
 CREATE UNLOGGED TABLE clients (
     id INT UNIQUE NOT NULL,
-    limite INT, 
+    limit INT, 
     balance INT,
     PRIMARY KEY(id)
 );
@@ -13,49 +13,49 @@ CREATE UNLOGGED TABLE clients (
 
 CREATE UNLOGGED TABLE transactions1 (
     id SERIAL,
-    valor INT NOT NULL,
-    tipo VARCHAR(10),
-    descricao VARCHAR(10) NOT NULL,
-    realizada_em timestamptz NULL
+    amount INT NOT NULL,
+    kind VARCHAR(10),
+    description VARCHAR(10) NOT NULL,
+    submitted_at timestamptz NULL
 );
 
 CREATE UNLOGGED TABLE transactions2 (
     id SERIAL,
     client_id INT,
-    valor INT NOT NULL,
-    tipo VARCHAR(10),
-    descricao VARCHAR(10) NOT NULL,
-    realizada_em timestamptz NULL
+    amount INT NOT NULL,
+    kind VARCHAR(10),
+    description VARCHAR(10) NOT NULL,
+    submitted_at timestamptz NULL
 );
 
 CREATE UNLOGGED TABLE transactions3 (
     id SERIAL,
     client_id INT,
-    valor INT NOT NULL,
-    tipo VARCHAR(10),
-    descricao VARCHAR(10) NOT NULL,
-    realizada_em timestamptz NULL
+    amount INT NOT NULL,
+    kind VARCHAR(10),
+    description VARCHAR(10) NOT NULL,
+    submitted_at timestamptz NULL
 );
 
 CREATE UNLOGGED TABLE transactions4 (
     id SERIAL,
     client_id INT,
-    valor INT NOT NULL,
-    tipo VARCHAR(10),
-    descricao VARCHAR(10) NOT NULL,
-    realizada_em timestamptz NULL
+    amount INT NOT NULL,
+    kind VARCHAR(10),
+    description VARCHAR(10) NOT NULL,
+    submitted_at timestamptz NULL
 );
 
 CREATE UNLOGGED TABLE transactions5 (
     id SERIAL,
     client_id INT,
-    valor INT NOT NULL,
-    tipo VARCHAR(10),
-    descricao VARCHAR(10) NOT NULL,
-    realizada_em timestamptz NULL
+    amount INT NOT NULL,
+    kind VARCHAR(10),
+    description VARCHAR(10) NOT NULL,
+    submitted_at timestamptz NULL
 );
 
-INSERT INTO "clients"("id", "limite", "balance") VALUES
+INSERT INTO "clients"("id", "limit", "balance") VALUES
     (1, 100000, 0),
     (2, 80000, 0),
     (3, 1000000, 0),
@@ -71,42 +71,42 @@ $$
 ;
 
 
-CREATE OR REPLACE FUNCTION add_transaction(idClient INT, valor INT, tipo CHAR, descricao VARCHAR(10))
+CREATE OR REPLACE FUNCTION add_transaction(idClient INT, amount INT, kind CHAR, description VARCHAR(10))
 RETURNS INT
 LANGUAGE 'plpgsql'
 AS $$
 DECLARE
-    novo_saldo INT;
+    novo_current_balance INT;
 BEGIN
-    IF tipo = 'c' THEN
-        UPDATE clients SET balance = balance + valor WHERE id = idClient
-        RETURNING balance INTO novo_saldo;
+    IF kind = 'c' THEN
+        UPDATE clients SET balance = balance + amount WHERE id = idClient
+        RETURNING balance INTO novo_current_balance;
     ELSE
-        UPDATE clients SET balance = balance - valor WHERE id = idClient AND balance - valor  >= limite * -1
-        RETURNING balance INTO novo_saldo;
+        UPDATE clients SET balance = balance - amount WHERE id = idClient AND balance - amount  >= limit * -1
+        RETURNING balance INTO novo_current_balance;
     END IF;
 
-    IF novo_saldo IS NOT NULL THEN
+    IF novo_current_balance IS NOT NULL THEN
         case idClient
             WHEN 1 THEN
-                INSERT INTO transactions1(valor, tipo, descricao, realizada_em)
-                VALUES (valor, tipo, descricao, now());
+                INSERT INTO transactions1(amount, kind, description, submitted_at)
+                VALUES (amount, kind, description, now());
             WHEN 2 THEN
-                INSERT INTO transactions2(valor, tipo, descricao, realizada_em)
-                VALUES (valor, tipo, descricao, now());
+                INSERT INTO transactions2(amount, kind, description, submitted_at)
+                VALUES (amount, kind, description, now());
             WHEN 3 THEN
-                INSERT INTO transactions3(valor, tipo, descricao, realizada_em)
-                VALUES (valor, tipo, descricao, now());
+                INSERT INTO transactions3(amount, kind, description, submitted_at)
+                VALUES (amount, kind, description, now());
             WHEN 4 THEN
-                INSERT INTO transactions4(valor, tipo, descricao, realizada_em)
-                VALUES (valor, tipo, descricao, now());
+                INSERT INTO transactions4(amount, kind, description, submitted_at)
+                VALUES (amount, kind, description, now());
             ELSE
-                INSERT INTO transactions5(valor, tipo, descricao, realizada_em)
-                VALUES (valor, tipo, descricao, now());
+                INSERT INTO transactions5(amount, kind, description, submitted_at)
+                VALUES (amount, kind, description, now());
             END CASE;
     END IF;
 
-    RETURN novo_saldo;
+    RETURN novo_current_balance;
 END
 $$;
 

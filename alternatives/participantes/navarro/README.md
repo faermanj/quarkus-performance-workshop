@@ -12,7 +12,7 @@ Pontos importantes:
 # Arquitetura
 
 Essa submissão implementa a arquitetura padrão proposta pelo Zan. A lógica de consistência e persistência é toda implementada no db, e como este por sua
-vez expões um protocolo HTTP que "por coincidência" é igual a API proposta pela rinha, cada uma das instâncias não precisa fazer nenhum tipo de processamento
+vez expões um protocolo HTTP que "por coincidência" é igual a API proposta pela rinha, cada uma das instâncias não precisa fazer nenhum kind de processamento
 nos dados das requisições, se tornando na prática apenas proxies.
 
 ```mermaid

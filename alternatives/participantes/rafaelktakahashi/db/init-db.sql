@@ -39,7 +39,7 @@ INSERT INTO U(ID, LIMITE, SALDO)
 
 -- VERIFICATION, UPDATE AND INSERT ALL IN ONE ATOMICALLY
 -- PRODUCES 1 ROW IF SUCCESSFUL, 0 ROWS IF DISALLOWED
-CREATE OR REPLACE FUNCTION insert_into_t(u_id_arg "char", valor_arg INTEGER, tipo_arg BOOLEAN, descricao_arg TEXT)
+CREATE OR REPLACE FUNCTION insert_into_t(u_id_arg "char", amount_arg INTEGER, kind_arg BOOLEAN, description_arg TEXT)
 RETURNS SETOF U AS $$ -- ALWAYS 0 OR 1 OF U
 DECLARE
     user_record U%ROWTYPE;
@@ -47,22 +47,22 @@ BEGIN
     PERFORM pg_advisory_lock(CAST(ascii(u_id_arg) AS BIGINT));
     -- CHECK IF OPERATION IS ALLOWED
     -- 'c' IS ALWAYS PERMITTED, 'd' IS ONLY PERMITTED
-    -- WHEN SALDO MINUS valor_arg WOULD NOT BECOME SMALLER THAN
+    -- WHEN SALDO MINUS amount_arg WOULD NOT BECOME SMALLER THAN
     -- THE ADDITIVE INVERSE OF LIMIT
-    IF tipo_arg OR (NOT tipo_arg AND EXISTS (
+    IF kind_arg OR (NOT kind_arg AND EXISTS (
         SELECT 1 FROM U
         WHERE ID = u_id_arg
-        AND SALDO - valor_arg >= -LIMITE
+        AND SALDO - amount_arg >= -LIMITE
     )) THEN
         -- PERFORM THE INSERT INTO T
         -- IT IS ASSUMED THAT EACH VALUE HAS PREVIOUSLY BEEN
         -- VALIDATED AND THIS OPERATION WILL NOT FAIL
         INSERT INTO T (U_ID, VALOR, TIPO, DESCRICAO)
-        VALUES (u_id_arg, valor_arg, tipo_arg, descricao_arg);
+        VALUES (u_id_arg, amount_arg, kind_arg, description_arg);
         
         -- UPDATE SALDO IN U AND GET THE UPDATED ROW
         UPDATE U
-        SET SALDO = CASE WHEN tipo_arg THEN SALDO + valor_arg ELSE SALDO - valor_arg END
+        SET SALDO = CASE WHEN kind_arg THEN SALDO + amount_arg ELSE SALDO - amount_arg END
         WHERE ID = u_id_arg
         RETURNING * INTO user_record;
 

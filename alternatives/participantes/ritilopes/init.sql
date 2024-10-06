@@ -33,9 +33,9 @@ create index client_transaction_client_id_idx on client_transaction (client_id);
 
 CREATE OR REPLACE FUNCTION validate_transaction(
     IN clientId BIGINT,
-    IN valor BIGINT,
-    IN descricao TEXT,
-    IN tipo TEXT
+    IN amount BIGINT,
+    IN description TEXT,
+    IN kind TEXT
 ) RETURNS RECORD AS $$
     DECLARE
         ret RECORD;
@@ -47,18 +47,18 @@ CREATE OR REPLACE FUNCTION validate_transaction(
             RAISE EXCEPTION 'Client not found';
         END IF;
 
-        IF tipo = 'd' AND clientencontrado.credit + (clientencontrado.balance - valor) < 0
+        IF kind = 'd' AND clientencontrado.credit + (clientencontrado.balance - amount) < 0
         THEN
             RAISE EXCEPTION 'Insufficient funds';
         END IF;
 
         INSERT INTO client_transaction (client_id, amount, description, transaction_type)
-        VALUES (clientId, valor, descricao, tipo);
+        VALUES (clientId, amount, description, kind);
 
         UPDATE client SET balance =
             CASE
-                WHEN tipo = 'c' THEN balance + valor
-                WHEN tipo = 'd' THEN balance - valor
+                WHEN kind = 'c' THEN balance + amount
+                WHEN kind = 'd' THEN balance - amount
             END
             WHERE id = clientId
             RETURNING credit, balance INTO ret;

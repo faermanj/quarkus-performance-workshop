@@ -1,27 +1,27 @@
 CREATE UNLOGGED TABLE cliente (
 	id SERIAL PRIMARY KEY,
 	nome VARCHAR(10) NOT NULL,
-	limite INTEGER NOT NULL
+	limit INTEGER NOT NULL
 );
 
 CREATE UNLOGGED TABLE transacao (
 	id SERIAL PRIMARY KEY,
 	cliente_id INTEGER NOT NULL,
-	valor INTEGER NOT NULL,
-	tipo CHAR(1) NOT NULL,
-	descricao VARCHAR(10) NOT NULL,
-	realizada_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+	amount INTEGER NOT NULL,
+	kind CHAR(1) NOT NULL,
+	description VARCHAR(10) NOT NULL,
+	submitted_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 	FOREIGN KEY (cliente_id) REFERENCES cliente(id)
 );
 
-CREATE UNLOGGED TABLE saldo (
+CREATE UNLOGGED TABLE current_balance (
   cliente_id INTEGER NOT NULL PRIMARY KEY,
-  valor BIGINT NOT NULL,
+  amount BIGINT NOT NULL,
   FOREIGN KEY (cliente_id) REFERENCES cliente(id)
 );
 
 -- SALDO PROCEDURE CONTROL
-CREATE OR REPLACE FUNCTION reconcile_saldo()
+CREATE OR REPLACE FUNCTION reconcile_current_balance()
   RETURNS TRIGGER
   LANGUAGE PLPGSQL
   AS
@@ -29,9 +29,9 @@ $$
 DECLARE
 	should_continue BOOLEAN;
 BEGIN
-  CASE WHEN NEW.tipo = 'd' THEN
+  CASE WHEN NEW.kind = 'd' THEN
 	 SELECT 
-		CASE WHEN x.limite + (SELECT b.valor-NEW.valor FROM saldo b WHERE b.cliente_id=x.id) < 0 THEN
+		CASE WHEN x.limit + (SELECT b.amount-NEW.amount FROM current_balance b WHERE b.cliente_id=x.id) < 0 THEN
 			FALSE
 		ELSE
 			TRUE
@@ -47,27 +47,27 @@ BEGIN
   	-- do nothing
   END CASE;
 
-  INSERT INTO saldo AS s (cliente_id, valor)
+  INSERT INTO current_balance AS s (cliente_id, amount)
   VALUES (
   	NEW.cliente_id,
-  	CASE WHEN NEW.tipo = 'c' THEN NEW.valor ELSE NEW.valor * -1 END
+  	CASE WHEN NEW.kind = 'c' THEN NEW.amount ELSE NEW.amount * -1 END
   )
   ON CONFLICT (cliente_id) DO
-  UPDATE SET valor = s.valor+EXCLUDED.valor;
+  UPDATE SET amount = s.amount+EXCLUDED.amount;
   RETURN NEW;
 END;
 $$;
 
-CREATE TRIGGER reconcile_saldo
+CREATE TRIGGER reconcile_current_balance
 AFTER INSERT
 ON transacao
 FOR EACH ROW
-EXECUTE PROCEDURE reconcile_saldo();
+EXECUTE PROCEDURE reconcile_current_balance();
 
 -- POPULATE
 DO $$
 BEGIN
-	INSERT INTO cliente (id, nome, limite)
+	INSERT INTO cliente (id, nome, limit)
 	VALUES
 		(1, 'cliente 1', 1000 * 100),
 		(2, 'cliente 2', 800 * 100),
@@ -78,8 +78,8 @@ END;
 $$;
 
 -- JAMAIS faça isso em produção. Vá para um elasticsearch.
-CREATE INDEX idx_transacao_clientid_1 ON transacao (realizada_em DESC) WHERE cliente_id=1;
-CREATE INDEX idx_transacao_clientid_2 ON transacao (realizada_em DESC) WHERE cliente_id=2;
-CREATE INDEX idx_transacao_clientid_3 ON transacao (realizada_em DESC) WHERE cliente_id=3;
-CREATE INDEX idx_transacao_clientid_4 ON transacao (realizada_em DESC) WHERE cliente_id=4;
-CREATE INDEX idx_transacao_clientid_5 ON transacao (realizada_em DESC) WHERE cliente_id=5;
+CREATE INDEX idx_transacao_clientid_1 ON transacao (submitted_at DESC) WHERE cliente_id=1;
+CREATE INDEX idx_transacao_clientid_2 ON transacao (submitted_at DESC) WHERE cliente_id=2;
+CREATE INDEX idx_transacao_clientid_3 ON transacao (submitted_at DESC) WHERE cliente_id=3;
+CREATE INDEX idx_transacao_clientid_4 ON transacao (submitted_at DESC) WHERE cliente_id=4;
+CREATE INDEX idx_transacao_clientid_5 ON transacao (submitted_at DESC) WHERE cliente_id=5;

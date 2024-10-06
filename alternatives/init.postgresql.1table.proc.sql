@@ -1,16 +1,16 @@
--- Criando a tabela de transações com a coluna adicional saldo
+-- Criando a tabela de transações com a coluna adicional current_balance
 CREATE UNLOGGED TABLE IF NOT EXISTS transactions (
     id SERIAL PRIMARY KEY,
     cliente_id INTEGER NOT NULL,
-    valor INTEGER NOT NULL,
-    tipo CHAR(1) NOT NULL,
-    descricao VARCHAR(255) NOT NULL,
-    realizada_em TIMESTAMP NOT NULL DEFAULT NOW(),
-    saldo INTEGER NOT NULL DEFAULT 0
+    amount INTEGER NOT NULL,
+    kind CHAR(1) NOT NULL,
+    description VARCHAR(255) NOT NULL,
+    submitted_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    current_balance INTEGER NOT NULL DEFAULT 0
 );
 
 -- Inserções iniciais
-INSERT INTO transactions (cliente_id, valor, tipo, descricao, saldo)
+INSERT INTO transactions (cliente_id, amount, kind, description, current_balance)
 VALUES 
     (1, 0, 'c', 'Deposito inicial', 0),
     (2, 0, 'c', 'Deposito inicial', 0),
@@ -22,11 +22,11 @@ VALUES
 CREATE EXTENSION IF NOT EXISTS pg_prewarm;
 SELECT pg_prewarm('transactions');
 
--- Definindo o tipo para o resultado da transação
-CREATE TYPE transacao_result AS (saldo INT, limite INT);
+-- Definindo o kind para o resultado da transação
+CREATE TYPE transacao_result AS (current_balance INT, limit INT);
 
--- Função para obter o limite do cliente
-CREATE OR REPLACE FUNCTION limite_cliente(p_cliente_id INTEGER)
+-- Função para obter o limit do cliente
+CREATE OR REPLACE FUNCTION limit_cliente(p_cliente_id INTEGER)
 RETURNS INTEGER AS $$
 BEGIN
     RETURN CASE p_cliente_id
@@ -40,45 +40,45 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Procedure para realizar transações com lógica de limite
-CREATE OR REPLACE PROCEDURE proc_transacao(p_cliente_id INT, p_valor INT, p_tipo VARCHAR, p_descricao VARCHAR)
+-- Procedure para realizar transações com lógica de limit
+CREATE OR REPLACE PROCEDURE proc_transacao(p_cliente_id INT, p_amount INT, p_kind VARCHAR, p_description VARCHAR)
 LANGUAGE plpgsql AS $$
 DECLARE
     diff INT;
-    v_saldo_atual INT;
-    v_novo_saldo INT;
-    v_limite INT;
+    v_current_balance_atual INT;
+    v_novo_current_balance INT;
+    v_limit INT;
 BEGIN
     PERFORM pg_advisory_xact_lock(p_cliente_id);
 
-    IF p_tipo = 'd' THEN
-        diff := -p_valor;
+    IF p_kind = 'd' THEN
+        diff := -p_amount;
     ELSE
-        diff := p_valor;
+        diff := p_amount;
     END IF;
 
-    -- Chamada para obter o limite do cliente
-    v_limite := limite_cliente(p_cliente_id);
+    -- Chamada para obter o limit do cliente
+    v_limit := limit_cliente(p_cliente_id);
 
-    SELECT saldo 
-        INTO v_saldo_atual 
+    SELECT current_balance 
+        INTO v_current_balance_atual 
         FROM transactions 
         WHERE cliente_id = p_cliente_id 
         ORDER BY id 
         DESC LIMIT 1;
 
     IF NOT FOUND THEN
-        v_saldo_atual := 0;
+        v_current_balance_atual := 0;
     END IF;
 
-    v_novo_saldo := v_saldo_atual + diff;
+    v_novo_current_balance := v_current_balance_atual + diff;
 
-    IF p_tipo = 'd' AND v_novo_saldo < (-1 * v_limite) THEN
+    IF p_kind = 'd' AND v_novo_current_balance < (-1 * v_limit) THEN
         RAISE EXCEPTION 'LIMITE_INDISPONIVEL';
     END IF;
 
-    INSERT INTO transactions (cliente_id, valor, tipo, descricao, saldo)
-    VALUES (p_cliente_id, valor, p_tipo, p_descricao, v_novo_saldo);
+    INSERT INTO transactions (cliente_id, amount, kind, description, current_balance)
+    VALUES (p_cliente_id, amount, p_kind, p_description, v_novo_current_balance);
 
     
 END;
@@ -88,22 +88,22 @@ $$;
 CREATE OR REPLACE PROCEDURE proc_balance(p_cliente_id INTEGER)
 LANGUAGE plpgsql AS $$
 DECLARE
-    v_saldo INTEGER;
-    v_limite INTEGER;
+    v_current_balance INTEGER;
+    v_limit INTEGER;
     transactions json;
 BEGIN
     PERFORM pg_advisory_xact_lock(p_cliente_id);
 
-    -- Chamada para obter o limite do cliente
-    v_limite := limite_cliente(p_cliente_id);
+    -- Chamada para obter o limit do cliente
+    v_limit := limit_cliente(p_cliente_id);
 
-    SELECT saldo INTO v_saldo FROM transactions WHERE cliente_id = p_cliente_id ORDER BY realizada_em DESC LIMIT 1;
+    SELECT current_balance INTO v_current_balance FROM transactions WHERE cliente_id = p_cliente_id ORDER BY submitted_at DESC LIMIT 1;
     IF NOT FOUND THEN
-        v_saldo := 0;
+        v_current_balance := 0;
     END IF;
 
     SELECT json_agg(row_to_json(t.*)) INTO transactions FROM (
-        SELECT valor, tipo, descricao, TO_CHAR(realizada_em, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') AS realizada_em
+        SELECT amount, kind, description, TO_CHAR(submitted_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') AS submitted_at
         FROM transactions
         WHERE cliente_id = p_cliente_id
         ORDER BY id DESC
