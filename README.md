@@ -2,7 +2,7 @@
 
 There is no better way to put it. I'm sorry. We all face this terrible situation, and I'm glad that you came to help. I'm confident that together we might fix this and make it through. It seems you are new here, so allow me to explain a little bit more...
 
-![QRCode](./img/repo_qr.png)
+<img src="./img/repo_qr.png" width="512" />
 
 
 When we decided to centralize *all* financial transactions in a single system, the PEECS, it was supposed to bring us a new era in commerce. And we were confident that modern cloud computing would solve any performance issues that might come up. With secure and centralized control, every purchase would be faster and safer. That part was true. With so much prosperity, transactional volume blew beyond our wildest imagination. Buffers started to fill. Queues got longer. Some transactions even failed, something unheard in decades.
