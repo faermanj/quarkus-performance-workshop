@@ -1,6 +1,9 @@
 # Our country is in danger...
 
-There is no better way to put it. I'm sorry. We all face this terrible situation, and I'm glad that you came to help. I'm confident that together we might fix this and make it through. You are new here, so allow me to explain a little bit more...
+There is no better way to put it. I'm sorry. We all face this terrible situation, and I'm glad that you came to help. I'm confident that together we might fix this and make it through. It seems you are new here, so allow me to explain a little bit more...
+
+![QRCode](./img/repo_qr.png)
+
 
 When we decided to centralize *all* financial transactions in a single system, the PEECS, it was supposed to bring us a new era in commerce. And we were confident that modern cloud computing would solve any performance issues that might come up. With secure and centralized control, every purchase would be faster and safer. That part was true. With so much prosperity, transactional volume blew beyond our wildest imagination. Buffers started to fill. Queues got longer. Some transactions even failed, something unheard in decades.
 
@@ -72,6 +75,7 @@ Some important files in this repository:
 * ```perf-test/load-test/user-files/``` performance test results.
 * ```rinha-de-backend-2024-q1``` Test suit and configurations from others, for insipration.
 
+*Work starts Here!* 
 You can use a [cloud development environment](https://gitpod.io/new/?autostart=false#https://github.com/faermanj/quarkus-performance-workshop) with all tools ready to go and running or [setup your own machine](./.gitpod.Dockerfile), as you prefer. I'd recommend the CDE, so you don't waste any time. Also, the CDE runs all tests automatically on initialization.
 
 *#protip: You can run multiple cloud develpment environments in parallel to test multiple scenarios at the same time.*
@@ -96,6 +100,7 @@ Good luck and may fortune bless us all.
 * Change garbage-collection algorithm and parameters
 * Improve application warmup (cold-start)
 * Build a native image
+* Is reacive really faster?
 * Use profile-guided optimization (PGO), an initial profile is provided in the file ```profile.iprof```
 * Try single-binary native images (musl)
 * Add telemetry / profiling 
