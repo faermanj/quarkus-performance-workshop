@@ -90,6 +90,8 @@ Good luck and may fortune bless us all.
 
 *Huge thanks to [Zan Franceschi](https://github.com/zanfranceschi) and everybody that joined [Rinha de Backend](https://github.com/zanfranceschi/rinha-de-backend-2024-q1), from where this content was inspired.*
 
+Thank you all here at Devoxx, *please* submit your feedback at https://devoxx.be/talk/squeezing-performance-out-of-quarkus/
+
 # A few things to try
 
 * Execute the gatling performance tests (```perf-test/run-local-test.sh```) and evaluate the results report.
@@ -117,3 +119,4 @@ Good luck and may fortune bless us all.
 * [GraalVM Profile Guided Optimization](https://www.graalvm.org/22.0/reference-manual/native-image/PGO/)
 * [NGINX Performance Tuning](https://github.com/denji/nginx-tuning)
 * [Vlad Mihalcea on Performance Tuning](https://vladmihalcea.com/tag/performance-tuning/)
+
