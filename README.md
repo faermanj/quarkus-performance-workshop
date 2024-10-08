@@ -106,6 +106,7 @@ Thank you all here at Devoxx, *please* submit your feedback at https://devoxx.be
 * Use profile-guided optimization (PGO), an initial profile is provided in the file ```profile.iprof```
 * Try single-binary native images (musl)
 * Add telemetry / profiling 
+* CraC 
 
 
 # References

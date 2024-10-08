@@ -87,4 +87,4 @@ COPY --chown=1000 --from=build $CP_FROM $CP_TO
 # Container Settings
 EXPOSE 9990
 # TODO: Check if  -XX:MaxRAMPercentage=90 is redundant with same setting in build time
-ENTRYPOINT ["/opt/quarkus-app/rinhadebackend-0.0.1-runner"]
+ENTRYPOINT ["/opt/quarkus-app/peecs-runner"]

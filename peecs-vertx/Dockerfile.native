@@ -31,7 +31,7 @@ RUN useradd --uid $USER_UID --gid $USER_GID -m $USERNAME -d "/home/$USERNAME"
 USER $USERNAME
 
 ## Setup JDK
-ARG JAVA_SDK="21.0.2-graal"
+ARG JAVA_SDK="23-graalce"
 RUN curl -s "https://get.sdkman.io" | bash 
 RUN bash -c ". $HOME/.sdkman/bin/sdkman-init.sh \
     && sdk install java $JAVA_SDK \
@@ -74,4 +74,4 @@ COPY --from=build --chown=$USERNAME $CP_FROM $CP_TO
 
 # Container Settings
 EXPOSE 9990
-ENTRYPOINT /home/container-user/quarkus-app/rinhadebackend-0.0.1-runner
+ENTRYPOINT /home/container-user/quarkus-app/peecs-runner

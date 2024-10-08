@@ -26,7 +26,7 @@ import jakarta.ws.rs.core.Response;
 @ApplicationScoped
 @Path("/members")
 public class PostgreSQLRoute {
-    private static final String VERSION_ID = "Devoxx 2024 - rc4";
+    private static final String VERSION_ID = "Devoxx 2024 - 0.1.io_uring";
     private static final String EXTRATO_QUERY = "select status_code, body from proc_balance($1)";
     private static final String TRANSACAO_QUERY = "select status_code, body from proc_transacao($1, $2, $3, $4)";
     private static final String WARMUP_QUERY = "select 1+1;";
